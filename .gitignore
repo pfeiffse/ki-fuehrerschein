@@ -1,0 +1,41 @@
+# Abhängigkeiten
+node_modules/
+.pnp
+.pnp.js
+
+# Build-Ausgabe
+public/dist/
+dist/
+
+# Umgebungsvariablen (NIEMALS einchecken!)
+.env
+.env.local
+.env.*.local
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sandbox-interne Dateien
+uploaded_files/
+todo.md
+ki-fuehrerschein-plattform.zip
+supabase/run_setup.py
+supabase/setup_via_api.py
+*.parse_uploaded_file_cache.json
+
+# Supabase lokale Credentials
+src/.env.local
+
+# Vite
+*.local

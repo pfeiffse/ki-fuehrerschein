@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KI-Führerschein Klasse 7 - KI sinnvoll nutzen</title>
+<style>
+:root{--blue:#075a9c;--blue2:#0d76c7;--light:#eef7ff;--text:#17212b;--green:#1e7a46;--yellow:#f2b705;--red:#c73535;--card:#fff;--line:#dce5ee}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f7fa;color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.55}.wrap{max-width:1050px;margin:auto;padding:18px}.hero{background:linear-gradient(135deg,#064c87,#1184cf);color:white;padding:34px;border-radius:18px;box-shadow:0 12px 28px #075a9c33}.hero h1{margin:0 0 8px;font-size:clamp(1.8rem,4vw,3rem)}.hero p{margin:4px 0}.dashboard{position:sticky;top:0;z-index:20;margin:16px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;box-shadow:0 8px 20px #17334b18}.dashrow{display:flex;gap:15px;align-items:center;flex-wrap:wrap}.progress-shell{height:16px;background:#dfe8f0;border-radius:99px;overflow:hidden;flex:1;min-width:220px}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,#22a45d,#73d48e);transition:.35s}.score{font-weight:700;color:var(--blue)}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin:18px 0;box-shadow:0 7px 18px #17334b12}.card h2{margin-top:0;color:var(--blue)}.task{background:#fff7d9;border-left:6px solid var(--yellow);padding:16px;border-radius:10px;margin:14px 0}.note{background:#eaf6ff;border-left:6px solid var(--blue2);padding:15px;border-radius:10px}.memory{background:#eaf8ef;border-left:6px solid var(--green);padding:15px;border-radius:10px;font-weight:700}.warning{background:#fff0f0;border-left:6px solid var(--red);padding:15px;border-radius:10px}.prompt{background:#172534;color:#fff;padding:15px;border-radius:10px;white-space:pre-wrap}.btn{border:0;border-radius:10px;padding:11px 16px;font-size:1rem;font-weight:700;cursor:pointer;background:var(--blue);color:white;margin:6px 5px 6px 0}.btn:hover{filter:brightness(1.08)}.btn.secondary{background:#5c6c7a}.btn.green{background:var(--green)}.option{display:block;border:2px solid #dce5ee;border-radius:10px;padding:11px;margin:8px 0;cursor:pointer;background:#fff}.option:hover{border-color:#8bbde3}.option input{margin-right:9px}.feedback{display:none;margin-top:12px;padding:12px;border-radius:10px}.correct{display:block;background:#e7f7ed;color:#145e35}.wrong{display:block;background:#ffe8e8;color:#8b2020}.quiz.locked{opacity:.72}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.badge{border:2px solid #d9e2ea;border-radius:14px;padding:16px;text-align:center;background:#f6f8fa;filter:grayscale(1);opacity:.55;transition:.3s}.badge.unlocked{filter:none;opacity:1;border-color:#e2ac21;background:#fff8db;transform:translateY(-2px)}.badge .icon{font-size:2rem}.badge h3{margin:6px 0}.scenario{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}.scenario select,textarea,input[type=text]{width:100%;padding:10px;border:1px solid #b8c7d4;border-radius:8px;font:inherit;margin-top:7px}textarea{min-height:90px}.results{display:none;padding:22px;border-radius:15px;margin-top:18px}.results.pass{display:block;background:#e2f6e9;border:2px solid #35a563}.results.mid{display:block;background:#fff4cf;border:2px solid #e6b82a}.results.fail{display:block;background:#ffe5e5;border:2px solid #d45454}.mini{font-size:.92rem;color:#50616f}.checklist label{display:block;margin:8px 0}.pill{display:inline-block;background:#e9f3fb;color:#075a9c;padding:4px 9px;border-radius:99px;font-size:.85rem;font-weight:700}.hidden{display:none}@media print{.dashboard,.btn{display:none}.card{break-inside:avoid;box-shadow:none}body{background:white}.wrap{max-width:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <span class="pill">KI-Führerschein Klasse 7 · Modul 2</span>
+  <h1>KI sinnvoll nutzen</h1>
+  <p><strong>Leitfrage:</strong> Wie kann KI mir helfen, ohne mein eigenes Denken zu ersetzen?</p>
+  <p>Bearbeitungszeit: ca. 45 Minuten · Sozialform: Einzel-, Partner- und Gruppenarbeit</p>
+</header>
+
+<div class="dashboard" aria-label="Lernfortschritt">
+ <div class="dashrow">
+  <strong>Fortschritt: <span id="progressText">0 %</span></strong>
+  <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="score">⭐ <span id="points">0</span> / <span id="maxPoints">100</span> Punkte</div>
+  <button class="btn secondary" onclick="resetModule()">Neu starten</button>
+ </div>
+</div>
+
+<section class="card" id="section-goals">
+<h2>1. Dein Auftrag</h2>
+<div class="grid">
+ <div class="note"><strong>Du lernst:</strong><ul><li>KI als Werkzeug zu nutzen,</li><li>Fehler zu erkennen,</li><li>Antworten zu prüfen,</li><li>sinnvolle Nutzung zu beurteilen,</li><li>Verantwortung zu übernehmen.</li></ul></div>
+ <div class="memory">Kernbotschaft:<br>KI kann mich unterstützen. Denken, Prüfen und Entscheiden muss ich selbst.</div>
+</div>
+<button class="btn green complete-btn" data-task="intro">Ziele gelesen ✓</button>
+</section>
+
+<section class="card">
+<h2>2. Einstieg: Ist KI schlauer als du?</h2>
+<div class="task"><strong>Partnergespräch, 3 Minuten:</strong> Entscheidet euch zunächst für „Ja“, „Nein“ oder „Kommt darauf an“. Begründet eure Wahl mit einem Beispiel.</div>
+<label for="startReflection"><strong>Unsere Begründung:</strong></label>
+<textarea id="startReflection" placeholder="Wir denken ..., weil ..."></textarea>
+<button class="btn green text-task" data-input="startReflection" data-task="start">Antwort speichern · 5 Punkte</button>
+<div class="feedback" id="fb-start"></div>
+</section>
+
+<section class="card">
+<h2>3. Experiment: Die KI als Fehlerquelle</h2>
+<p>Nutzt die von der Lehrkraft freigegebene KI, zum Beispiel AIS.chat. Eine Person tippt, die andere protokolliert und prüft.</p>
+<div class="prompt">Du beantwortest Fragen für Schülerinnen und Schüler der 7. Klasse. Baue in einige Antworten einen sachlichen Fehler ein. Die Fehler sollen glaubwürdig klingen. Verrate zunächst nicht, welche Antworten falsch sind. Wenn wir „Auflösen“ schreiben, kennzeichne die Fehler und nenne die korrekten Informationen.</div>
+<div class="task"><strong>Auftrag, 10 Minuten:</strong><ol><li>Stellt mindestens vier Fragen aus unterschiedlichen Schulfächern.</li><li>Markiert verdächtige Aussagen.</li><li>Prüft sie mit Schulbuch, Unterrichtsmaterial oder einer verlässlichen Quelle.</li><li>Schreibt anschließend „Auflösen“.</li></ol></div>
+<div class="warning"><strong>Wichtig:</strong> Gebt keine persönlichen Daten über euch oder andere Menschen ein.</div>
+<label for="foundError"><strong>Beschreibt einen gefundenen Fehler und eure Prüfung:</strong></label>
+<textarea id="foundError" placeholder="Die KI behauptete ... Wir haben geprüft mit ... Richtig ist ..."></textarea>
+<button class="btn green text-task" data-input="foundError" data-task="experiment">Fehler dokumentieren · 15 Punkte</button>
+<div class="feedback" id="fb-experiment"></div>
+</section>
+
+<section class="card">
+<h2>4. Zwischenquiz: Fehlerdetektiv</h2>
+<div class="quiz" data-quiz="q1" data-answer="1" data-points="5">
+<p><strong>Warum können falsche KI-Antworten gefährlich sein?</strong></p>
+<label class="option"><input type="radio" name="q1" value="0"> Weil falsche Antworten immer sehr kurz sind.</label>
+<label class="option"><input type="radio" name="q1" value="1"> Weil sie überzeugend klingen können und deshalb leicht ungeprüft übernommen werden.</label>
+<label class="option"><input type="radio" name="q1" value="2"> Weil eine KI überhaupt keine richtigen Antworten geben kann.</label>
+<button class="btn quiz-btn">Prüfen · 5 Punkte</button><div class="feedback"></div>
+</div>
+</section>
+
+<section class="card">
+<h2>5. Fünf Grundsätze</h2>
+<div class="grid">
+ <div class="note"><strong>1. Werkzeug</strong><br>KI unterstützt dich. Sie übernimmt weder dein Denken noch deine Verantwortung.</div>
+ <div class="note"><strong>2. Prüfen</strong><br>Klingt richtig bedeutet nicht automatisch: ist richtig.</div>
+ <div class="note"><strong>3. Lernen</strong><br>Nutze KI zum Erklären, Üben und Verbessern, nicht zum bloßen Abschreiben.</div>
+ <div class="note"><strong>4. Genau fragen</strong><br>Nenne Thema, Ziel, Klassenstufe und gewünschte Form.</div>
+ <div class="note"><strong>5. Kritisch bleiben</strong><br>KI-Ergebnisse können einseitig, unfair oder unvollständig sein.</div>
+</div>
+<button class="btn green complete-btn" data-task="principles">Grundsätze gelesen · 5 Punkte</button>
+</section>
+
+<section class="card">
+<h2>6. Prompt-Challenge</h2>
+<p>Welche Anfrage hilft wahrscheinlich besser beim Lernen?</p>
+<div class="quiz" data-quiz="q2" data-answer="1" data-points="5">
+<label class="option"><input type="radio" name="q2" value="0"> „Erkläre Brüche.“</label>
+<label class="option"><input type="radio" name="q2" value="1"> „Erkläre das Addieren von Brüchen für Klasse 7 in einfachen Schritten. Nutze ein Beispiel und stelle mir danach zwei Aufgaben ohne Lösung.“</label>
+<label class="option"><input type="radio" name="q2" value="2"> „Mach Mathe.“</label>
+<button class="btn quiz-btn">Prüfen · 5 Punkte</button><div class="feedback"></div>
+</div>
+<label for="ownPrompt"><strong>Formuliere nun selbst einen guten Lernprompt:</strong></label>
+<textarea id="ownPrompt" placeholder="Erkläre ... für Klasse 7 ... Nutze ... Stelle mir danach ..."></textarea>
+<button class="btn green text-task" data-input="ownPrompt" data-task="prompt">Prompt speichern · 10 Punkte</button>
+<div class="feedback" id="fb-prompt"></div>
+</section>
+
+<section class="card">
+<h2>7. Situationen beurteilen</h2>
+<p>Wähle jeweils die passendste Einschätzung. Anschließend wird automatisch ausgewertet.</p>
+<div class="scenario"><strong>A:</strong> Du lässt dir den ersten Rechenschritt erklären und rechnest danach selbst weiter.<select id="s1"><option value="">Bitte wählen</option><option value="1">Sinnvoll</option><option value="0">Teilweise sinnvoll</option><option value="0">Nicht sinnvoll</option></select></div>
+<div class="scenario"><strong>B:</strong> Du reichst eine vollständig von KI erstellte Hausaufgabe unverändert als eigene Arbeit ein.<select id="s2"><option value="">Bitte wählen</option><option value="0">Sinnvoll</option><option value="0">Teilweise sinnvoll</option><option value="1">Nicht sinnvoll</option></select></div>
+<div class="scenario"><strong>C:</strong> Du sammelst Ideen für ein Referat, prüfst die Informationen und formulierst selbst.<select id="s3"><option value="">Bitte wählen</option><option value="1">Sinnvoll</option><option value="0">Teilweise sinnvoll</option><option value="0">Nicht sinnvoll</option></select></div>
+<div class="scenario"><strong>D:</strong> Du übernimmst eine Antwort, nur weil sie professionell klingt.<select id="s4"><option value="">Bitte wählen</option><option value="0">Sinnvoll</option><option value="0">Teilweise sinnvoll</option><option value="1">Nicht sinnvoll</option></select></div>
+<button class="btn" id="scenarioBtn">Situationen auswerten · bis 10 Punkte</button>
+<div class="feedback" id="scenarioFeedback"></div>
+</section>
+
+<section class="card">
+<h2>8. Abschlusstest</h2>
+<div class="quiz final" data-quiz="q3" data-answer="1" data-points="5"><p><strong>1. Wer trägt die Verantwortung für eine übernommene KI-Antwort?</strong></p><label class="option"><input type="radio" name="q3" value="0"> Die KI</label><label class="option"><input type="radio" name="q3" value="1"> Die Person, die das Ergebnis nutzt</label><label class="option"><input type="radio" name="q3" value="2"> Niemand</label><button class="btn quiz-btn">Prüfen</button><div class="feedback"></div></div>
+<hr>
+<div class="quiz final" data-quiz="q4" data-answer="0" data-points="5"><p><strong>2. Warum können KI-Ergebnisse Vorurteile enthalten?</strong></p><label class="option"><input type="radio" name="q4" value="0"> Weil die verarbeiteten Inhalte Fehler und Vorurteile von Menschen enthalten können.</label><label class="option"><input type="radio" name="q4" value="1"> Weil KI grundsätzlich gegen Menschen ist.</label><label class="option"><input type="radio" name="q4" value="2"> Weil jede KI nur eine einzige Antwort kennt.</label><button class="btn quiz-btn">Prüfen</button><div class="feedback"></div></div>
+<hr>
+<div class="quiz final" data-quiz="q5" data-answer="2" data-points="5"><p><strong>3. Was ist der beste erste Schritt bei einer überraschenden Behauptung?</strong></p><label class="option"><input type="radio" name="q5" value="0"> Sofort weiterleiten</label><label class="option"><input type="radio" name="q5" value="1"> Den Text schöner formulieren</label><label class="option"><input type="radio" name="q5" value="2"> Die Behauptung mit einer geeigneten Quelle prüfen</label><button class="btn quiz-btn">Prüfen</button><div class="feedback"></div></div>
+<hr>
+<div class="quiz final" data-quiz="q6" data-answer="1" data-points="5"><p><strong>4. Welche Nutzung fördert eigenes Lernen?</strong></p><label class="option"><input type="radio" name="q6" value="0"> Lösungen kopieren</label><label class="option"><input type="radio" name="q6" value="1"> Hinweise erhalten, selbst weiterarbeiten und das Ergebnis erklären können</label><label class="option"><input type="radio" name="q6" value="2"> Alle Aufgaben automatisch bearbeiten lassen</label><button class="btn quiz-btn">Prüfen</button><div class="feedback"></div></div>
+</section>
+
+<section class="card">
+<h2>9. Meine KI-Regeln</h2>
+<div class="checklist">
+<label><input type="checkbox" class="rule"> Ich prüfe wichtige Informationen.</label>
+<label><input type="checkbox" class="rule"> Ich nutze KI als Hilfe und nicht als Ersatz für mein Denken.</label>
+<label><input type="checkbox" class="rule"> Ich gebe keine persönlichen Daten ein.</label>
+<label><input type="checkbox" class="rule"> Ich beachte die schulischen Regeln und kennzeichne KI-Nutzung, wenn es verlangt wird.</label>
+</div>
+<textarea id="ownRule" placeholder="Meine zusätzliche persönliche Regel lautet ..."></textarea>
+<button class="btn green" id="rulesBtn">Vereinbarung abschließen · 10 Punkte</button>
+<div class="feedback" id="rulesFeedback"></div>
+</section>
+
+<section class="card">
+<h2>10. Deine Badges</h2>
+<div class="grid">
+ <div class="badge" id="badge-detective"><div class="icon">🕵️</div><h3>Fehlerdetektiv</h3><p>Fehlerexperiment dokumentiert</p></div>
+ <div class="badge" id="badge-prompt"><div class="icon">💬</div><h3>Prompt-Profi</h3><p>Guten Lernprompt formuliert</p></div>
+ <div class="badge" id="badge-checker"><div class="icon">✅</div><h3>Faktenprüfer</h3><p>Mindestens 3 Quizfragen richtig</p></div>
+ <div class="badge" id="badge-master"><div class="icon">🏆</div><h3>KI-Profi</h3><p>Mindestens 80 Punkte erreicht</p></div>
+ </div>
+</section>
+
+<section class="card">
+<h2>Gesamtauswertung</h2>
+<p>Du kannst jederzeit zwischen den Abschnitten wechseln. Für den erfolgreichen Abschluss brauchst du mindestens <strong>80 von 100 Punkten</strong>.</p>
+<button class="btn" onclick="showFinalResult()">Gesamtergebnis anzeigen</button>
+<div id="finalResult" class="results"></div>
+</section>
+</div>
+
+<script>
+const state=JSON.parse(localStorage.getItem('kiModuleState')||'{"points":0,"done":{},"correct":0}');
+const maxPoints=100;
+function save(){localStorage.setItem('kiModuleState',JSON.stringify(state));updateUI()}
+function award(id,pts){if(!state.done[id]){state.done[id]=true;state.points+=pts;save();return true}return false}
+function updateUI(){document.getElementById('points').textContent=state.points;document.getElementById('maxPoints').textContent=maxPoints;const p=Math.min(100,Math.round(state.points/maxPoints*100));document.getElementById('progressBar').style.width=p+'%';document.getElementById('progressText').textContent=p+' %';document.getElementById('badge-detective').classList.toggle('unlocked',!!state.done.experiment);document.getElementById('badge-prompt').classList.toggle('unlocked',!!state.done.prompt);document.getElementById('badge-checker').classList.toggle('unlocked',(state.correct||0)>=3);document.getElementById('badge-master').classList.toggle('unlocked',state.points>=80);document.querySelectorAll('[data-task]').forEach(b=>{if(state.done[b.dataset.task]){b.disabled=true;b.textContent='Erledigt ✓'}});document.querySelectorAll('.quiz').forEach(q=>{if(state.done[q.dataset.quiz]){q.classList.add('locked');q.querySelectorAll('input,button').forEach(x=>x.disabled=true)}});if(state.done.scenarios)document.getElementById('scenarioBtn').disabled=true;if(state.done.rules)document.getElementById('rulesBtn').disabled=true}
+document.querySelectorAll('.complete-btn').forEach(btn=>btn.addEventListener('click',()=>{award(btn.dataset.task,5)}));
+document.querySelectorAll('.text-task').forEach(btn=>btn.addEventListener('click',()=>{const v=document.getElementById(btn.dataset.input).value.trim();const fb=document.getElementById('fb-'+btn.dataset.task);if(v.length<20){fb.className='feedback wrong';fb.textContent='Bitte formuliere eine etwas ausführlichere Antwort.';return}const pts=btn.dataset.task==='experiment'?15:btn.dataset.task==='prompt'?10:5;award(btn.dataset.task,pts);fb.className='feedback correct';fb.textContent='Gespeichert. Punkte wurden gutgeschrieben.'}));
+document.querySelectorAll('.quiz-btn').forEach(btn=>btn.addEventListener('click',()=>{const q=btn.closest('.quiz'),id=q.dataset.quiz;const selected=q.querySelector('input:checked'),fb=q.querySelector('.feedback');if(!selected){fb.className='feedback wrong';fb.textContent='Bitte wähle zuerst eine Antwort.';return}const right=selected.value===q.dataset.answer;const pts=Number(q.dataset.points);if(!state.done[id]){state.done[id]=true;if(right){state.points+=pts;state.correct=(state.correct||0)+1}save()}fb.className='feedback '+(right?'correct':'wrong');fb.textContent=right?'Richtig! '+(id==='q2'?'Die Anfrage nennt Thema, Zielgruppe und gewünschte Form.':'Du hast den Grundsatz richtig angewendet.'):'Noch nicht richtig. Lies den passenden Grundsatz noch einmal. Für diese Frage gibt es keinen zweiten Punktversuch.';q.querySelectorAll('input,button').forEach(x=>x.disabled=true)}));
+document.getElementById('scenarioBtn').addEventListener('click',()=>{const vals=[1,2,3,4].map(i=>document.getElementById('s'+i).value),fb=document.getElementById('scenarioFeedback');if(vals.includes('')){fb.className='feedback wrong';fb.textContent='Bitte beurteile alle vier Situationen.';return}const correct=vals.filter(v=>v==='1').length;if(!state.done.scenarios){state.done.scenarios=true;state.points+=correct*2.5;if(correct>=3)state.correct=(state.correct||0)+1;save()}fb.className='feedback '+(correct>=3?'correct':'wrong');fb.textContent=`${correct} von 4 Situationen richtig beurteilt. ${correct===4?'Sehr sicher!':'Besprecht unklare Fälle noch einmal.'}`;this.disabled=true});
+document.getElementById('rulesBtn').addEventListener('click',()=>{const checked=document.querySelectorAll('.rule:checked').length,own=document.getElementById('ownRule').value.trim(),fb=document.getElementById('rulesFeedback');if(checked<4||own.length<15){fb.className='feedback wrong';fb.textContent='Bestätige alle vier Regeln und ergänze eine eigene Regel.';return}award('rules',10);fb.className='feedback correct';fb.textContent='Vereinbarung abgeschlossen.'});
+function showFinalResult(){const box=document.getElementById('finalResult');box.className='results '+(state.points>=80?'pass':state.points>=60?'mid':'fail');box.innerHTML=state.points>=80?`<h3>🏆 Modul erfolgreich abgeschlossen</h3><p>Du hast <strong>${state.points} von 100 Punkten</strong> erreicht und den Badge „KI-Profi“ freigeschaltet.</p><p><strong>Merksatz:</strong> KI unterstützt mich. Prüfen, Entscheiden und Verantwortung bleiben bei mir.</p>`:state.points>=60?`<h3>🟡 Fast geschafft</h3><p>Du hast <strong>${state.points} von 100 Punkten</strong>. Bearbeite noch offene Aufgaben, bis du 80 Punkte erreichst.</p>`:`<h3>🔴 Weiterarbeiten</h3><p>Du hast <strong>${state.points} von 100 Punkten</strong>. Bearbeite die noch offenen Abschnitte und lies die Grundsätze erneut.</p>`;box.scrollIntoView({behavior:'smooth',block:'center'})}
+function resetModule(){if(confirm('Soll der gesamte Fortschritt wirklich gelöscht werden?')){localStorage.removeItem('kiModuleState');location.reload()}}
+updateUI();
+</script>
+</body>
+</html>

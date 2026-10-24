@@ -1,119 +1,233 @@
 # ARCHITECTURE.md
 
-Systemarchitektur der KI-Führerschein-Plattform Klasse 7.
+Systemarchitektur der KI-Führerschein-Plattform.
 
-**Version:** 0.1 (Platzhalter – wird nach Analyse der Legacy-Dateien ausgearbeitet)  
+**Version:** 1.0  
 **Stand:** 2026-10-24
 
 ---
 
-## Status
+## 1. Technologieentscheidungen
 
-> ⚠️ **Dieser Abschnitt ist ein Platzhalter.**  
-> Die Architekturentscheidungen werden in Phase 2 (nach vollständiger Analyse der Legacy-HTML-Dateien) ausgearbeitet und hier dokumentiert.
-
----
-
-## 1. Überblick
-
-Die Plattform besteht aus einer gemeinsamen Shell (Dashboard, Navigation, Fortschrittslogik, Zertifikat) und eigenständigen Modulen, die über eine einheitliche Schnittstelle eingebunden werden.
-
-```
-┌─────────────────────────────────────────────────────┐
-│                  Plattform-Shell                    │
-│  Dashboard · Navigation · Fortschritt · Zertifikat  │
-└────────────┬────────────┬────────────┬──────────────┘
-             │            │            │
-      ┌──────┴──┐  ┌──────┴──┐  ┌─────┴───┐
-      │ Modul 1 │  │ Modul 2 │  │ Modul 3 │
-      │ KI ver- │  │ KI nut- │  │ Nachhal-│
-      │ stehen  │  │ zen     │  │ tigkeit │
-      └─────────┘  └─────────┘  └─────────┘
-```
-
----
-
-## 2. Technologieentscheidungen (offen)
-
-Folgende Entscheidungen sind noch zu treffen und zu dokumentieren:
-
-| Bereich | Optionen | Entscheidung |
+| Bereich | Entscheidung | Begründung |
 |---|---|---|
-| Frontend-Framework | Vanilla JS · React · Svelte · Vue | offen |
-| Styling | CSS Custom Properties · Tailwind · CSS Modules | offen |
-| Fortschrittsspeicherung | localStorage · Supabase · IndexedDB | offen |
-| Build-Tool | Vite · Webpack · kein Build | offen |
-| Deployment | Statisch · Node.js · Supabase Edge | offen |
+| **Frontend-Framework** | React 18 + Vite 5 | Komponentenbasiert, schnell, breite Unterstützung |
+| **Routing** | React Router v6 | Standard für React SPAs |
+| **Styling** | CSS Custom Properties + globale Klassen | Kein Build-Overhead, orientiert an Legacy-Modulen |
+| **Fortschrittsspeicherung** | Supabase (primär) + localStorage (Fallback) | Geräteübergreifend, offline-fähig |
+| **Authentifizierung Schüler:innen** | Klassencode + Anzeigename (kein Auth-Konto) | DSGVO-freundlich, kein Passwort nötig |
+| **Authentifizierung Lehrkräfte** | Supabase Auth (E-Mail + Passwort) | Sicher, einfach zu verwalten |
+| **Datenbank** | Supabase (PostgreSQL) mit RLS | Skalierbar, kostenlos bis mittlere Größe |
+| **Deployment** | Statische Dateien (Vite Build) | Läuft auf jedem Webserver, Schulserver-kompatibel |
 
 ---
 
-## 3. Anforderungen an die Architektur
-
-Aus dem Übergabedokument (Abschnitt 11) abgeleitet:
-
-### 3.1 Modularität
-- Inhalte, Darstellung und Zustandslogik sind zu trennen
-- Jedes Modul hat einen eigenen, isolierten Speicherbereich
-- Module dürfen sich gegenseitig nicht beeinflussen
-
-### 3.2 Wiederverwendbare Komponenten
-Mindestens folgende Komponenten sind als wiederverwendbar zu implementieren:
-- Plattformkopf und Modulheader
-- Fortschrittsanzeige
-- Aufgabenbox
-- Informationsbox
-- Warnhinweis
-- Merksatzbox
-- Quiz- und Feedbackdarstellung
-- Navigation (Zurück · Weiter · Modulübersicht)
-
-### 3.3 Keine HTML-in-JS-Verschachtelung
-Vollständige HTML-Dokumente dürfen nicht als lange JavaScript-Strings ineinander verschachtelt werden.
-
-### 3.4 Externe Fakten zentral verwalten
-Fakten, Quellen und Bezugswerte (z. B. Energieverbrauch, Wasserverbrauch) sind zentral und leicht aktualisierbar zu verwalten.
-
-### 3.5 Eindeutige IDs
-Jedes Modul und jede Station erhält eindeutige IDs und Versionsnummern.
-
----
-
-## 4. Datenfluss (Entwurf)
+## 2. Systemübersicht
 
 ```
-Nutzer-Interaktion
-       │
-       ▼
-  Modul-Logik
-  (Zustandsverwaltung)
-       │
-       ├──► Lokaler Speicher (localStorage / IndexedDB)
-       │    └── Fortschritt, Ergebnisse, Status
-       │
-       └──► Plattform-Shell
-            └── Dashboard-Status, Zertifikatsfreigabe
+┌─────────────────────────────────────────────────────────────┐
+│                     Browser (Client)                        │
+│                                                             │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │              React SPA (Vite Build)                  │   │
+│  │                                                      │   │
+│  │  ┌─────────────┐  ┌──────────────┐  ┌────────────┐  │   │
+│  │  │  Schüler-   │  │   Modul-     │  │  Lehrer-   │  │   │
+│  │  │  Dashboard  │  │   Seiten     │  │  Dashboard │  │   │
+│  │  └─────────────┘  └──────────────┘  └────────────┘  │   │
+│  │                                                      │   │
+│  │  ┌─────────────────────────────────────────────────┐ │   │
+│  │  │         Gemeinsame Komponenten                  │ │   │
+│  │  │  Header · ModuleNav · Quiz · TextTask · Badge   │ │   │
+│  │  └─────────────────────────────────────────────────┘ │   │
+│  │                                                      │   │
+│  │  ┌──────────────┐  ┌──────────────┐                  │   │
+│  │  │  lib/auth.js │  │lib/progress  │                  │   │
+│  │  │  lib/supabase│  │.js           │                  │   │
+│  │  └──────┬───────┘  └──────┬───────┘                  │   │
+│  └─────────┼────────────────┼──────────────────────────┘   │
+│            │                │                               │
+│  ┌─────────▼────────────────▼──────────────────────────┐   │
+│  │              localStorage (Offline-Cache)            │   │
+│  └─────────────────────────────────────────────────────┘   │
+└────────────────────────┬────────────────────────────────────┘
+                         │ HTTPS
+┌────────────────────────▼────────────────────────────────────┐
+│                    Supabase (Cloud)                          │
+│                                                             │
+│  ┌─────────────────┐  ┌──────────────────────────────────┐  │
+│  │  Auth Service   │  │  PostgreSQL Datenbank            │  │
+│  │  (Lehrkräfte)   │  │  + Row Level Security            │  │
+│  └─────────────────┘  └──────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 5. Barrierefreiheits-Architektur
+## 3. Verzeichnisstruktur
 
-- `prefers-reduced-motion` plattformweit berücksichtigen
-- Fokus-Management bei Seitenwechseln
-- ARIA-Rollen für dynamische Inhalte
-- Vorlesefunktion als optionaler Service (Web Speech API oder extern)
+```
+src/
+├── index.html              ← HTML-Shell
+├── package.json            ← Abhängigkeiten
+├── vite.config.js          ← Build-Konfiguration
+├── .env.example            ← Vorlage für Umgebungsvariablen
+│
+├── app/
+│   ├── main.jsx            ← React-Einstiegspunkt
+│   ├── App.jsx             ← Router und Session-Management
+│   └── pages/
+│       ├── JoinPage.jsx         ← Schüler-Anmeldung
+│       ├── Dashboard.jsx        ← Modulübersicht
+│       ├── Modul02Page.jsx      ← Modul 2 (vollständig)
+│       ├── TeacherLogin.jsx     ← Lehrkraft-Anmeldung
+│       ├── TeacherDashboard.jsx ← Klassenübersicht + CSV
+│       └── NotFound.jsx         ← 404
+│
+├── components/
+│   ├── layout/
+│   │   ├── PlatformHeader.jsx   ← Sticky Plattformkopf
+│   │   └── ModuleNav.jsx        ← Navigation + Fortschritt
+│   ├── ui/
+│   │   ├── InfoBox.jsx          ← TaskBox, InfoBox, WarningBox, MemoryBox
+│   │   ├── Merksatz.jsx         ← Merksatz-Komponente
+│   │   └── Badge.jsx            ← Achievement-Badge
+│   └── quiz/
+│       ├── Quiz.jsx             ← Single-Choice mit Wiederholung
+│       └── TextTask.jsx         ← Freitext-Aufgabe
+│
+├── lib/
+│   ├── supabase.js         ← Supabase-Client
+│   ├── auth.js             ← Authentifizierung
+│   └── progress.js         ← Fortschrittsverwaltung
+│
+├── modules/
+│   ├── modul-01/           ← (Phase 4)
+│   ├── modul-05/           ← (Phase 4)
+│   └── abschluss/          ← (Phase 5)
+│
+└── styles/
+    ├── tokens.css          ← Design Tokens
+    └── global.css          ← Globale Styles
+```
 
 ---
 
-## 6. Offene Fragen (zu klären in Phase 2)
+## 4. Routing
 
-- [ ] Soll die Plattform als Single Page Application (SPA) oder als Multi-Page Application (MPA) umgesetzt werden?
-- [ ] Welche Browser-Mindestversionen werden unterstützt?
-- [ ] Wie wird die Vorlesefunktion technisch umgesetzt?
-- [ ] Soll Supabase für Fortschrittsspeicherung genutzt werden oder reicht localStorage?
-- [ ] Wie wird das Zertifikat als PDF generiert (Print CSS, html2canvas, serverseitig)?
-- [ ] Wie werden externe Medien (Videos) mit Ausweichmöglichkeit implementiert?
+| Pfad | Komponente | Zugang |
+|---|---|---|
+| `/` | `JoinPage` | Öffentlich (Weiterleitung wenn angemeldet) |
+| `/dashboard` | `Dashboard` | Schüler:in (Session erforderlich) |
+| `/modul/01` | `Modul01Page` | Schüler:in |
+| `/modul/02` | `Modul02Page` | Schüler:in |
+| `/modul/03` | `Modul03Page` | Schüler:in |
+| `/modul/04` | `Modul04Page` | Schüler:in |
+| `/modul/05` | `Modul05Page` | Schüler:in |
+| `/zertifikat` | `CertificatePage` | Schüler:in (nur wenn berechtigt) |
+| `/lehrer` | `TeacherLogin` | Öffentlich |
+| `/lehrer/dashboard` | `TeacherDashboard` | Lehrkraft (Auth erforderlich) |
 
 ---
 
-*Dieser Platzhalter wird nach Abschluss der Legacy-Analyse (Phase 1) durch die vollständige Architektur-Dokumentation ersetzt.*
+## 5. Datenfluss
+
+### Schüler:in – Anmeldung
+
+```
+JoinPage
+  → studentJoin(joinCode, displayName)
+    → Supabase: classes WHERE join_code = ?
+    → Supabase: INSERT students
+    → localStorage: session_token speichern
+  → App.jsx: student state setzen
+  → Redirect: /dashboard
+```
+
+### Schüler:in – Fortschritt speichern
+
+```
+Modul02Page (Quiz/TextTask)
+  → completeTask(moduleId, taskId, score)
+    → localStorage: sofort aktualisieren (Offline-Fallback)
+    → Supabase: UPSERT student_task_progress
+  → completeModule(moduleId, score, maxScore)
+    → Supabase: UPSERT student_module_progress
+```
+
+### Lehrkraft – Klassenübersicht
+
+```
+TeacherDashboard
+  → getTeacherProfile() → Supabase Auth + users-Tabelle
+  → supabase.from('classes').select() WHERE teacher_id = auth.uid()
+  → supabase.from('students').select() WHERE class_id IN (...)
+  → supabase.from('student_module_progress').select() WHERE student_id IN (...)
+  → Tabelle rendern + CSV-Export
+```
+
+---
+
+## 6. Designsystem
+
+### Farbpalette
+
+| Token | Wert | Verwendung |
+|---|---|---|
+| `--color-platform` | `#064c87` | Plattform-Shell, Header |
+| `--color-modul-01` | `#2859d8` | Modul 1 – KI verstehen |
+| `--color-modul-02` | `#6d3fc0` | Modul 2 – KI sinnvoll nutzen |
+| `--color-modul-03` | `#5c6bc0` | Modul 3 – Kennzeichnungspflicht |
+| `--color-modul-04` | `#1565c0` | Modul 4 – Datenschutz |
+| `--color-modul-05` | `#087f83` | Modul 5 – Nachhaltigkeit |
+| `--color-abschluss` | `#b8860b` | Abschluss/Zertifikat (Gold) |
+
+### Wiederverwendbare Komponenten
+
+| Komponente | Klasse/Datei | Entspricht Legacy |
+|---|---|---|
+| Aufgabenbox | `.box-task` / `TaskBox` | `.task` (Modul 2) |
+| Informationsbox | `.box-info` / `InfoBox` | `.note` (Modul 2) |
+| Warnhinweis | `.box-warning` / `WarningBox` | `.warning` (Modul 2) |
+| Merksatz | `.box-memory` / `MemoryBox` | `.memory` (Modul 2) |
+| Quiz | `Quiz.jsx` | `.quiz` + `.quiz-btn` (Modul 2) |
+| Freitext | `TextTask.jsx` | `.text-task` (Modul 2) |
+| Fortschritt | `.progress-shell/.bar` | `.progress-shell/.bar` (Modul 2) |
+| Badge | `Badge.jsx` | `.badge` (Modul 2) |
+
+---
+
+## 7. Barrierefreiheit
+
+| Anforderung | Umsetzung |
+|---|---|
+| Tastaturbedienbarkeit | Alle interaktiven Elemente fokussierbar, `focus-visible` Styles |
+| Fokusmarkierung | `:focus-visible` mit 3px Outline |
+| ARIA | `aria-label`, `aria-live`, `role`, `aria-valuenow` an Schlüsselstellen |
+| Farbunabhängigkeit | Feedback nie nur über Farbe (immer Text + Icon) |
+| Reduzierte Animation | `prefers-reduced-motion` in `tokens.css` |
+| Touchfreundlich | Mindesthöhe 48px für alle Buttons |
+| Alt-Texte | Für alle relevanten Bilder (in Modulen zu ergänzen) |
+
+---
+
+## 8. Skalierbarkeit
+
+### Neues Modul hinzufügen
+
+1. `supabase/modules`-Tabelle: neue Zeile einfügen
+2. `src/app/pages/ModulXXPage.jsx` anlegen
+3. Route in `src/app/App.jsx` ergänzen
+4. Eintrag in `MODULES`-Array in `src/app/pages/Dashboard.jsx`
+5. Fertig – kein Schema-Change nötig
+
+### Neuen Jahrgang hinzufügen
+
+1. Module mit `grade_min = 8` (o.ä.) in Supabase anlegen
+2. Dashboard filtert automatisch nach `grade` der Klasse
+3. Keine Code-Änderung nötig
+
+### Mehrere Schulen
+
+- `schools`-Tabelle bereits vorhanden
+- RLS isoliert Daten pro Schule automatisch

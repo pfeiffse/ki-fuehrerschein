@@ -1,0 +1,90 @@
+/* ============================================================
+   KI-Führerschein · Design Tokens
+   Orientiert an Modul 2 (Referenzimplementierung)
+   ============================================================ */
+
+:root {
+  /* --- Plattformfarben --- */
+  --color-platform:        #064c87;   /* Dunkles Petrol/Blau – Plattform-Shell */
+  --color-platform-light:  #eef7ff;
+  --color-platform-dark:   #043a68;
+
+  /* --- Modulfarben --- */
+  --color-modul-01:        #2859d8;   /* Blau – KI verstehen */
+  --color-modul-01-light:  #e7eeff;
+  --color-modul-02:        #6d3fc0;   /* Blau/Violett – KI sinnvoll nutzen */
+  --color-modul-02-light:  #f0ebff;
+  --color-modul-03:        #5c6bc0;   /* Indigo – Kennzeichnungspflicht */
+  --color-modul-03-light:  #eef0ff;
+  --color-modul-04:        #1565c0;   /* Dunkelblau – Datenschutz */
+  --color-modul-04-light:  #e3f0ff;
+  --color-modul-05:        #087f83;   /* Grün/Türkis – Nachhaltigkeit */
+  --color-modul-05-light:  #e0f5f5;
+  --color-abschluss:       #b8860b;   /* Gold – Abschluss/Zertifikat */
+  --color-abschluss-light: #fff8db;
+
+  /* --- Semantische Farben --- */
+  --color-success:         #1e7a46;
+  --color-success-light:   #e8f7ed;
+  --color-warning:         #f2b705;
+  --color-warning-light:   #fff7d9;
+  --color-error:           #c73535;
+  --color-error-light:     #fff0f0;
+  --color-info:            #0d76c7;
+  --color-info-light:      #eaf6ff;
+
+  /* --- Neutrale Farben --- */
+  --color-text:            #17212b;
+  --color-text-muted:      #52617b;
+  --color-bg:              #f4f7fa;
+  --color-card:            #ffffff;
+  --color-border:          #dce5ee;
+  --color-border-focus:    #2859d8;
+
+  /* --- Typografie --- */
+  --font-family:           Arial, Helvetica, system-ui, sans-serif;
+  --font-size-xs:          0.82rem;
+  --font-size-sm:          0.92rem;
+  --font-size-base:        1rem;
+  --font-size-lg:          1.1rem;
+  --font-size-xl:          clamp(1.4rem, 3vw, 2rem);
+  --font-size-2xl:         clamp(1.8rem, 4vw, 3rem);
+  --font-size-hero:        clamp(1.8rem, 5vw, 3.5rem);
+  --line-height:           1.55;
+
+  /* --- Abstände --- */
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:   16px;
+  --space-lg:   24px;
+  --space-xl:   32px;
+  --space-2xl:  48px;
+
+  /* --- Radien --- */
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  18px;
+  --radius-xl:  24px;
+  --radius-pill: 99px;
+
+  /* --- Schatten --- */
+  --shadow-sm:  0 2px 8px #17334b12;
+  --shadow-md:  0 7px 18px #17334b12;
+  --shadow-lg:  0 12px 28px #17334b18;
+
+  /* --- Übergänge --- */
+  --transition: 0.25s ease;
+
+  /* --- Breakpoints (als Custom Properties für JS) --- */
+  --bp-sm:  480px;
+  --bp-md:  768px;
+  --bp-lg:  1050px;
+}
+
+/* Reduzierte Animation bei Systemeinstellung */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
