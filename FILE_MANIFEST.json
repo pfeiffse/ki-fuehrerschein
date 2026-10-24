@@ -1,0 +1,77 @@
+{
+  "manifest_version": "1.0",
+  "created": "2026-10-24",
+  "description": "SHA-256-Prüfsummen aller Legacy-Originaldateien. Vor und nach jeder Entwicklungsphase gegen dieses Manifest prüfen. Bei Abweichung: STOPP – keine weiteren Änderungen.",
+  "verification_command": "sha256sum legacy/* | sort",
+  "files": [
+    {
+      "path": "legacy/KI_Fuehrerschein_Uebergabedokument.docx",
+      "filename": "KI_Fuehrerschein_Uebergabedokument.docx",
+      "sha256": "7681e9c7feb048d8dd9da61f9565cfaa8a7aa3303963fc910a69300246e1d1ee",
+      "size_bytes": 41193,
+      "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "role": "Übergabedokument – inhaltlich-technische Spezifikation aller Module, Lernlogik, Designsystem, Datenmodell und Abnahmekriterien für die Plattformentwicklung",
+      "status": "PRESENT"
+    },
+    {
+      "path": "legacy/ki_Fortbildung_klasse7_Borrmann.html",
+      "filename": "ki_Fortbildung_klasse7_Borrmann.html",
+      "sha256": null,
+      "size_bytes": null,
+      "type": "text/html",
+      "role": "Modul 01 – KI verstehen: Referenzimplementierung mit interaktiver Bilderkennung (Pferde), Wasserzeichen-Rätsel, Sprach-KI-Simulation und Satzwerkstatt",
+      "status": "EXPECTED – NOCH NICHT HOCHGELADEN",
+      "note": "Datei muss vor Entwicklungsbeginn in /legacy abgelegt und Prüfsumme hier eingetragen werden."
+    },
+    {
+      "path": "legacy/ki_Fortbildung_klasse7_Borrmann.html_TECHNISCHE_DOKUMENTATION.md",
+      "filename": "ki_Fortbildung_klasse7_Borrmann.html_TECHNISCHE_DOKUMENTATION.md",
+      "sha256": null,
+      "size_bytes": null,
+      "type": "text/markdown",
+      "role": "Technische Dokumentation zu Modul 01 – beschreibt Implementierungsdetails der Referenzanwendung",
+      "status": "EXPECTED – NOCH NICHT HOCHGELADEN",
+      "note": "Datei muss vor Entwicklungsbeginn in /legacy abgelegt und Prüfsumme hier eingetragen werden."
+    },
+    {
+      "path": "legacy/Modul2.html",
+      "filename": "Modul2.html",
+      "sha256": null,
+      "size_bytes": null,
+      "type": "text/html",
+      "role": "Modul 02 – KI sinnvoll nutzen: Referenzimplementierung mit Einstiegsreflexion, Fehlerexperiment, Quiz, Fünf-Grundsätze-Sektion, Prompt-Challenge und Abschlusstest",
+      "status": "EXPECTED – NOCH NICHT HOCHGELADEN",
+      "note": "Datei muss vor Entwicklungsbeginn in /legacy abgelegt und Prüfsumme hier eingetragen werden."
+    },
+    {
+      "path": "legacy/KI_Nachhaltigkeit_5_Stationen_EINE_DATEI.html",
+      "filename": "KI_Nachhaltigkeit_5_Stationen_EINE_DATEI.html",
+      "sha256": null,
+      "size_bytes": null,
+      "type": "text/html",
+      "role": "Modul 03 (optional) – KI & Nachhaltigkeit: Referenzimplementierung mit 5 Stationen (Ressourcen, Filmcheck, Wasser, Handy-Akku, KI im Alltag)",
+      "status": "EXPECTED – NOCH NICHT HOCHGELADEN",
+      "note": "Datei muss vor Entwicklungsbeginn in /legacy abgelegt und Prüfsumme hier eingetragen werden."
+    },
+    {
+      "path": "legacy/KI_Fuehrerschein_Zertifikat.html",
+      "filename": "KI_Fuehrerschein_Zertifikat.html",
+      "sha256": null,
+      "size_bytes": null,
+      "type": "text/html",
+      "role": "Abschluss – KI-Führerschein-Zertifikat: Referenzimplementierung des Zertifikats (aktuell auf Nachhaltigkeitsstationen ausgerichtet, als Ausgangspunkt für das Plattform-Abschlusszertifikat)",
+      "status": "EXPECTED – NOCH NICHT HOCHGELADEN",
+      "note": "Datei muss vor Entwicklungsbeginn in /legacy abgelegt und Prüfsumme hier eingetragen werden."
+    }
+  ],
+  "integrity_policy": {
+    "rule": "READ ONLY für alle Dateien unter /legacy",
+    "prohibited_actions": [
+      "bearbeiten", "überschreiben", "umbenennen", "löschen",
+      "automatisch formatieren", "optimieren", "kürzen", "aufteilen",
+      "zusammenführen", "refaktorieren", "durch andere Versionen ersetzen"
+    ],
+    "on_checksum_mismatch": "STOPP – keine weiteren Änderungen. Abweichung melden und Ursache klären.",
+    "verification_schedule": "Vor und nach jeder Entwicklungsphase"
+  }
+}
