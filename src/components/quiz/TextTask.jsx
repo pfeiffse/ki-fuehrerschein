@@ -1,22 +1,10 @@
 // ============================================================
 // KI-Führerschein · Freitext-Aufgabe
-// Wie Modul 2 .text-task – mit Mindestlänge
-// WICHTIG: Freitext ≠ fachliche Leistung (Übergabedokument Abschnitt 4)
-// Fortschritt und Leistung werden getrennt behandelt.
+// Stil: Modul 5 – Teal, Petrol
 // ============================================================
 
 import React, { useState } from 'react'
 
-/**
- * @param {string}   id           – eindeutige Aufgaben-ID
- * @param {string}   label        – Beschriftung des Textfelds
- * @param {string}   placeholder  – Platzhaltertext
- * @param {number}   minLength    – Mindestlänge (Standard: 20)
- * @param {number}   points       – Punkte für Bearbeitung (kein inhaltlicher Check)
- * @param {boolean}  done         – bereits abgeschlossen
- * @param {string}   savedValue   – gespeicherter Wert (aus Fortschritt)
- * @param {function} onSave       – Callback(value, points)
- */
 export default function TextTask({
   id,
   label,
@@ -32,18 +20,17 @@ export default function TextTask({
   const [locked,   setLocked]   = useState(done)
 
   function handleSave() {
-    if (value.trim().length < minLength) {
-      setFeedback('short')
-      return
-    }
-    setLocked(true)
-    setFeedback('saved')
+    if (value.trim().length < minLength) { setFeedback('short'); return }
+    setLocked(true); setFeedback('saved')
     onSave?.(value.trim(), points)
   }
 
+  const charCount  = value.trim().length
+  const sufficient = charCount >= minLength
+
   return (
     <div>
-      <label htmlFor={id} style={{ fontWeight: 700, display: 'block', marginBottom: '6px' }}>
+      <label htmlFor={id} style={{ fontWeight: 800, display: 'block', marginBottom: '6px', color: 'var(--color-text)' }}>
         {label}
       </label>
 
@@ -56,13 +43,15 @@ export default function TextTask({
         rows={4}
         style={{
           width:        '100%',
-          padding:      '10px',
-          border:       '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-md)',
+          padding:      '12px',
+          border:       `2px solid ${locked ? 'var(--color-border)' : sufficient ? 'var(--color-platform-teal)' : 'var(--color-border)'}`,
+          borderRadius: 'var(--radius-lg)',
           font:         'inherit',
           fontSize:     'var(--font-size-base)',
           resize:       'vertical',
-          background:   locked ? '#f8f8f8' : 'white',
+          background:   locked ? '#f7fbfc' : 'white',
+          transition:   'border-color var(--transition)',
+          lineHeight:   1.6,
         }}
         aria-describedby={`${id}-feedback`}
       />
@@ -70,14 +59,13 @@ export default function TextTask({
       {/* Zeichenzähler */}
       {!locked && (
         <div style={{
-          fontSize: 'var(--font-size-xs)',
-          color:    value.trim().length >= minLength
-                      ? 'var(--color-success)'
-                      : 'var(--color-text-muted)',
+          fontSize:  'var(--font-size-xs)',
+          color:     sufficient ? 'var(--color-success)' : 'var(--color-text-muted)',
           marginTop: '4px',
           textAlign: 'right',
+          fontWeight: sufficient ? 800 : 400,
         }}>
-          {value.trim().length} / {minLength} Zeichen (Mindestlänge)
+          {charCount} / {minLength} Zeichen {sufficient ? '✓' : '(Mindestlänge)'}
         </div>
       )}
 
@@ -85,8 +73,7 @@ export default function TextTask({
       <div id={`${id}-feedback`}>
         {feedback === 'short' && (
           <div className="feedback wrong" style={{ display: 'block' }}>
-            Bitte formuliere eine etwas ausführlichere Antwort
-            (mindestens {minLength} Zeichen).
+            Bitte formuliere eine etwas ausführlichere Antwort (mindestens {minLength} Zeichen).
           </div>
         )}
         {feedback === 'saved' && (
@@ -96,13 +83,9 @@ export default function TextTask({
         )}
       </div>
 
-      {/* Hinweis: Fortschritt ≠ Leistung */}
+      {/* Hinweis */}
       {!locked && (
-        <p style={{
-          fontSize: 'var(--font-size-xs)',
-          color:    'var(--color-text-muted)',
-          marginTop: '4px',
-        }}>
+        <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '4px' }}>
           ℹ️ Diese Aufgabe wird für die Bearbeitung bewertet, nicht für den Inhalt.
         </p>
       )}
@@ -110,23 +93,14 @@ export default function TextTask({
       {/* Speichern-Button */}
       {!locked && (
         <div className="actions">
-          <button
-            className="btn btn-success"
-            onClick={handleSave}
-            disabled={value.trim().length < minLength}
-          >
+          <button className="btn btn-success" onClick={handleSave} disabled={!sufficient}>
             Antwort speichern · {points} Punkte
           </button>
         </div>
       )}
 
       {locked && (
-        <div style={{
-          marginTop:  'var(--space-sm)',
-          color:      'var(--color-success)',
-          fontWeight: 700,
-          fontSize:   'var(--font-size-sm)',
-        }}>
+        <div style={{ marginTop: 'var(--space-sm)', color: 'var(--color-success)', fontWeight: 800, fontSize: 'var(--font-size-sm)' }}>
           ✓ Erledigt
         </div>
       )}

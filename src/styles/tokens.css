@@ -1,56 +1,66 @@
 /* ============================================================
    KI-Führerschein · Design Tokens
-   Orientiert an Modul 2 (Referenzimplementierung)
+   Orientiert an Modul 5 (KI & Nachhaltigkeit) als Referenz
    ============================================================ */
 
 :root {
-  /* --- Plattformfarben --- */
-  --color-platform:        #064c87;   /* Dunkles Petrol/Blau – Plattform-Shell */
-  --color-platform-light:  #eef7ff;
-  --color-platform-dark:   #043a68;
+  /* --- Plattformfarben (aus Modul 5 Shell) --- */
+  --color-platform:        #103d54;   /* Dunkles Petrol – Header */
+  --color-platform-mid:    #095c6b;   /* Mittleres Petrol */
+  --color-platform-teal:   #087f83;   /* Teal – Primäraktion */
+  --color-platform-light:  #eaf5f6;   /* Heller Hintergrund */
+  --color-platform-pale:   #f0fafb;   /* Sehr heller Hintergrund */
 
-  /* --- Modulfarben --- */
+  /* --- Akzentfarbe --- */
+  --color-gold:            #ffda76;   /* Gold – aktive Nav, Highlights */
+  --color-gold-dark:       #ffcb66;   /* Dunkleres Gold */
+
+  /* --- Modulfarben (Teal-Familie, modulspezifische Akzente) --- */
   --color-modul-01:        #2859d8;   /* Blau – KI verstehen */
-  --color-modul-01-light:  #e7eeff;
-  --color-modul-02:        #6d3fc0;   /* Blau/Violett – KI sinnvoll nutzen */
-  --color-modul-02-light:  #f0ebff;
-  --color-modul-03:        #5c6bc0;   /* Indigo – Kennzeichnungspflicht */
-  --color-modul-03-light:  #eef0ff;
-  --color-modul-04:        #1565c0;   /* Dunkelblau – Datenschutz */
-  --color-modul-04-light:  #e3f0ff;
-  --color-modul-05:        #087f83;   /* Grün/Türkis – Nachhaltigkeit */
-  --color-modul-05-light:  #e0f5f5;
+  --color-modul-01-light:  #e6f4ff;
+  --color-modul-02:        #167e8a;   /* Teal – KI sinnvoll nutzen */
+  --color-modul-02-light:  #dff5f1;
+  --color-modul-03:        #1a6b7a;   /* Dunkles Teal – Kennzeichnung */
+  --color-modul-03-light:  #e0f4f6;
+  --color-modul-04:        #095c6b;   /* Petrol – Datenschutz */
+  --color-modul-04-light:  #dff4ec;
+  --color-modul-05:        #087f83;   /* Teal – Nachhaltigkeit */
+  --color-modul-05-light:  #dff5f1;
   --color-abschluss:       #b8860b;   /* Gold – Abschluss/Zertifikat */
   --color-abschluss-light: #fff8db;
 
   /* --- Semantische Farben --- */
-  --color-success:         #1e7a46;
-  --color-success-light:   #e8f7ed;
-  --color-warning:         #f2b705;
-  --color-warning-light:   #fff7d9;
-  --color-error:           #c73535;
-  --color-error-light:     #fff0f0;
-  --color-info:            #0d76c7;
-  --color-info-light:      #eaf6ff;
+  --color-success:         #21875d;
+  --color-success-light:   #d8f4e5;
+  --color-warning:         #e7a32a;
+  --color-warning-light:   #fff3d8;
+  --color-error:           #c9434d;
+  --color-error-light:     #ffe5e5;
+  --color-info:            #2484bb;
+  --color-info-light:      #e8f5fc;
 
   /* --- Neutrale Farben --- */
-  --color-text:            #17212b;
-  --color-text-muted:      #52617b;
-  --color-bg:              #f4f7fa;
+  --color-text:            #163348;   /* Aus Modul 5 --ink */
+  --color-text-muted:      #536f7c;
+  --color-bg:              #eaf5f6;   /* Aus Modul 5 body background */
+  --color-bg-gradient:     linear-gradient(145deg, #dff5f1, #eaf2ff 55%, #fff7e8);
   --color-card:            #ffffff;
-  --color-border:          #dce5ee;
-  --color-border-focus:    #2859d8;
+  --color-border:          #c9e3e8;   /* Aus Modul 5 border */
+  --color-border-focus:    #087f83;
+
+  /* --- Hero-Gradient (aus Modul 5 Station 1) --- */
+  --gradient-hero:         linear-gradient(120deg, #095c6b, #167e8a);
+  --gradient-hero-dark:    linear-gradient(120deg, #103d54, #095c6b);
 
   /* --- Typografie --- */
-  --font-family:           Arial, Helvetica, system-ui, sans-serif;
-  --font-size-xs:          0.82rem;
-  --font-size-sm:          0.92rem;
+  --font-family:           system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --font-size-xs:          0.78rem;
+  --font-size-sm:          0.9rem;
   --font-size-base:        1rem;
   --font-size-lg:          1.1rem;
-  --font-size-xl:          clamp(1.4rem, 3vw, 2rem);
+  --font-size-xl:          clamp(1.4rem, 3vw, 2.1rem);
   --font-size-2xl:         clamp(1.8rem, 4vw, 3rem);
-  --font-size-hero:        clamp(1.8rem, 5vw, 3.5rem);
-  --line-height:           1.55;
+  --line-height:           1.6;
 
   /* --- Abstände --- */
   --space-xs:   4px;
@@ -60,25 +70,26 @@
   --space-xl:   32px;
   --space-2xl:  48px;
 
-  /* --- Radien --- */
-  --radius-sm:  8px;
-  --radius-md:  12px;
-  --radius-lg:  18px;
-  --radius-xl:  24px;
+  /* --- Radien (Modul 5 nutzt großzügige Radien) --- */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   19px;
+  --radius-xl:   25px;
+  --radius-2xl:  28px;
   --radius-pill: 99px;
 
-  /* --- Schatten --- */
-  --shadow-sm:  0 2px 8px #17334b12;
-  --shadow-md:  0 7px 18px #17334b12;
-  --shadow-lg:  0 12px 28px #17334b18;
+  /* --- Schatten (aus Modul 5) --- */
+  --shadow-sm:  0 6px 13px #2a5d6a12;
+  --shadow-md:  0 10px 35px #24516d14;
+  --shadow-lg:  0 12px 35px #15546825;
 
   /* --- Übergänge --- */
-  --transition: 0.25s ease;
+  --transition: 0.3s ease;
 
-  /* --- Breakpoints (als Custom Properties für JS) --- */
+  /* --- Breakpoints --- */
   --bp-sm:  480px;
-  --bp-md:  768px;
-  --bp-lg:  1050px;
+  --bp-md:  760px;
+  --bp-lg:  1120px;
 }
 
 /* Reduzierte Animation bei Systemeinstellung */

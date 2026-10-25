@@ -1,6 +1,6 @@
 // ============================================================
 // KI-Führerschein · Badge-Komponente
-// Wie Modul 2 .badge – gesperrt/freigeschaltet
+// Stil: Modul 5 – Gold für freigeschaltete Badges
 // ============================================================
 
 import React from 'react'
@@ -11,31 +11,29 @@ export default function Badge({ icon, title, description, unlocked = false }) {
       role="img"
       aria-label={`${title}: ${unlocked ? 'freigeschaltet' : 'noch nicht freigeschaltet'}`}
       style={{
-        border:      `2px solid ${unlocked ? '#e2ac21' : '#d9e2ea'}`,
-        borderRadius: 'var(--radius-lg)',
-        padding:     'var(--space-md)',
-        textAlign:   'center',
-        background:  unlocked ? '#fff8db' : '#f6f8fa',
-        filter:      unlocked ? 'none' : 'grayscale(1)',
-        opacity:     unlocked ? 1 : 0.55,
-        transition:  'all var(--transition)',
-        transform:   unlocked ? 'translateY(-2px)' : 'none',
+        border:       `2px solid ${unlocked ? 'var(--color-gold-dark)' : 'var(--color-border)'}`,
+        borderRadius: 'var(--radius-xl)',
+        padding:      'var(--space-md)',
+        textAlign:    'center',
+        background:   unlocked ? '#fff8db' : '#f5f9fc',
+        filter:       unlocked ? 'none' : 'grayscale(1)',
+        opacity:      unlocked ? 1 : 0.55,
+        transition:   'all var(--transition)',
+        transform:    unlocked ? 'translateY(-2px)' : 'none',
+        boxShadow:    unlocked ? '0 6px 18px #ffcb6630' : 'none',
       }}
     >
-      <div style={{ fontSize: '2rem', lineHeight: 1.4 }} aria-hidden="true">
+      <div style={{ fontSize: '2.2rem', lineHeight: 1.4 }} aria-hidden="true">
         {icon}
       </div>
-      <h3 style={{ margin: '6px 0 4px', fontSize: '1rem' }}>{title}</h3>
-      <p style={{ margin: 0, fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+      <h3 style={{ margin: '6px 0 4px', fontSize: '1rem', color: unlocked ? 'var(--color-platform)' : 'var(--color-text-muted)' }}>
+        {title}
+      </h3>
+      <p style={{ margin: 0, fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
         {description}
       </p>
       {unlocked && (
-        <div style={{
-          marginTop:    '8px',
-          fontSize:     'var(--font-size-xs)',
-          color:        '#b8860b',
-          fontWeight:   700,
-        }}>
+        <div style={{ marginTop: '8px', fontSize: 'var(--font-size-xs)', color: '#825300', fontWeight: 800 }}>
           ✓ Freigeschaltet
         </div>
       )}

@@ -1,24 +1,10 @@
 // ============================================================
 // KI-Führerschein · Quiz-Komponente
-// Single-Choice mit Feedback – wie Modul 2
-// Unterstützt lernorientierte Wiederholungsversuche
+// Stil: Modul 5 – Teal, Gold, Petrol
 // ============================================================
 
 import React, { useState } from 'react'
 
-/**
- * @param {string}   id          – eindeutige Aufgaben-ID
- * @param {string}   question    – Fragetext
- * @param {Array}    options     – [{ value, label }]
- * @param {string}   answer      – korrekter value
- * @param {number}   points      – Punkte bei richtiger Antwort
- * @param {boolean}  done        – bereits abgeschlossen (aus Fortschritt)
- * @param {boolean}  allowRetry  – Wiederholungsversuch erlaubt (Standard: true)
- * @param {string}   correctFeedback  – Text bei richtiger Antwort
- * @param {string}   wrongFeedback    – Text bei falscher Antwort
- * @param {function} onCorrect   – Callback(points) bei richtiger Antwort
- * @param {function} onAttempt   – Callback(correct, attempts) bei jedem Versuch
- */
 export default function Quiz({
   id,
   question,
@@ -32,57 +18,36 @@ export default function Quiz({
   onCorrect,
   onAttempt,
 }) {
-  const [selected,  setSelected]  = useState('')
-  const [feedback,  setFeedback]  = useState(null)   // null | 'correct' | 'wrong'
-  const [attempts,  setAttempts]  = useState(0)
-  const [locked,    setLocked]    = useState(done)
+  const [selected, setSelected] = useState('')
+  const [feedback, setFeedback] = useState(null)
+  const [attempts, setAttempts] = useState(0)
+  const [locked,   setLocked]   = useState(done)
 
   function handleCheck() {
-    if (!selected) {
-      setFeedback('empty')
-      return
-    }
-
-    const correct    = selected === answer
+    if (!selected) { setFeedback('empty'); return }
+    const correct     = selected === answer
     const newAttempts = attempts + 1
     setAttempts(newAttempts)
     setFeedback(correct ? 'correct' : 'wrong')
-
     onAttempt?.(correct, newAttempts)
-
-    if (correct) {
-      setLocked(true)
-      onCorrect?.(points)
-    } else if (!allowRetry) {
-      setLocked(true)
-    }
+    if (correct) { setLocked(true); onCorrect?.(points) }
+    else if (!allowRetry) { setLocked(true) }
   }
 
-  function handleReset() {
-    setSelected('')
-    setFeedback(null)
-  }
+  function handleReset() { setSelected(''); setFeedback(null) }
 
   return (
-    <div
-      style={{ opacity: locked && !feedback?.startsWith('correct') ? 0.75 : 1 }}
-      aria-live="polite"
-    >
-      <p style={{ fontWeight: 700, marginBottom: 'var(--space-sm)' }}>
+    <div aria-live="polite">
+      <p style={{ fontWeight: 800, marginBottom: 'var(--space-sm)', color: 'var(--color-text)' }}>
         {question}
       </p>
 
-      {/* Optionen */}
       <div role="radiogroup" aria-label={question}>
         {options.map(opt => (
-          <label
-            key={opt.value}
-            className="option"
-            style={{
-              cursor:      locked ? 'default' : 'pointer',
-              borderColor: selected === opt.value ? '#8bbde3' : undefined,
-            }}
-          >
+          <label key={opt.value} className="option" style={{
+            cursor:      locked ? 'default' : 'pointer',
+            opacity:     locked && selected !== opt.value ? 0.7 : 1,
+          }}>
             <input
               type="radio"
               name={id}
@@ -111,9 +76,8 @@ export default function Quiz({
         <div className="feedback wrong" style={{ display: 'block' }}>
           ❌ {wrongFeedback}
           {allowRetry && (
-            <div style={{ marginTop: '8px' }}>
-              <button className="btn btn-ghost" onClick={handleReset}
-                style={{ fontSize: '0.85rem', padding: '6px 12px', minHeight: '36px' }}>
+            <div style={{ marginTop: '10px' }}>
+              <button className="nav-btn" onClick={handleReset} style={{ fontSize: '0.85rem' }}>
                 ↺ Erneut versuchen
               </button>
             </div>
@@ -124,24 +88,14 @@ export default function Quiz({
       {/* Prüfen-Button */}
       {!locked && feedback !== 'correct' && (
         <div className="actions">
-          <button
-            className="btn btn-primary"
-            onClick={handleCheck}
-            disabled={!selected}
-          >
+          <button className="btn btn-primary" onClick={handleCheck} disabled={!selected}>
             Prüfen · {points} Punkte
           </button>
         </div>
       )}
 
-      {/* Abgeschlossen-Anzeige */}
       {locked && feedback === 'correct' && (
-        <div style={{
-          marginTop:  'var(--space-sm)',
-          color:      'var(--color-success)',
-          fontWeight: 700,
-          fontSize:   'var(--font-size-sm)',
-        }}>
+        <div style={{ marginTop: 'var(--space-sm)', color: 'var(--color-success)', fontWeight: 800, fontSize: 'var(--font-size-sm)' }}>
           ✓ Erledigt
         </div>
       )}

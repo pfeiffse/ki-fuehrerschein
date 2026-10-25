@@ -1,6 +1,6 @@
 // ============================================================
 // KI-Führerschein · Modul-Navigation
-// Zurück · Weiter · Zur Übersicht (wie Modul 2 sticky dashboard)
+// Stil: Modul 5 – sticky, Teal, Gold für aktive Elemente
 // ============================================================
 
 import React from 'react'
@@ -9,14 +9,14 @@ import { useNavigate } from 'react-router-dom'
 export default function ModuleNav({
   onBack,
   onNext,
-  backLabel  = '← Zurück',
-  nextLabel  = 'Weiter →',
+  backLabel    = '← Zurück',
+  nextLabel    = 'Weiter →',
   nextDisabled = false,
   showOverview = true,
   score,
   maxScore,
   progressPercent,
-  moduleColor = 'var(--color-platform)',
+  moduleColor  = 'var(--color-platform-teal)',
 }) {
   const navigate = useNavigate()
 
@@ -24,15 +24,15 @@ export default function ModuleNav({
     <div
       className="no-print"
       style={{
-        position:   'sticky',
-        top:        '56px',   // unterhalb PlatformHeader
-        zIndex:     90,
-        background: 'white',
-        border:     '1px solid var(--color-border)',
+        position:     'sticky',
+        top:          '56px',
+        zIndex:       90,
+        background:   'white',
+        border:       '1px solid var(--color-border)',
         borderRadius: 'var(--radius-lg)',
-        padding:    '12px 16px',
-        margin:     '12px 0',
-        boxShadow:  'var(--shadow-md)',
+        padding:      '12px 16px',
+        margin:       '12px 0',
+        boxShadow:    'var(--shadow-sm)',
       }}
       aria-label="Lernfortschritt"
     >
@@ -45,10 +45,10 @@ export default function ModuleNav({
         {/* Fortschrittsbalken */}
         {progressPercent !== undefined && (
           <>
-            <strong style={{ whiteSpace: 'nowrap', fontSize: '0.9rem' }}>
+            <strong style={{ whiteSpace: 'nowrap', fontSize: '0.88rem', color: 'var(--color-text)' }}>
               Fortschritt: <span>{progressPercent} %</span>
             </strong>
-            <div className="progress-shell" style={{ flex: 1, minWidth: '160px' }}>
+            <div className="progress-shell dark" style={{ flex: 1, minWidth: '140px' }}>
               <div
                 className="progress-bar"
                 style={{ width: `${progressPercent}%` }}
@@ -63,7 +63,12 @@ export default function ModuleNav({
 
         {/* Punkte */}
         {score !== undefined && (
-          <div style={{ fontWeight: 700, color: moduleColor, whiteSpace: 'nowrap' }}>
+          <div style={{
+            fontWeight:  800,
+            color:       moduleColor,
+            whiteSpace:  'nowrap',
+            fontSize:    '0.9rem',
+          }}>
             ⭐ {score} / {maxScore} Punkte
           </div>
         )}
@@ -72,19 +77,14 @@ export default function ModuleNav({
         <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto', flexWrap: 'wrap' }}>
           {showOverview && (
             <button
-              className="btn btn-ghost"
+              className="nav-btn"
               onClick={() => navigate('/dashboard')}
-              style={{ fontSize: '0.85rem', padding: '8px 12px', minHeight: '38px' }}
             >
               Modulübersicht
             </button>
           )}
           {onBack && (
-            <button
-              className="btn btn-secondary"
-              onClick={onBack}
-              style={{ fontSize: '0.85rem', padding: '8px 12px', minHeight: '38px' }}
-            >
+            <button className="nav-btn" onClick={onBack}>
               {backLabel}
             </button>
           )}
@@ -93,7 +93,7 @@ export default function ModuleNav({
               className="btn btn-primary"
               onClick={onNext}
               disabled={nextDisabled}
-              style={{ fontSize: '0.85rem', padding: '8px 12px', minHeight: '38px' }}
+              style={{ fontSize: '0.88rem', padding: '8px 16px', minHeight: '38px' }}
             >
               {nextLabel}
             </button>

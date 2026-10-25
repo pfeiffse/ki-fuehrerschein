@@ -1,21 +1,20 @@
 // ============================================================
 // KI-Führerschein · Anmeldeseite
-// Schüler:innen geben Klassencode + Anzeigename ein
+// Stil: Modul 5 – dunkles Petrol, Teal, Gold
 // ============================================================
 
 import React, { useState } from 'react'
 import { studentJoin } from '../../lib/auth.js'
 
 export default function JoinPage({ onJoin }) {
-  const [joinCode,     setJoinCode]     = useState('')
-  const [displayName,  setDisplayName]  = useState('')
-  const [error,        setError]        = useState('')
-  const [loading,      setLoading]      = useState(false)
+  const [joinCode,    setJoinCode]    = useState('')
+  const [displayName, setDisplayName] = useState('')
+  const [error,       setError]       = useState('')
+  const [loading,     setLoading]     = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-
     if (!joinCode.trim())    { setError('Bitte gib den Klassencode ein.'); return }
     if (!displayName.trim()) { setError('Bitte gib deinen Namen ein.');    return }
 
@@ -23,47 +22,51 @@ export default function JoinPage({ onJoin }) {
     const result = await studentJoin(joinCode, displayName)
     setLoading(false)
 
-    if (result.error) {
-      setError(result.error)
-    } else {
-      onJoin(result.student)
-    }
+    if (result.error) setError(result.error)
+    else onJoin(result.student)
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+    <div style={{
+      minHeight:       '100vh',
+      background:      'var(--color-bg-gradient)',
+      display:         'flex',
+      alignItems:      'center',
+      justifyContent:  'center',
+      padding:         '24px',
+    }}>
       <div style={{ width: '100%', maxWidth: '480px' }}>
 
         {/* Hero */}
         <div style={{
-          background:   'linear-gradient(135deg, #064c87, #1184cf)',
+          background:   'var(--gradient-hero-dark)',
           color:        'white',
-          borderRadius: 'var(--radius-xl)',
-          padding:      'clamp(24px, 5vw, 40px)',
+          borderRadius: 'var(--radius-2xl)',
+          padding:      'clamp(28px, 5vw, 44px)',
           marginBottom: 'var(--space-lg)',
           textAlign:    'center',
           boxShadow:    'var(--shadow-lg)',
         }}>
-          <div style={{ fontSize: '3rem', marginBottom: '8px' }}>🤖</div>
-          <h1 style={{ margin: '0 0 8px', fontSize: 'clamp(1.6rem, 4vw, 2.2rem)' }}>
-            KI-Führerschein
+          <div style={{ fontSize: '3.5rem', marginBottom: '12px' }}>🌍</div>
+          <div className="eyebrow" style={{ marginBottom: '8px' }}>KI-Führerschein · Klasse 7</div>
+          <h1 style={{ margin: '0 0 8px', fontSize: 'clamp(1.8rem, 5vw, 2.4rem)' }}>
+            Willkommen!
           </h1>
-          <p style={{ margin: 0, opacity: 0.9 }}>Klasse 7 · Lernplattform</p>
+          <p style={{ margin: 0, opacity: 0.85, fontSize: '1rem' }}>
+            Melde dich mit dem Klassencode deiner Lehrkraft an.
+          </p>
         </div>
 
         {/* Formular */}
         <div className="card">
-          <h2 style={{ marginTop: 0, color: 'var(--color-platform)' }}>
+          <h2 style={{ marginTop: 0, color: 'var(--color-platform-teal)' }}>
             Anmelden
           </h2>
-          <p style={{ color: 'var(--color-text-muted)' }}>
-            Gib den Klassencode deiner Lehrkraft und deinen Namen ein.
-          </p>
 
           <form onSubmit={handleSubmit} noValidate>
             {/* Klassencode */}
             <div style={{ marginBottom: 'var(--space-md)' }}>
-              <label htmlFor="joinCode" style={{ fontWeight: 700, display: 'block', marginBottom: '6px' }}>
+              <label htmlFor="joinCode" style={{ fontWeight: 800, display: 'block', marginBottom: '6px', color: 'var(--color-text)' }}>
                 Klassencode
               </label>
               <input
@@ -71,26 +74,31 @@ export default function JoinPage({ onJoin }) {
                 type="text"
                 value={joinCode}
                 onChange={e => setJoinCode(e.target.value.toUpperCase())}
-                placeholder="z. B. KI7A42"
+                placeholder="z. B. TEST01"
                 maxLength={10}
                 autoComplete="off"
                 autoCapitalize="characters"
                 style={{
-                  width:        '100%',
-                  padding:      '12px',
-                  border:       '2px solid var(--color-border)',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize:     '1.2rem',
-                  fontWeight:   700,
-                  letterSpacing: '0.1em',
-                  fontFamily:   'monospace',
+                  width:         '100%',
+                  padding:       '14px',
+                  border:        '2px solid var(--color-border)',
+                  borderRadius:  'var(--radius-md)',
+                  fontSize:      '1.3rem',
+                  fontWeight:    900,
+                  letterSpacing: '0.15em',
+                  fontFamily:    'monospace',
+                  color:         'var(--color-platform)',
+                  background:    'var(--color-platform-pale)',
+                  transition:    'border-color var(--transition)',
                 }}
+                onFocus={e => e.target.style.borderColor = 'var(--color-platform-teal)'}
+                onBlur={e  => e.target.style.borderColor = 'var(--color-border)'}
               />
             </div>
 
             {/* Anzeigename */}
             <div style={{ marginBottom: 'var(--space-md)' }}>
-              <label htmlFor="displayName" style={{ fontWeight: 700, display: 'block', marginBottom: '6px' }}>
+              <label htmlFor="displayName" style={{ fontWeight: 800, display: 'block', marginBottom: '6px', color: 'var(--color-text)' }}>
                 Dein Name (oder Pseudonym)
               </label>
               <input
@@ -107,9 +115,13 @@ export default function JoinPage({ onJoin }) {
                   border:       '2px solid var(--color-border)',
                   borderRadius: 'var(--radius-md)',
                   fontSize:     '1rem',
+                  fontFamily:   'inherit',
+                  transition:   'border-color var(--transition)',
                 }}
+                onFocus={e => e.target.style.borderColor = 'var(--color-platform-teal)'}
+                onBlur={e  => e.target.style.borderColor = 'var(--color-border)'}
               />
-              <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+              <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '6px' }}>
                 Du kannst auch ein Pseudonym verwenden. Es werden keine persönlichen Daten gespeichert.
               </p>
             </div>
@@ -126,14 +138,19 @@ export default function JoinPage({ onJoin }) {
               type="submit"
               className="btn btn-primary"
               disabled={loading}
-              style={{ width: '100%', justifyContent: 'center', fontSize: '1.05rem' }}
+              style={{ width: '100%', justifyContent: 'center', fontSize: '1.05rem', padding: '15px' }}
             >
               {loading ? 'Wird angemeldet …' : 'Loslegen →'}
             </button>
           </form>
 
           {/* Lehrkraft-Link */}
-          <div style={{ marginTop: 'var(--space-lg)', textAlign: 'center', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-md)' }}>
+          <div style={{
+            marginTop:  'var(--space-lg)',
+            textAlign:  'center',
+            borderTop:  '1px solid var(--color-border)',
+            paddingTop: 'var(--space-md)',
+          }}>
             <a href="/lehrer" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
               Lehrkraft-Anmeldung →
             </a>

@@ -1,18 +1,14 @@
 /* ============================================================
    KI-Führerschein · Global Styles
+   Orientiert an Modul 5 (KI & Nachhaltigkeit) als Referenz
    ============================================================ */
 
 @import './tokens.css';
 
 /* --- Reset & Base --- */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
-html {
-  scroll-behavior: smooth;
-  font-size: 16px;
-}
+html { scroll-behavior: smooth; font-size: 16px; }
 
 body {
   margin: 0;
@@ -25,70 +21,79 @@ body {
 
 /* --- Fokus (Barrierefreiheit) --- */
 :focus-visible {
-  outline: 3px solid var(--color-border-focus);
+  outline: 4px solid var(--color-gold);
   outline-offset: 3px;
   border-radius: var(--radius-sm);
 }
 
 /* --- Typografie --- */
-h1, h2, h3, h4 {
-  line-height: 1.2;
-  margin: 0 0 var(--space-md);
-}
-
+h1, h2, h3, h4 { line-height: 1.2; margin: 0 0 var(--space-md); }
 h1 { font-size: var(--font-size-2xl); }
 h2 { font-size: var(--font-size-xl); }
 h3 { font-size: var(--font-size-lg); font-weight: 700; }
-
-p { margin: 0 0 var(--space-md); }
+p  { margin: 0 0 var(--space-md); line-height: var(--line-height); }
 p:last-child { margin-bottom: 0; }
-
-a { color: var(--color-platform); }
+a  { color: var(--color-platform-teal); }
 a:hover { text-decoration: underline; }
+
+/* --- Eyebrow (aus Modul 5) --- */
+.eyebrow {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  color: #bff5e5;
+}
 
 /* --- Layout --- */
 .wrap {
   max-width: var(--bp-lg);
   margin: 0 auto;
-  padding: var(--space-md) var(--space-md) var(--space-2xl);
+  padding: var(--space-lg) var(--space-md) var(--space-2xl);
 }
 
-/* --- Karten --- */
+/* --- Karten (aus Modul 5 .panel) --- */
 .card {
   background: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: clamp(18px, 4vw, 32px);
+  border-radius: var(--radius-xl);
+  padding: clamp(18px, 4vw, 27px);
   box-shadow: var(--shadow-md);
   margin-bottom: var(--space-lg);
 }
 
-.card h2 {
-  margin-top: 0;
-  color: var(--color-platform);
+.card h2 { margin-top: 0; color: var(--color-platform-teal); }
+
+/* --- Hero (aus Modul 5 .hero) --- */
+.hero {
+  background: var(--gradient-hero);
+  color: white;
+  border-radius: var(--radius-2xl);
+  padding: clamp(24px, 4vw, 36px);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: var(--space-lg);
 }
 
-/* --- Infoboxen (wie Modul 2) --- */
+/* --- Infoboxen (aus Modul 5) --- */
 .box-task {
   background: var(--color-warning-light);
-  border-left: 6px solid var(--color-warning);
-  padding: var(--space-md);
+  border-left: 5px solid var(--color-warning);
+  padding: var(--space-md) 17px;
   border-radius: var(--radius-md);
   margin: var(--space-md) 0;
 }
 
 .box-info {
   background: var(--color-info-light);
-  border-left: 6px solid var(--color-info);
-  padding: var(--space-md);
+  border-left: 5px solid var(--color-info);
+  padding: var(--space-md) 17px;
   border-radius: var(--radius-md);
   margin: var(--space-md) 0;
 }
 
 .box-memory {
   background: var(--color-success-light);
-  border-left: 6px solid var(--color-success);
-  padding: var(--space-md);
+  border-left: 5px solid var(--color-success);
+  padding: var(--space-md) 17px;
   border-radius: var(--radius-md);
   margin: var(--space-md) 0;
   font-weight: 700;
@@ -96,62 +101,95 @@ a:hover { text-decoration: underline; }
 
 .box-warning {
   background: var(--color-error-light);
-  border-left: 6px solid var(--color-error);
-  padding: var(--space-md);
+  border-left: 5px solid var(--color-error);
+  padding: var(--space-md) 17px;
   border-radius: var(--radius-md);
   margin: var(--space-md) 0;
 }
 
-/* --- Buttons --- */
+/* --- Buttons (aus Modul 5 .btn) --- */
 .btn {
   display: inline-flex;
   align-items: center;
   gap: var(--space-sm);
   border: 0;
   border-radius: var(--radius-md);
-  padding: 12px 18px;
+  padding: 14px 21px;
   font-size: var(--font-size-base);
-  font-weight: 700;
+  font-weight: 800;
   font-family: var(--font-family);
   cursor: pointer;
-  transition: filter var(--transition), transform var(--transition);
-  min-height: 48px;          /* Touchfreundlich */
+  transition: background var(--transition), filter var(--transition), transform var(--transition);
+  min-height: 48px;
   text-decoration: none;
+  line-height: 1.2;
 }
 
-.btn:hover { filter: brightness(1.08); }
-.btn:active { transform: scale(0.98); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+.btn:hover   { filter: brightness(1.08); }
+.btn:active  { transform: scale(0.98); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
 
-.btn-primary   { background: var(--color-platform); color: white; }
-.btn-success   { background: var(--color-success);  color: white; }
-.btn-secondary { background: #5c6c7a; color: white; }
-.btn-ghost     { background: var(--color-platform-light); color: var(--color-platform); }
+.btn-primary   { background: var(--color-platform-teal); color: white; }
+.btn-success   { background: var(--color-success);       color: white; }
+.btn-secondary { background: #5c6c7a;                    color: white; }
+.btn-ghost     { background: var(--color-platform-pale); color: var(--color-platform); }
+.btn-gold      { background: var(--color-gold);          color: var(--color-platform); }
 
-/* --- Fortschrittsbalken --- */
+/* --- Nav-Buttons (aus Modul 5 nav button) --- */
+.nav-btn {
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px 13px;
+  background: var(--color-platform-pale);
+  color: #123c50;
+  font-weight: 700;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.nav-btn:hover  { background: var(--color-bg); }
+.nav-btn.active { background: var(--color-gold); border-color: var(--color-gold); }
+
+/* --- Fortschrittsbalken (aus Modul 5 .progress) --- */
 .progress-shell {
-  height: 14px;
-  background: #dfe8f0;
+  height: 11px;
+  background: rgba(255,255,255,0.3);
   border-radius: var(--radius-pill);
   overflow: hidden;
 }
 
+.progress-shell.dark {
+  background: #dfe8f0;
+}
+
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #22a45d, #73d48e);
+  background: var(--color-gold);
   border-radius: var(--radius-pill);
   transition: width 0.35s ease;
+}
+
+.progress-bar.green {
+  background: linear-gradient(90deg, #22a45d, #73d48e);
 }
 
 /* --- Pill / Badge --- */
 .pill {
   display: inline-block;
-  background: var(--color-platform-light);
-  color: var(--color-platform);
+  background: rgba(255,255,255,0.2);
+  color: white;
   padding: 4px 12px;
   border-radius: var(--radius-pill);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.pill-dark {
+  background: var(--color-platform-pale);
+  color: var(--color-platform);
 }
 
 /* --- Grid --- */
@@ -167,45 +205,73 @@ a:hover { text-decoration: underline; }
   gap: var(--space-md);
 }
 
-/* --- Feedback --- */
+/* --- Feedback (aus Modul 5) --- */
 .feedback {
-  display: none;
   margin-top: var(--space-md);
-  padding: var(--space-md);
+  padding: 13px 17px;
   border-radius: var(--radius-md);
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  line-height: 1.55;
+  display: none;
 }
 
 .feedback.correct {
   display: block;
   background: var(--color-success-light);
-  color: #145e35;
+  border-left: 5px solid var(--color-success);
+  color: #11613e;
 }
 
 .feedback.wrong {
   display: block;
   background: var(--color-error-light);
+  border-left: 5px solid var(--color-error);
   color: #8b2020;
 }
 
-/* --- Quiz-Optionen (wie Modul 2) --- */
+/* --- Quiz-Optionen (aus Modul 5 .choice) --- */
 .option {
-  display: block;
+  display: flex;
+  gap: 9px;
+  align-items: center;
   border: 2px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 12px;
+  padding: 12px 17px;
   margin: 8px 0;
   cursor: pointer;
   background: white;
-  transition: border-color var(--transition);
+  font-weight: 700;
   font-family: var(--font-family);
   font-size: var(--font-size-base);
   text-align: left;
   width: 100%;
+  transition: border-color var(--transition), background var(--transition);
 }
 
-.option:hover { border-color: #8bbde3; }
-.option input  { margin-right: 10px; }
+.option:hover { border-color: var(--color-platform-teal); background: var(--color-platform-pale); }
+.option input { accent-color: var(--color-platform-teal); width: 18px; height: 18px; flex-shrink: 0; }
+.option:has(input:checked) { border-color: var(--color-platform-teal); background: #dff5f1; }
+
+/* --- Vergleichs-Box (aus Modul 5 .compare) --- */
+.compare-box {
+  border-radius: var(--radius-lg);
+  background: #fff2cf;
+  padding: var(--space-lg);
+  margin: var(--space-lg) 0;
+  border: 1px solid var(--color-gold-dark);
+}
+
+.compare-box .big {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 900;
+  color: #825300;
+}
+
+/* --- Tabelle (aus Modul 5) --- */
+table { border-collapse: collapse; width: 100%; font-size: var(--font-size-sm); }
+th, td { text-align: left; padding: 13px; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+th { background: #e5f3f1; font-weight: 700; }
+tr:nth-child(even) { background: #f7fbfc; }
 
 /* --- Druckansicht --- */
 @media print {
@@ -216,14 +282,19 @@ a:hover { text-decoration: underline; }
 }
 
 /* --- Responsive --- */
-@media (max-width: 520px) {
-  .card { padding: 16px; }
-  .btn  { padding: 12px 14px; font-size: 0.95rem; }
+@media (max-width: 760px) {
+  .card  { padding: 18px; }
+  .btn   { padding: 12px 16px; font-size: 0.95rem; }
+  .hero  { padding: 24px; }
+}
+
+@media (max-width: 480px) {
+  .card  { padding: 14px; }
 }
 
 /* --- Utility --- */
-.hidden   { display: none !important; }
-.sr-only  {
+.hidden  { display: none !important; }
+.sr-only {
   position: absolute; width: 1px; height: 1px;
   padding: 0; margin: -1px; overflow: hidden;
   clip: rect(0,0,0,0); white-space: nowrap; border: 0;
@@ -236,3 +307,8 @@ a:hover { text-decoration: underline; }
   margin-top: var(--space-lg);
   align-items: center;
 }
+.source {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.source a { color: var(--color-platform-teal); }
