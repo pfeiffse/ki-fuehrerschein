@@ -37,11 +37,7 @@ export default function App() {
     init()
   }, [])
 
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--color-bg)' }}>
-      <p style={{ color: 'var(--color-text-muted)' }}>Wird geladen …</p>
-    </div>
-  )
+  
 
   const isStudent = !!student
   const isTeacher = !!teacher

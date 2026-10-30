@@ -132,9 +132,7 @@ export default function Modul02Page() {
     s5:  !!done['q1'],
     s6:  !!done['principles'],
     s7:  !!done['q2'] && !!done['prompt'],
-    s8:  !!done['scenarios'],
-    s9:  Object.keys(done).filter(k => k.startsWith('q')).length >= 6,
-    s10: !!done['rules'],
+    
   }
 
   const badges = [

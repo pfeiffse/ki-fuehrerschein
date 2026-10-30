@@ -15,8 +15,7 @@ export default function JoinPage({ onJoin }) {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    if (!joinCode.trim())    { setError('Bitte gib den Klassencode ein.'); return }
-    if (!displayName.trim()) { setError('Bitte gib deinen Namen ein.');    return }
+    
 
     setLoading(true)
     const result = await studentJoin(joinCode, displayName)
