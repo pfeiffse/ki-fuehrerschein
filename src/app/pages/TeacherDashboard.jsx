@@ -1,9 +1,9 @@
 // ============================================================
 // KI-Führerschein · Lehrkraft-Dashboard
-// Klassenübersicht, Schülerfortschritt, CSV-Export
 // ============================================================
 
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase.js'
 import { teacherLogout, getTeacherProfile } from '../../lib/auth.js'
 
@@ -22,13 +22,14 @@ const STATUS_DISPLAY = {
 }
 
 export default function TeacherDashboard({ teacher, onLogout }) {
-  const [profile,       setProfile]       = useState(null)
-  const [classes,       setClasses]       = useState([])
-  const [selectedClass, setSelectedClass] = useState(null)
-  const [students,      setStudents]      = useState([])
-  const [progress,      setProgress]      = useState([])
-  const [loading,       setLoading]       = useState(true)
-  const [showNewClass,  setShowNewClass]  = useState(false)
+  const navigate = useNavigate()
+  const [profile,         setProfile]         = useState(null)
+  const [classes,         setClasses]         = useState([])
+  const [selectedClass,   setSelectedClass]   = useState(null)
+  const [students,        setStudents]        = useState([])
+  const [progress,        setProgress]        = useState([])
+  const [loading,         setLoading]         = useState(true)
+  const [showNewClass,    setShowNewClass]    = useState(false)
   const [selectedStudent, setSelectedStudent] = useState(null)
 
   useEffect(() => {
@@ -85,19 +86,18 @@ export default function TeacherDashboard({ teacher, onLogout }) {
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
-    a.href = url; a.download = `ki-fuehrerschein_${selectedClass?.name ?? 'klasse'}_${new Date().toISOString().slice(0,10)}.csv`
-    a.click(); URL.revokeObjectURL(url)
+    a.href = url
+    a.download = `ki-fuehrerschein_${selectedClass?.name ?? 'klasse'}_${new Date().toISOString().slice(0,10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   async function handleLogout() { await teacherLogout(); onLogout() }
 
-  const moduleIds = Object.keys(MODULE_LABELS)
-
-  // Klassenstatistik
-  const stats = moduleIds.map(mid => ({
-    mid,
-    label: MODULE_LABELS[mid],
-    passed: students.filter(s => getProgress(s.id, mid)?.passed).length,
+  const moduleIds  = Object.keys(MODULE_LABELS)
+  const stats      = moduleIds.map(mid => ({
+    mid, label: MODULE_LABELS[mid],
+    passed:     students.filter(s => getProgress(s.id, mid)?.passed).length,
     inProgress: students.filter(s => getProgress(s.id, mid)?.status === 'in_progress').length,
   }))
   const certCount = students.filter(s => moduleIds.every(mid => getProgress(s.id, mid)?.passed)).length
@@ -106,7 +106,30 @@ export default function TeacherDashboard({ teacher, onLogout }) {
     <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }}>
       <div className="wrap">
 
-        
+        {/* Header */}
+        <div className="hero" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-md)' }}>
+          <div>
+            <div className="eyebrow" style={{ marginBottom: '6px' }}>KI-Führerschein · Lehrkraft-Bereich</div>
+            <h1 style={{ margin: '0 0 4px', fontSize: 'clamp(1.4rem,3vw,2rem)' }}>👩‍🏫 Dashboard</h1>
+            <p style={{ margin: 0, opacity: 0.85, fontSize: '0.9rem' }}>
+              {profile?.display_name ?? ''} · {profile?.schools?.name ?? 'KI-Führerschein'}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {profile?.role === 'superadmin' && (
+              <button className="btn" onClick={() => navigate('/admin')}
+                style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.4)', color: 'white', fontSize: '0.9rem' }}>
+                🛡️ Admin-Ansicht
+              </button>
+            )}
+            <button className="btn" onClick={handleLogout}
+              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.4)', color: 'white' }}>
+              Abmelden
+            </button>
+          </div>
+        </div>
+
+        {/* Klassen-Tabs */}
         <div className="card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-sm)', marginBottom: 'var(--space-md)' }}>
             <h2 style={{ margin: 0, color: 'var(--color-platform-teal)' }}>Meine Klassen</h2>
@@ -154,7 +177,7 @@ export default function TeacherDashboard({ teacher, onLogout }) {
         {selectedClass && students.length > 0 && (
           <div className="card">
             <h2 style={{ color: 'var(--color-platform-teal)', marginTop: 0 }}>Klassenstatistik</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 'var(--space-md)', marginBottom: 'var(--space-md)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 'var(--space-md)' }}>
               {stats.map(s => {
                 const pct = students.length > 0 ? Math.round((s.passed / students.length) * 100) : 0
                 return (
@@ -190,21 +213,9 @@ export default function TeacherDashboard({ teacher, onLogout }) {
                   <div key={mid} style={{ background: sd.bg || 'var(--color-platform-pale)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', border: `1px solid ${p?.passed ? 'var(--color-success)' : 'var(--color-border)'}` }}>
                     <div style={{ fontWeight: 800, fontSize: '0.85rem', marginBottom: '6px' }}>{MODULE_LABELS[mid]}</div>
                     <div style={{ fontWeight: 800, color: sd.color }}>{sd.label}</div>
-                    {p?.score > 0 && (
-                      <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                        {p.score} / {p.max_score} Punkte
-                      </div>
-                    )}
-                    {p?.started_at && (
-                      <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                        Begonnen: {new Date(p.started_at).toLocaleDateString('de-DE')}
-                      </div>
-                    )}
-                    {p?.completed_at && (
-                      <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-success)', marginTop: '2px' }}>
-                        Abgeschlossen: {new Date(p.completed_at).toLocaleDateString('de-DE')}
-                      </div>
-                    )}
+                    {p?.score > 0 && <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '4px' }}>{p.score} / {p.max_score} Punkte</div>}
+                    {p?.started_at && <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '4px' }}>Begonnen: {new Date(p.started_at).toLocaleDateString('de-DE')}</div>}
+                    {p?.completed_at && <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-success)', marginTop: '2px' }}>Abgeschlossen: {new Date(p.completed_at).toLocaleDateString('de-DE')}</div>}
                   </div>
                 )
               })}
@@ -219,8 +230,7 @@ export default function TeacherDashboard({ teacher, onLogout }) {
               <h2 style={{ margin: 0, color: 'var(--color-platform-teal)' }}>
                 Klasse {selectedClass.name} · {students.length} Schüler:innen
               </h2>
-              <button className="btn btn-ghost" onClick={exportCSV}
-                style={{ fontSize: '0.9rem', padding: '8px 14px', minHeight: '38px' }}>
+              <button className="btn btn-ghost" onClick={exportCSV} style={{ fontSize: '0.9rem', padding: '8px 14px', minHeight: '38px' }}>
                 📥 CSV exportieren
               </button>
             </div>
@@ -237,9 +247,7 @@ export default function TeacherDashboard({ teacher, onLogout }) {
                   <thead>
                     <tr>
                       <th>Name</th>
-                      {moduleIds.map(mid => (
-                        <th key={mid} style={{ minWidth: '110px', fontSize: '0.78rem' }}>{MODULE_LABELS[mid]}</th>
-                      ))}
+                      {moduleIds.map(mid => <th key={mid} style={{ minWidth: '110px', fontSize: '0.78rem' }}>{MODULE_LABELS[mid]}</th>)}
                       <th>Zertifikat</th>
                       <th></th>
                     </tr>
@@ -248,7 +256,7 @@ export default function TeacherDashboard({ teacher, onLogout }) {
                     {students.map(s => {
                       const allPassed = moduleIds.every(mid => getProgress(s.id, mid)?.passed)
                       return (
-                        <tr key={s.id} style={{ cursor: 'pointer' }} onClick={() => setSelectedStudent(s === selectedStudent ? null : s)}>
+                        <tr key={s.id} style={{ cursor: 'pointer' }}>
                           <td>
                             <strong>{s.display_name}</strong>
                             <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
@@ -264,9 +272,7 @@ export default function TeacherDashboard({ teacher, onLogout }) {
                                 <span style={{ color: sd.color, fontWeight: 700, fontSize: '0.82rem', background: sd.bg, borderRadius: '99px', padding: '2px 8px', display: 'inline-block' }}>
                                   {sd.label}
                                 </span>
-                                {p?.score > 0 && (
-                                  <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>{p.score}/{p.max_score}</div>
-                                )}
+                                {p?.score > 0 && <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>{p.score}/{p.max_score}</div>}
                               </td>
                             )
                           })}
@@ -274,7 +280,7 @@ export default function TeacherDashboard({ teacher, onLogout }) {
                             {allPassed ? '🏆' : '–'}
                           </td>
                           <td>
-                            <button className="nav-btn" onClick={e => { e.stopPropagation(); setSelectedStudent(s === selectedStudent ? null : s) }}
+                            <button className="nav-btn" onClick={() => setSelectedStudent(s === selectedStudent ? null : s)}
                               style={{ fontSize: '0.75rem', padding: '4px 8px' }}>
                               Details
                             </button>
@@ -322,7 +328,13 @@ function NewClassForm({ teacherId, schoolId, onCreated, onCancel }) {
     onCreated(data)
   }
 
-  const inputStyle = { width: '100%', padding: '12px', border: '2px solid var(--color-border)', borderRadius: 'var(--radius-md)', fontSize: '1rem', fontFamily: 'inherit', background: 'var(--color-platform-pale)' }
+  const inputStyle = {
+    width: '100%', padding: '12px',
+    border: '2px solid var(--color-border)',
+    borderRadius: 'var(--radius-md)',
+    fontSize: '1rem', fontFamily: 'inherit',
+    background: 'var(--color-platform-pale)',
+  }
 
   return (
     <div className="card" style={{ border: '2px solid var(--color-platform-teal)' }}>

@@ -78,7 +78,12 @@ export default function App() {
         {/* ── Lehrkräfte ── */}
         <Route path="/lehrer"
           element={isTeacher ? <Navigate to="/lehrer/dashboard" replace /> : <TeacherLogin onLogin={setTeacher} />} />
-        
+        <Route path="/lehrer/dashboard"
+          element={isTeacher ? <TeacherDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
+
+        {/* ── Admin ── */}
+        <Route path="/admin"
+          element={isTeacher ? <AdminDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
 
         {/* ── Fallback ── */}
         <Route path="*" element={<NotFound />} />
