@@ -1,12 +1,11 @@
-// ============================================================
-// KI-Führerschein · App-Router
-// ============================================================
+// KI-Fuehrerschein - App-Router
 
 import React, { useEffect, useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { studentRestore, getTeacherSession } from '../lib/auth.js'
 import PlatformHeader   from '../components/layout/PlatformHeader.jsx'
 import Footer           from '../components/layout/Footer.jsx'
+import OfflineIndicator from '../components/ui/OfflineIndicator.jsx'
 import LandingPage      from './pages/LandingPage.jsx'
 import JoinPage         from './pages/JoinPage.jsx'
 import Dashboard        from './pages/Dashboard.jsx'
@@ -52,44 +51,27 @@ export default function App() {
       {isStudent && <PlatformHeader student={student} onLogout={() => setStudent(null)} />}
 
       <Routes>
-        {/* ── Öffentlich ── */}
-        <Route path="/"
-          element={isStudent ? <Navigate to="/dashboard" replace /> : <LandingPage onJoin={setStudent} />} />
-        <Route path="/anmelden"
-          element={isStudent ? <Navigate to="/dashboard" replace /> : <JoinPage onJoin={setStudent} />} />
+        <Route path="/" element={isStudent ? <Navigate to="/dashboard" replace /> : <LandingPage onJoin={setStudent} />} />
+        <Route path="/anmelden" element={isStudent ? <Navigate to="/dashboard" replace /> : <JoinPage onJoin={setStudent} />} />
         <Route path="/datenschutz" element={<PrivacyPage />} />
 
-        {/* ── Schüler:innen ── */}
-        <Route path="/dashboard"
-          element={isStudent ? <Dashboard student={student} /> : <Navigate to="/" replace />} />
-        <Route path="/modul/01"
-          element={isStudent ? <Modul01Page /> : <Navigate to="/" replace />} />
-        <Route path="/modul/02"
-          element={isStudent ? <Modul02Page /> : <Navigate to="/" replace />} />
-        <Route path="/modul/03"
-          element={isStudent ? <Modul03Page /> : <Navigate to="/" replace />} />
-        <Route path="/modul/04"
-          element={isStudent ? <Modul04Page /> : <Navigate to="/" replace />} />
-        <Route path="/zertifikat"
-          element={isStudent ? <CertificatePage /> : <Navigate to="/" replace />} />
-        <Route path="/meine-daten"
-          element={isStudent ? <MyDataPage /> : <Navigate to="/" replace />} />
+        <Route path="/dashboard" element={isStudent ? <Dashboard student={student} /> : <Navigate to="/" replace />} />
+        <Route path="/modul/01" element={isStudent ? <Modul01Page /> : <Navigate to="/" replace />} />
+        <Route path="/modul/02" element={isStudent ? <Modul02Page /> : <Navigate to="/" replace />} />
+        <Route path="/modul/03" element={isStudent ? <Modul03Page /> : <Navigate to="/" replace />} />
+        <Route path="/modul/04" element={isStudent ? <Modul04Page /> : <Navigate to="/" replace />} />
+        <Route path="/zertifikat" element={isStudent ? <CertificatePage /> : <Navigate to="/" replace />} />
+        <Route path="/meine-daten" element={isStudent ? <MyDataPage /> : <Navigate to="/" replace />} />
 
-        {/* ── Lehrkräfte ── */}
-        <Route path="/lehrer"
-          element={isTeacher ? <Navigate to="/lehrer/dashboard" replace /> : <TeacherLogin onLogin={setTeacher} />} />
-        <Route path="/lehrer/dashboard"
-          element={isTeacher ? <TeacherDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
+        <Route path="/lehrer" element={isTeacher ? <Navigate to="/lehrer/dashboard" replace /> : <TeacherLogin onLogin={setTeacher} />} />
+        <Route path="/lehrer/dashboard" element={isTeacher ? <TeacherDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
+        <Route path="/admin" element={isTeacher ? <AdminDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
 
-        {/* ── Admin ── */}
-        <Route path="/admin"
-          element={isTeacher ? <AdminDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
-
-        {/* ── Fallback ── */}
         <Route path="*" element={<NotFound />} />
       </Routes>
 
       <Footer student={student} />
+      {isStudent && <OfflineIndicator />}
     </div>
   )
 }

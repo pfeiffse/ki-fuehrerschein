@@ -1,14 +1,13 @@
 // KI-Fuehrerschein - Authentifizierung
-// Schueler:innen: Klassencode + Anzeigename
-// Lehrkraefte: E-Mail + Passwort (Supabase Auth)
+// Offline-First: Session aus localStorage wenn Supabase nicht erreichbar
 
 import { supabase } from './supabase.js'
 
 const TOKEN_KEY   = 'ki_student_token'
 const STUDENT_KEY = 'ki_student_data'
+const CLASS_KEY   = 'ki_student_class'
 
 // Alle KI-Fuehrerschein-Daten aus localStorage loeschen
-// Wird beim Abmelden UND beim Anmelden eines neuen Schuelers aufgerufen
 export function clearLocalData() {
   var keysToDelete = []
   for (var i = 0; i < localStorage.length; i++) {
@@ -18,12 +17,43 @@ export function clearLocalData() {
   keysToDelete.forEach(function(k) { localStorage.removeItem(k) })
 }
 
+// Supabase erreichbar?
+async function isOnline() {
+  if (!navigator.onLine) return false
+  try {
+    var { error } = await supabase.from('modules').select('id').limit(1)
+    return !error
+  } catch {
+    return false
+  }
+}
+
 // Schueler:in anmelden (Klassencode + Anzeigename)
 export async function studentJoin(joinCode, displayName) {
+  var online = await isOnline()
+
+  // OFFLINE: Bestehende Session aus localStorage pruefen
+  if (!online) {
+    var cachedToken   = localStorage.getItem(TOKEN_KEY)
+    var cachedStudent = getStudentLocal()
+    var cachedClass   = getCachedClass()
+
+    if (cachedStudent && cachedToken) {
+      // Pruefen ob Klassencode passt (lokal gecacht)
+      if (cachedClass && cachedClass.join_code === joinCode.toUpperCase().trim()) {
+        return { student: cachedStudent, class: cachedClass, offline: true }
+      }
+      // Anderer Code -> kein Offline-Login moeglich
+      return { error: 'Offline: Bitte zuerst mit Internetverbindung anmelden.' }
+    }
+    return { error: 'Keine Internetverbindung. Bitte zuerst online anmelden.' }
+  }
+
+  // ONLINE: Normale Anmeldung
   // 1. Klasse suchen
   var { data: cls, error: clsErr } = await supabase
     .from('classes')
-    .select('id, name, grade')
+    .select('id, name, grade, join_code')
     .eq('join_code', joinCode.toUpperCase().trim())
     .single()
 
@@ -31,7 +61,7 @@ export async function studentJoin(joinCode, displayName) {
     return { error: 'Ungültiger Klassencode. Bitte prüfe die Eingabe.' }
   }
 
-  // 2. Bestehenden Token prüfen
+  // 2. Bestehenden Token pruefen
   var existingToken = localStorage.getItem(TOKEN_KEY)
   if (existingToken) {
     var { data: existing } = await supabase
@@ -44,9 +74,10 @@ export async function studentJoin(joinCode, displayName) {
     if (existing) {
       // Gleicher Schueler, gleiche Klasse -> Session wiederherstellen
       localStorage.setItem(STUDENT_KEY, JSON.stringify(existing))
+      localStorage.setItem(CLASS_KEY,   JSON.stringify(cls))
       return { student: existing, class: cls }
     } else {
-      // Anderer Schueler oder andere Klasse -> alle lokalen Daten loeschen
+      // Anderer Schueler -> alle lokalen Daten loeschen
       clearLocalData()
     }
   }
@@ -69,18 +100,29 @@ export async function studentJoin(joinCode, displayName) {
 
   localStorage.setItem(TOKEN_KEY,   sessionToken)
   localStorage.setItem(STUDENT_KEY, JSON.stringify(student))
+  localStorage.setItem(CLASS_KEY,   JSON.stringify(cls))
 
   return { student: student, class: cls }
 }
 
-// Bestehende Schueler-Session wiederherstellen
+// Bestehende Session wiederherstellen (Offline-First)
 export async function studentRestore() {
   var token = localStorage.getItem(TOKEN_KEY)
   if (!token) return null
 
+  var online = await isOnline()
+
+  // OFFLINE: Lokalen Cache verwenden
+  if (!online) {
+    var cached = getStudentLocal()
+    if (cached) return cached
+    return null
+  }
+
+  // ONLINE: Supabase pruefen
   var { data: student } = await supabase
     .from('students')
-    .select('*, classes(id, name, grade)')
+    .select('*, classes(id, name, grade, join_code)')
     .eq('session_token', token)
     .single()
 
@@ -90,6 +132,9 @@ export async function studentRestore() {
   }
 
   localStorage.setItem(STUDENT_KEY, JSON.stringify(student))
+  if (student.classes) {
+    localStorage.setItem(CLASS_KEY, JSON.stringify(student.classes))
+  }
   return student
 }
 
@@ -102,6 +147,16 @@ export function studentLogout() {
 export function getStudentLocal() {
   try {
     var raw = localStorage.getItem(STUDENT_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+// Gecachte Klasse lesen
+export function getCachedClass() {
+  try {
+    var raw = localStorage.getItem(CLASS_KEY)
     return raw ? JSON.parse(raw) : null
   } catch {
     return null
@@ -128,13 +183,13 @@ export async function getTeacherSession() {
 
 // Profil der Lehrkraft laden
 export async function getTeacherProfile() {
-  var { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  var { data: authData } = await supabase.auth.getUser()
+  if (!authData || !authData.user) return null
 
   var { data: profile } = await supabase
     .from('users')
     .select('*, schools(name)')
-    .eq('id', user.id)
+    .eq('id', authData.user.id)
     .single()
 
   return profile
