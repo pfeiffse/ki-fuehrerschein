@@ -72,10 +72,7 @@ export default function Modul02Page({ student }) {
     load()
   }, [])
 
-  useEffect(() => {
-    if (!state.loaded) return
-    completeModule(MODULE_ID, state.points, MAX_POINTS)
-  }, [state.points, state.loaded])
+  
 
   const award = useCallback(async (id, pts) => {
     dispatch({ type: 'AWARD', id, pts })
