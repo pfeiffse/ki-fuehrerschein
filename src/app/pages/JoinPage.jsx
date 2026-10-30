@@ -144,17 +144,7 @@ export default function JoinPage({ onJoin }) {
             </button>
           </form>
 
-          {/* Lehrkraft-Link */}
-          <div style={{
-            marginTop:  'var(--space-lg)',
-            textAlign:  'center',
-            borderTop:  '1px solid var(--color-border)',
-            paddingTop: 'var(--space-md)',
-          }}>
-            <a href="/lehrer" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
-              Lehrkraft-Anmeldung →
-            </a>
-          </div>
+          
         </div>
       </div>
     </div>

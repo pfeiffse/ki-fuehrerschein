@@ -8,6 +8,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { studentRestore, getTeacherSession } from '../lib/auth.js'
 
 import PlatformHeader    from '../components/layout/PlatformHeader.jsx'
+import Footer            from '../components/layout/Footer.jsx'
 import JoinPage          from './pages/JoinPage.jsx'
 import Dashboard         from './pages/Dashboard.jsx'
 import Modul01Page       from './pages/Modul01Page.jsx'
@@ -15,6 +16,8 @@ import Modul02Page       from './pages/Modul02Page.jsx'
 import Modul03Page       from './pages/Modul03Page.jsx'
 import Modul04Page       from './pages/Modul04Page.jsx'
 import CertificatePage   from './pages/CertificatePage.jsx'
+import PrivacyPage       from './pages/PrivacyPage.jsx'
+import MyDataPage        from './pages/MyDataPage.jsx'
 import TeacherLogin      from './pages/TeacherLogin.jsx'
 import TeacherDashboard  from './pages/TeacherDashboard.jsx'
 import NotFound          from './pages/NotFound.jsx'
@@ -41,9 +44,7 @@ export default function App() {
     </div>
   )
 
-  return (
-    <>
-      {student && <PlatformHeader student={student} onLogout={() => setStudent(null)} />}
+  }
 
       <Routes>
         {/* ── Schüler:innen ── */}
@@ -59,17 +60,10 @@ export default function App() {
           element={student ? <Modul03Page student={student} /> : <Navigate to="/" replace />} />
         <Route path="/modul/04"
           element={student ? <Modul04Page student={student} /> : <Navigate to="/" replace />} />
-        <Route path="/zertifikat"
-          element={student ? <CertificatePage student={student} /> : <Navigate to="/" replace />} />
-
-        {/* ── Lehrkräfte ── */}
+        
         <Route path="/lehrer"
           element={teacher ? <Navigate to="/lehrer/dashboard" replace /> : <TeacherLogin onLogin={setTeacher} />} />
         <Route path="/lehrer/dashboard"
           element={teacher ? <TeacherDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </>
-  )
-}
+        
