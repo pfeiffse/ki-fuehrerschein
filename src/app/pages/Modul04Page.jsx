@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
+import { startModule, passModule, updateModuleProgress } from '../../lib/progress.js'
 import { MemoryBox, InfoBox, WarningBox } from '../../components/ui/InfoBox.jsx'
 import Station1 from '../../modules/modul-04/Station1.jsx'
 import Station2 from '../../modules/modul-04/Station2.jsx'
@@ -56,11 +57,7 @@ export default function Modul04Page() {
   const [achieved, setAchieved] = useState(false)
   const [showAchievement, setShowAchievement] = useState(null)
 
-  useEffect(() => {
-    const s = loadState()
-    setState(s)
-    setAchieved(hasAchievement(MOD.id))
-  }, [])
+  
 
   function updateState(updates) {
     setState(prev => {
@@ -75,32 +72,7 @@ export default function Modul04Page() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  function completeStation(stationNr) {
-    setState(prev => {
-      const completed = prev.completed.includes(stationNr)
-        ? prev.completed
-        : [...prev.completed, stationNr]
-      const station1Complete = stationNr === 1 ? true : prev.station1Complete
-      const next = { ...prev, completed, station1Complete }
-      saveState(next)
-      return next
-    })
-    // Achievement anzeigen
-    setTimeout(() => {
-      setShowAchievement(ACHIEVEMENTS[stationNr])
-      setState(prev => {
-        const awarded = prev.awarded.includes(stationNr) ? prev.awarded : [...prev.awarded, stationNr]
-        const next = { ...prev, awarded }
-        saveState(next)
-        // Modul-Achievement wenn alle 5 Stationen abgeschlossen
-        if (awarded.length >= 5 && !achieved) {
-          saveAchievementLocal(MOD.id)
-          setAchieved(true)
-        }
-        return next
-      })
-    }, 300)
-  }
+  
 
   function resetModule() {
     if (!confirm('Modul wirklich neu starten? Dein gesamter Fortschritt wird gelöscht.')) return

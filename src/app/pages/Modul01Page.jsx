@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
+import { startModule, updateModuleProgress, passModule } from '../../lib/progress.js'
 import { MemoryBox, InfoBox, WarningBox } from '../../components/ui/InfoBox.jsx'
 import Station1 from '../../modules/modul-01/Station1.jsx'
 import Station2 from '../../modules/modul-01/Station2.jsx'
@@ -37,10 +38,7 @@ export default function Modul01Page() {
   const [achieved, setAchieved] = useState(false)
   const [showAch,  setShowAch]  = useState(null)
 
-  useEffect(() => {
-    setState(loadState())
-    setAchieved(hasAchievement(MOD.id))
-  }, [])
+  
 
   function updateState(updates) {
     setState(prev => {
@@ -55,21 +53,7 @@ export default function Modul01Page() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  function completeStation(n) {
-    setState(prev => {
-      const completed = prev.completed.includes(n) ? prev.completed : [...prev.completed, n]
-      const next = { ...prev, completed }
-      saveState(next)
-      return next
-    })
-    setTimeout(() => {
-      setShowAch(STATION_ACHIEVEMENTS[n])
-      if (n === 4) {
-        saveAchievementLocal(MOD.id)
-        setAchieved(true)
-      }
-    }, 300)
-  }
+  
 
   function resetModule() {
     if (!confirm('Modul wirklich neu starten?')) return

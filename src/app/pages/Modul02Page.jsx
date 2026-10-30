@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
+import { startModule, updateModuleProgress, passModule } from '../../lib/progress.js'
 import { TaskBox, InfoBox, WarningBox, MemoryBox } from '../../components/ui/InfoBox.jsx'
 import Badge from '../../components/ui/Badge.jsx'
 
@@ -97,28 +98,9 @@ export default function Modul02Page() {
   const [state,    setState]    = useState(null)
   const [achieved, setAchieved] = useState(false)
 
-  useEffect(() => {
-    setState(loadState())
-    setAchieved(hasAchievement(MOD.id))
-  }, [])
+  
 
-  function update(id, pts, isCorrect = true) {
-    setState(prev => {
-      if (prev.done[id]) return prev
-      const next = {
-        ...prev,
-        points:  Math.min(MAX_PTS, prev.points + pts),
-        done:    { ...prev.done, [id]: true },
-        correct: isCorrect ? prev.correct + 1 : prev.correct,
-      }
-      saveState(next)
-      if (next.points >= PASS_PTS && !achieved) {
-        saveAchievementLocal(MOD.id)
-        setAchieved(true)
-      }
-      return next
-    })
-  }
+  
 
   function award(id, pts)          { update(id, pts, false) }
   function quizCorrect(id, pts)    { update(id, pts, true)  }

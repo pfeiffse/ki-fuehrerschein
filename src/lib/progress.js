@@ -1,224 +1,167 @@
-// ============================================================
-// KI-Führerschein · Fortschrittsverwaltung
-// Supabase (primär) + localStorage (Fallback/Cache)
-// ============================================================
+// KI-Fuehrerschein - Fortschrittsverwaltung
+// localStorage (primaer, sofort) + Supabase (sync, fuer Lehrkraft)
 
 import { supabase } from './supabase.js'
 import { getStudentLocal } from './auth.js'
 
-// ── Lokaler Cache ─────────────────────────────────────────────
+const cacheKey     = mid => 'ki_progress_' + mid
+const taskCacheKey = mid => 'ki_tasks_' + mid
 
-function cacheKey(moduleId)     { return `ki_progress_${moduleId}` }
-function taskCacheKey(moduleId) { return `ki_tasks_${moduleId}` }
-
-function readCache(key)        { try { return JSON.parse(localStorage.getItem(key)) } catch { return null } }
-function writeCache(key, data) { try { localStorage.setItem(key, JSON.stringify(data)) } catch {} }
-
-// ── Modul-Fortschritt ─────────────────────────────────────────
-
-/**
- * Modul-Fortschritt laden (Supabase → localStorage-Fallback).
- */
-export async function loadModuleProgress(moduleId) {
-  const student = getStudentLocal()
-  if (!student) return null
-
-  const { data, error } = await supabase
-    .from('student_module_progress')
-    .select('*')
-    .eq('student_id', student.id)
-    .eq('module_id', moduleId)
-    .single()
-
-  if (error || !data) {
-    // Fallback: lokaler Cache
-    return readCache(cacheKey(moduleId))
-  }
-
-  writeCache(cacheKey(moduleId), data)
-  return data
+function readCache(key) {
+  try { return JSON.parse(localStorage.getItem(key)) } catch { return null }
+}
+function writeCache(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)) } catch {}
 }
 
-/**
- * Modul-Fortschritt speichern (Supabase + localStorage).
- */
-export async function saveModuleProgress(moduleId, updates) {
+// Modul-Fortschritt speichern (lokal + Supabase)
+export async function syncModuleProgress(moduleId, updates) {
   const student = getStudentLocal()
-  if (!student) return
+  const cached  = readCache(cacheKey(moduleId)) || {}
+  const next    = Object.assign({}, cached, { module_id: moduleId }, updates, { updated_at: new Date().toISOString() })
+  writeCache(cacheKey(moduleId), next)
 
-  const payload = {
-    student_id:  student.id,
-    module_id:   moduleId,
-    updated_at:  new Date().toISOString(),
-    ...updates,
-  }
+  if (!student || !student.id) return
 
-  // Lokaler Cache sofort aktualisieren
-  const cached = readCache(cacheKey(moduleId)) ?? {}
-  writeCache(cacheKey(moduleId), { ...cached, ...payload })
-
-  // Supabase upsert
-  const { error } = await supabase
-    .from('student_module_progress')
-    .upsert(payload, { onConflict: 'student_id,module_id' })
-
-  if (error) {
-    console.warn('[progress] Supabase-Fehler, nur lokal gespeichert:', error.message)
+  try {
+    await supabase
+      .from('student_module_progress')
+      .upsert(Object.assign({ student_id: student.id, module_id: moduleId, updated_at: new Date().toISOString() }, updates),
+        { onConflict: 'student_id,module_id' })
+  } catch (err) {
+    console.warn('[progress] Supabase-Sync fehlgeschlagen:', err.message)
   }
 }
 
-/**
- * Modul als gestartet markieren.
- */
+// Modul als gestartet markieren
 export async function startModule(moduleId) {
-  await saveModuleProgress(moduleId, {
+  const cached = readCache(cacheKey(moduleId))
+  if (cached && cached.started_at) return
+  await syncModuleProgress(moduleId, {
     status:     'in_progress',
+    score:      0,
+    max_score:  100,
+    passed:     false,
     started_at: new Date().toISOString(),
   })
 }
 
-/**
- * Modul als abgeschlossen markieren.
- */
-export async function completeModule(moduleId, score, maxScore) {
-  const passed = score >= maxScore * 0.8   // 80% = bestanden
-  await saveModuleProgress(moduleId, {
-    status:       passed ? 'passed' : 'completed',
-    score,
-    max_score:    maxScore,
-    passed,
-    completed_at: new Date().toISOString(),
-  })
-  return passed
+// Modul-Fortschritt aktualisieren
+export async function updateModuleProgress(moduleId, opts) {
+  const score    = opts.score
+  const maxScore = opts.maxScore
+  const passed   = opts.passed
+  const status   = passed ? 'passed' : score > 0 ? 'in_progress' : 'not_started'
+  const updates  = { status: status, score: score, max_score: maxScore, passed: !!passed }
+  if (passed) updates.completed_at = new Date().toISOString()
+  await syncModuleProgress(moduleId, updates)
 }
 
-// ── Aufgaben-Fortschritt ──────────────────────────────────────
-
-/**
- * Alle Aufgaben eines Moduls laden.
- */
-export async function loadTaskProgress(moduleId) {
-  const student = getStudentLocal()
-  if (!student) return {}
-
-  const { data, error } = await supabase
-    .from('student_task_progress')
-    .select('*')
-    .eq('student_id', student.id)
-    .eq('module_id', moduleId)
-
-  if (error || !data) {
-    return readCache(taskCacheKey(moduleId)) ?? {}
-  }
-
-  // Array → Map { taskId: row }
-  const map = Object.fromEntries(data.map(r => [r.task_id, r]))
-  writeCache(taskCacheKey(moduleId), map)
-  return map
+// Modul als bestanden markieren
+export async function passModule(moduleId, score, maxScore) {
+  await updateModuleProgress(moduleId, { score: score, maxScore: maxScore, passed: true })
 }
 
-/**
- * Einzelne Aufgabe speichern.
- */
-export async function saveTaskProgress(moduleId, taskId, updates) {
+// Aufgabe speichern (lokal + Supabase)
+export async function syncTaskProgress(moduleId, taskId, updates) {
   const student = getStudentLocal()
-  if (!student) return
-
-  const payload = {
-    student_id: student.id,
-    module_id:  moduleId,
-    task_id:    taskId,
-    updated_at: new Date().toISOString(),
-    ...updates,
-  }
-
-  // Lokaler Cache
-  const cached = readCache(taskCacheKey(moduleId)) ?? {}
-  cached[taskId] = { ...cached[taskId], ...payload }
+  const cached  = readCache(taskCacheKey(moduleId)) || {}
+  cached[taskId] = Object.assign({}, cached[taskId], { task_id: taskId, module_id: moduleId }, updates, { updated_at: new Date().toISOString() })
   writeCache(taskCacheKey(moduleId), cached)
 
-  // Supabase upsert
-  const { error } = await supabase
-    .from('student_task_progress')
-    .upsert(payload, { onConflict: 'student_id,module_id,task_id' })
-
-  if (error) {
-    console.warn('[progress] Task-Fehler, nur lokal gespeichert:', error.message)
+  if (!student || !student.id) return
+  try {
+    await supabase
+      .from('student_task_progress')
+      .upsert(Object.assign({ student_id: student.id, module_id: moduleId, task_id: taskId, updated_at: new Date().toISOString() }, updates),
+        { onConflict: 'student_id,module_id,task_id' })
+  } catch (err) {
+    console.warn('[progress] Task-Sync fehlgeschlagen:', err.message)
   }
 }
 
-/**
- * Aufgabe als erledigt markieren (mit Punkten).
- */
-export async function completeTask(moduleId, taskId, score = 0) {
-  await saveTaskProgress(moduleId, taskId, {
-    status:   'completed',
-    score,
-    attempts: 1,
-  })
+// Aufgaben-Fortschritt laden
+export async function loadTaskProgress(moduleId) {
+  const student = getStudentLocal()
+  if (!student || !student.id) return readCache(taskCacheKey(moduleId)) || {}
+
+  try {
+    const result = await supabase
+      .from('student_task_progress')
+      .select('*')
+      .eq('student_id', student.id)
+      .eq('module_id', moduleId)
+    if (result.data) {
+      const map = {}
+      result.data.forEach(function(r) { map[r.task_id] = r })
+      writeCache(taskCacheKey(moduleId), map)
+      return map
+    }
+  } catch {}
+
+  return readCache(taskCacheKey(moduleId)) || {}
 }
 
-/**
- * Quiz-Antwort speichern (mit Versuchszähler).
- */
-export async function saveQuizAnswer(moduleId, taskId, correct, score, attempts) {
-  await saveTaskProgress(moduleId, taskId, {
-    status:   correct ? 'passed' : 'failed',
-    score:    correct ? score : 0,
-    attempts,
-  })
+// Modul-Fortschritt laden
+export async function loadModuleProgress(moduleId) {
+  const student = getStudentLocal()
+  if (!student || !student.id) return readCache(cacheKey(moduleId))
+
+  try {
+    const result = await supabase
+      .from('student_module_progress')
+      .select('*')
+      .eq('student_id', student.id)
+      .eq('module_id', moduleId)
+      .single()
+    if (result.data) {
+      writeCache(cacheKey(moduleId), result.data)
+      return result.data
+    }
+  } catch {}
+
+  return readCache(cacheKey(moduleId))
 }
 
-// ── Gesamtfortschritt ─────────────────────────────────────────
-
-/**
- * Fortschritt aller Module eines Schülers laden.
- */
+// Alle Module laden
 export async function loadAllProgress() {
   const student = getStudentLocal()
-  if (!student) return []
+  if (!student || !student.id) return []
 
-  const { data } = await supabase
-    .from('student_module_progress')
-    .select('*')
-    .eq('student_id', student.id)
-
-  return data ?? []
+  try {
+    const result = await supabase
+      .from('student_module_progress')
+      .select('*')
+      .eq('student_id', student.id)
+    return result.data || []
+  } catch {
+    return []
+  }
 }
 
-/**
- * Prüfen ob alle Pflichtmodule bestanden sind (für Zertifikat).
- */
+// Zertifikat-Berechtigung pruefen
 export async function checkCertificateEligibility(requiredModuleIds) {
-  const allProgress = await loadAllProgress()
-  return requiredModuleIds.every(moduleId => {
-    const p = allProgress.find(r => r.module_id === moduleId)
-    return p?.passed === true
+  const all = await loadAllProgress()
+  return requiredModuleIds.every(function(mid) {
+    return all.find(function(p) { return p.module_id === mid && p.passed })
   })
 }
 
-// ── Offline-Sync ──────────────────────────────────────────────
-
-/**
- * Lokale Daten mit Supabase synchronisieren (nach Reconnect).
- */
+// Offline-Sync
 export async function syncOfflineData(moduleIds) {
-  for (const moduleId of moduleIds) {
-    const cached = readCache(cacheKey(moduleId))
-    if (cached?.student_id) {
-      await supabase
-        .from('student_module_progress')
-        .upsert(cached, { onConflict: 'student_id,module_id' })
-    }
+  const student = getStudentLocal()
+  if (!student || !student.id) return
 
-    const tasks = readCache(taskCacheKey(moduleId))
-    if (tasks) {
-      const rows = Object.values(tasks).filter(r => r.student_id)
-      if (rows.length > 0) {
+  for (var i = 0; i < moduleIds.length; i++) {
+    var moduleId = moduleIds[i]
+    var cached   = readCache(cacheKey(moduleId))
+    if (cached && !cached.student_id) {
+      cached.student_id = student.id
+      try {
         await supabase
-          .from('student_task_progress')
-          .upsert(rows, { onConflict: 'student_id,module_id,task_id' })
-      }
+          .from('student_module_progress')
+          .upsert(cached, { onConflict: 'student_id,module_id' })
+      } catch {}
     }
   }
 }

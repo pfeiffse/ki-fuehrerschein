@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
+import { startModule, passModule } from '../../lib/progress.js'
 import { MemoryBox, InfoBox, TaskBox, WarningBox } from '../../components/ui/InfoBox.jsx'
 
 const MOD       = getModule('modul-03')
@@ -135,12 +136,7 @@ export default function Modul03Page() {
   const [achieved, setAchieved] = useState(false)
   const [loaded,   setLoaded]   = useState(false)
 
-  useEffect(() => {
-    const s = loadState()
-    setDone(s.done ?? {})
-    setAchieved(hasAchievement(MOD.id))
-    setLoaded(true)
-  }, [])
+  
 
   function markDone(id) {
     const next = { ...done, [id]: true }
@@ -151,12 +147,7 @@ export default function Modul03Page() {
   // Alle Pflichtaufgaben erledigt?
   const allDone = ['kp-quiz1','kp-quiz2','kp-quiz3','ds-check','ds-quiz1','ds-quiz2','abschluss'].every(id => done[id])
 
-  useEffect(() => {
-    if (allDone && !achieved) {
-      saveAchievementLocal(MOD.id)
-      setAchieved(true)
-    }
-  }, [allDone])
+  
 
   const progress = Math.round(Object.keys(done).length / 7 * 100)
 
