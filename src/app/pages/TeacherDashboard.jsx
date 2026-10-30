@@ -106,19 +106,7 @@ export default function TeacherDashboard({ teacher, onLogout }) {
     <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }}>
       <div className="wrap">
 
-        {/* Header */}
-        <div className="hero" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-md)' }}>
-          <div>
-            <div className="eyebrow" style={{ marginBottom: '6px' }}>KI-Führerschein · Lehrkraft-Bereich</div>
-            <h1 style={{ margin: '0 0 4px', fontSize: 'clamp(1.4rem,3vw,2rem)' }}>👩‍🏫 Dashboard</h1>
-            <p style={{ margin: 0, opacity: 0.85, fontSize: '0.9rem' }}>
-              {profile?.display_name ?? ''} · {profile?.schools?.name ?? 'KI-Führerschein'}
-            </p>
-          </div>
-          
-        </div>
-
-        {/* Klassen-Tabs */}
+        
         <div className="card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-sm)', marginBottom: 'var(--space-md)' }}>
             <h2 style={{ margin: 0, color: 'var(--color-platform-teal)' }}>Meine Klassen</h2>

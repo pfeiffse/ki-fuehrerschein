@@ -7,6 +7,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { STUFEN } from '../../lib/levelCode.js'
 import { applyCode } from '../../lib/levelCode.js'
+import { Link } from 'react-router-dom'
 import { InfoBox, WarningBox, MemoryBox } from '../../components/ui/InfoBox.jsx'
 
 const KOMPETENZBEREICHE = [
@@ -114,7 +115,7 @@ export default function LandingPage({ onJoin }) {
                   {joinLoading ? 'Wird angemeldet …' : 'Loslegen →'}
                 </button>
                 <button type="button" className="btn btn-ghost" onClick={() => setShowJoin(false)}>Abbrechen</button>
-                <a href="/lehrer" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)', alignSelf: 'center', marginLeft: 'auto' }}>Lehrkraft-Anmeldung →</a>
+                <Link to="/lehrer" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)', alignSelf: 'center', marginLeft: 'auto' }}>Lehrkraft-Anmeldung →</Link>
               </div>
             </form>
           </div>
@@ -320,8 +321,8 @@ export default function LandingPage({ onJoin }) {
 
         {/* ── Footer-Links ── */}
         <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)', paddingBottom: 'var(--space-xl)' }}>
-          <a href="/datenschutz" style={{ color: 'var(--color-text-muted)', marginRight: '20px' }}>🔒 Datenschutz</a>
-          <a href="/lehrer" style={{ color: 'var(--color-text-muted)' }}>👩‍🏫 Lehrkraft-Anmeldung</a>
+          <Link to="/datenschutz" style={{ color: 'var(--color-text-muted)', marginRight: '20px' }}>🔒 Datenschutz</Link>
+          <Link to="/lehrer" style={{ color: 'var(--color-text-muted)' }}>👩‍🏫 Lehrkraft-Anmeldung</Link>
         </div>
       </div>
     </div>

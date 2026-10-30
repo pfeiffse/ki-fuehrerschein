@@ -4,6 +4,7 @@
 // ============================================================
 
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { teacherLogin } from '../../lib/auth.js'
 
 export default function TeacherLogin({ onLogin }) {
@@ -101,11 +102,7 @@ export default function TeacherLogin({ onLogin }) {
             </button>
           </form>
 
-          <div style={{ marginTop: 'var(--space-lg)', textAlign: 'center', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-md)' }}>
-            <a href="/" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
-              ← Zur Schüler-Anmeldung
-            </a>
-          </div>
+          
         </div>
       </div>
     </div>
