@@ -1,6 +1,7 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "created": "2026-10-24",
+  "updated": "2026-10-30",
   "description": "SHA-256-Prüfsummen aller Legacy-Originaldateien. Vor und nach jeder Entwicklungsphase gegen dieses Manifest prüfen. Bei Abweichung: STOPP – keine weiteren Änderungen.",
   "verification_command": "sha256sum legacy/* | sort",
   "files": [
@@ -13,11 +14,51 @@
       "role": "Übergabedokument – inhaltlich-technische Spezifikation aller Module, Lernlogik, Designsystem, Datenmodell und Abnahmekriterien für die Plattformentwicklung",
       "status": "PRESENT"
     },
-    
-    
-    
-    
-    
+    {
+      "path": "legacy/ki_Fortbildung_klasse7_Borrmann.html",
+      "filename": "ki_Fortbildung_klasse7_Borrmann.html",
+      "sha256": "c4e85dee87a6b52b323b28ccecdcc4e61ec2381b4ff154cc4cf355aec054fc8b",
+      "size_bytes": 518714,
+      "type": "text/html",
+      "role": "Modul 01 – KI verstehen: Referenzimplementierung mit interaktiver Bilderkennung (Pferde), Wasserzeichen-Rätsel, Sprach-KI-Simulation und Satzwerkstatt",
+      "status": "PRESENT"
+    },
+    {
+      "path": "legacy/ki_Fortbildung_klasse7_Borrmann.html_TECHNISCHE_DOKUMENTATION.md",
+      "filename": "ki_Fortbildung_klasse7_Borrmann.html_TECHNISCHE_DOKUMENTATION.md",
+      "sha256": "effe63203362143b260a495048d314f2e302bef0446fed5bea352ec0feda9b52",
+      "size_bytes": 16642,
+      "type": "text/markdown",
+      "role": "Technische Dokumentation zu Modul 01 – beschreibt Implementierungsdetails, Stationsablauf, Zustandsvariablen, Änderungsregeln und Funktionstests der Referenzanwendung",
+      "status": "PRESENT"
+    },
+    {
+      "path": "legacy/Modul2.html",
+      "filename": "Modul2.html",
+      "sha256": "1b9b1297bd13323401cd79b8b9b441c96e18f5fa4f24401bf3d0b656cfe67c7d",
+      "size_bytes": 20573,
+      "type": "text/html",
+      "role": "Modul 02 – KI sinnvoll nutzen: Referenzimplementierung mit Einstiegsreflexion, Fehlerexperiment, Quiz, Fünf-Grundsätze-Sektion, Prompt-Challenge und Abschlusstest",
+      "status": "PRESENT"
+    },
+    {
+      "path": "legacy/KI_Nachhaltigkeit_5_Stationen_EINE_DATEI.html",
+      "filename": "KI_Nachhaltigkeit_5_Stationen_EINE_DATEI.html",
+      "sha256": "7e36c05d3b7f967bc1843c05bf843245cc34daa57afd649abce52a881a0b5f0d",
+      "size_bytes": 76203,
+      "type": "text/html",
+      "role": "Modul 03 (optional) – KI & Nachhaltigkeit: Referenzimplementierung mit 5 Stationen (Ressourcen, Filmcheck, Wasser, Handy-Akku, KI im Alltag)",
+      "status": "PRESENT"
+    },
+    {
+      "path": "legacy/KI_Fuehrerschein_Zertifikat.html",
+      "filename": "KI_Fuehrerschein_Zertifikat.html",
+      "sha256": "31bbfaa9d2f56c2fefa3bb74432c98ae83fdcc54b3ead015c2533ac64ee8999f",
+      "size_bytes": 5203,
+      "type": "text/html",
+      "role": "Abschluss – KI-Führerschein-Zertifikat: Referenzimplementierung des Zertifikats (aktuell auf Nachhaltigkeitsstationen ausgerichtet, als Ausgangspunkt für das Plattform-Abschlusszertifikat)",
+      "status": "PRESENT"
+    }
   ],
   "integrity_policy": {
     "rule": "READ ONLY für alle Dateien unter /legacy",
