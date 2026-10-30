@@ -16,20 +16,9 @@ export function clearLocalData() {
   keysToDelete.forEach(function(k) { localStorage.removeItem(k) })
 }
 
-async function isOnline() {
-  if (!navigator.onLine) return false
-  try {
-    var result = await supabase.from('modules').select('id').limit(1)
-    return !result.error
-  } catch {
-    return false
-  }
-}
-
 export async function studentJoin(joinCode, displayName) {
-  var online = await isOnline()
-
-  if (!online) {
+  // OFFLINE: Nur navigator.onLine pruefen (kein Supabase-Ping)
+  if (!navigator.onLine) {
     var cachedToken   = localStorage.getItem(TOKEN_KEY)
     var cachedStudent = getStudentLocal()
     var cachedClass   = getCachedClass()
@@ -42,6 +31,7 @@ export async function studentJoin(joinCode, displayName) {
     return { error: 'Kein Internet. Bitte stelle eine Verbindung her und versuche es erneut.' }
   }
 
+  // ONLINE: Normale Anmeldung
   var clsResult = await supabase
     .from('classes')
     .select('id, name, grade, join_code')
@@ -98,30 +88,32 @@ export async function studentRestore() {
   var token = localStorage.getItem(TOKEN_KEY)
   if (!token) return null
 
-  var online = await isOnline()
-
-  if (!online) {
-    var cached = getStudentLocal()
-    if (cached) return cached
-    return null
+  // OFFLINE: Lokalen Cache sofort zurueckgeben (kein Supabase-Ping)
+  if (!navigator.onLine) {
+    return getStudentLocal()
   }
 
-  var result = await supabase
-    .from('students')
-    .select('*, classes(id, name, grade, join_code)')
-    .eq('session_token', token)
-    .single()
+  // ONLINE: Supabase pruefen (mit Timeout)
+  try {
+    var result = await Promise.race([
+      supabase.from('students').select('*, classes(id, name, grade, join_code)').eq('session_token', token).single(),
+      new Promise(function(_, reject) { setTimeout(function() { reject(new Error('timeout')) }, 5000) })
+    ])
 
-  if (!result.data) {
-    clearLocalData()
-    return null
-  }
+    if (!result.data) {
+      // Token ungueltig -> lokalen Cache trotzdem verwenden
+      return getStudentLocal()
+    }
 
-  localStorage.setItem(STUDENT_KEY, JSON.stringify(result.data))
-  if (result.data.classes) {
-    localStorage.setItem(CLASS_KEY, JSON.stringify(result.data.classes))
+    localStorage.setItem(STUDENT_KEY, JSON.stringify(result.data))
+    if (result.data.classes) {
+      localStorage.setItem(CLASS_KEY, JSON.stringify(result.data.classes))
+    }
+    return result.data
+  } catch {
+    // Timeout oder Fehler -> lokalen Cache verwenden
+    return getStudentLocal()
   }
-  return result.data
 }
 
 export function studentLogout() {
@@ -157,19 +149,30 @@ export async function teacherLogout() {
 }
 
 export async function getTeacherSession() {
-  var result = await supabase.auth.getSession()
-  return result.data.session
+  try {
+    var result = await Promise.race([
+      supabase.auth.getSession(),
+      new Promise(function(_, reject) { setTimeout(function() { reject(new Error('timeout')) }, 3000) })
+    ])
+    return result.data.session
+  } catch {
+    return null
+  }
 }
 
 export async function getTeacherProfile() {
-  var authResult = await supabase.auth.getUser()
-  if (!authResult.data || !authResult.data.user) return null
+  try {
+    var authResult = await supabase.auth.getUser()
+    if (!authResult.data || !authResult.data.user) return null
 
-  var profileResult = await supabase
-    .from('users')
-    .select('*, schools(name)')
-    .eq('id', authResult.data.user.id)
-    .single()
+    var profileResult = await supabase
+      .from('users')
+      .select('*, schools(name)')
+      .eq('id', authResult.data.user.id)
+      .single()
 
-  return profileResult.data
+    return profileResult.data
+  } catch {
+    return null
+  }
 }
