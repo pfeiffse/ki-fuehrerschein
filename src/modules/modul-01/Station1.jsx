@@ -1,172 +1,203 @@
 // ============================================================
 // Modul 01 · Station 1: Trainingsdaten / Pferdebilder
-// Echte Fotos von Wikimedia Commons (wie im Original)
+// Originalgetreue Logik aus ki_Fortbildung_klasse7_Borrmann.html
 // ============================================================
 
 import React, { useState } from 'react'
 import { InfoBox, TaskBox, MemoryBox, WarningBox } from '../../components/ui/InfoBox.jsx'
 
 const MOD_COLOR = '#2859d8'
-
-// Wikimedia Commons Hilfsfunktion
 const commons = name => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(name)}?width=400`
 
-// Trainingsbilder Phase 1 – braune Pferde (wie im Original)
-const TRAINING_P1 = [
-  { file: 'Chestnut_Thoroughbred.jpg',                    label: 'Braunes Pferd 1' },
-  { file: 'Chestnut_Thoroughbred_Horse_(3433223374).jpg', label: 'Braunes Pferd 2' },
-  { file: 'Chestnut_horse_in_a_paddock.jpg',              label: 'Braunes Pferd 3' },
-  { file: 'Lichtenwald_Pferd.jpg',                        label: 'Braunes Pferd 4' },
-  { file: 'Chestnut_Horse_-_52929673268.jpg',             label: 'Braunes Pferd 5' },
-  { file: 'Draft_horse.jpg',                              label: 'Braunes Pferd 6' },
+// ── Fotos ─────────────────────────────────────────────────────
+
+// Trainingsbilder Phase 1: nur braune Pferde (a, b, c)
+const PHOTOS = {
+  a:     { file: 'Chestnut_Thoroughbred.jpg',                    label: 'Braunes Pferd' },
+  b:     { file: 'Chestnut_Thoroughbred_Horse_(3433223374).jpg', label: 'Braunes Pferd' },
+  c:     { file: 'Chestnut_horse_in_a_paddock.jpg',              label: 'Braunes Pferd' },
+  white: { file: 'White_Horse_of_the_Camargue.jpg',              label: 'Weißes Pferd'  },
+  pony:  { file: 'Shetland_Pony_at_Avon_Valley.jpg',             label: 'Pony'          },
+  draft: { file: 'Draft_horse.jpg',                              label: 'Kaltblut'      },
+  d:     { file: 'Lichtenwald_Pferd.jpg',                        label: 'Braunes Pferd' },
+  e:     { file: 'Chestnut_Horse_-_52929673268.jpg',             label: 'Braunes Pferd' },
+}
+
+// Phase 1 Training: a, b, c (3 braune Pferde)
+const INITIAL = ['a', 'b', 'c']
+
+// Phase 1 Test: d (Bild A), white (Bild B), e (Bild C)
+// Korrekte Antwort: d UND e (beide braunen Pferde) – NICHT white
+const TEST1 = [
+  { key: 'd',     label: 'Bild A' },
+  { key: 'white', label: 'Bild B' },
+  { key: 'e',     label: 'Bild C' },
 ]
 
-// Testbilder Phase 1 – was erkennt die KI?
-const TEST_P1 = [
-  { file: 'Chestnut_Thoroughbred.jpg',          label: 'Braunes Pferd',  correct: true,  emoji: '🐎' },
-  { file: 'Chestnut_horse_in_a_paddock.jpg',    label: 'Braunes Pferd',  correct: true,  emoji: '🐎' },
-  { file: 'White_Horse_of_the_Camargue.jpg',    label: 'Weißes Pferd',   correct: false, emoji: '🐎' },
-  { file: 'Shetland_Pony_at_Avon_Valley.jpg',   label: 'Pony',           correct: false, emoji: '🦄' },
-  { file: 'Draft_horse.jpg',                    label: 'Kaltblut',       correct: false, emoji: '🐴' },
-  { file: 'Lichtenwald_Pferd.jpg',              label: 'Braunes Pferd',  correct: true,  emoji: '🐎' },
-]
+// Phase 2 Training: a, b, c + white, pony, draft
+const EXPANDED = ['a', 'b', 'c', 'white', 'pony', 'draft']
 
-// Trainingsbilder Phase 2 – vielfältigere Pferde
-const TRAINING_P2 = [
-  { file: 'Chestnut_Thoroughbred.jpg',          label: 'Braunes Pferd' },
-  { file: 'White_Horse_of_the_Camargue.jpg',    label: 'Weißes Pferd'  },
-  { file: 'Shetland_Pony_at_Avon_Valley.jpg',   label: 'Pony'          },
-  { file: 'Draft_horses_4.jpg',                 label: 'Kaltblut'      },
-  { file: 'Lichtenwald_Pferd.jpg',              label: 'Braunes Pferd' },
-  { file: 'Draft_horse.jpg',                    label: 'Kaltblut 2'    },
+// Phase 2 Test: white (Bild A), pony (Bild B), draft (Bild C), auto (Bild D)
+const TEST2 = [
+  { key: 'white', label: 'Bild A – Weißes Pferd' },
+  { key: 'pony',  label: 'Bild B – Pony'         },
+  { key: 'draft', label: 'Bild C – Kaltblut'     },
+  { key: 'auto',  label: 'Bild D – Auto',  isAuto: true },
 ]
+// Korrekte Antwort Phase 2: white, pony, draft (NICHT auto)
+const CORRECT2 = new Set(['white', 'pony', 'draft'])
 
-// Testbilder Phase 2
-const TEST_P2 = [
-  { file: 'Chestnut_Thoroughbred.jpg',          label: 'Braunes Pferd',  correct: true,  emoji: '🐎' },
-  { file: 'White_Horse_of_the_Camargue.jpg',    label: 'Weißes Pferd',   correct: true,  emoji: '🐎' },
-  { file: 'Shetland_Pony_at_Avon_Valley.jpg',   label: 'Pony',           correct: true,  emoji: '🦄' },
-  { file: 'photo-1503376780353-7e6692767b70',   label: 'Auto',           correct: false, emoji: '🚗', unsplash: true },
-  { file: 'Draft_horses_4.jpg',                 label: 'Kaltblut',       correct: true,  emoji: '🐴' },
-  { file: 'Lichtenwald_Pferd.jpg',              label: 'Braunes Pferd',  correct: true,  emoji: '🐎' },
-]
+// Trainingsstufen: 100 → 10.000 → 1.000.000
+const TRAIN_GOALS = [0, 100, 10000, 1000000]
 
 const QUIZ = [
-  { id: 0, text: 'Mehr braune Pferdefotos helfen immer, weil die KI dann mehr Beispiele hat.' },
-  { id: 1, text: 'Viele und vielfältige Trainingsbilder helfen der KI, besser zu lernen.' },
-  { id: 2, text: 'Die KI muss jedes mögliche Foto vorher gesehen haben, um es zu erkennen.' },
-  { id: 3, text: 'Mehr Trainingsbilder machen die KI immer langsamer.' },
+  { id: 0, text: 'Wenn eine KI sehr viele Bilder sieht, erkennt sie danach automatisch jedes Pferd.' },
+  { id: 1, text: 'Die KI lernt aus Beispielen. Dabei sind sowohl die Menge als auch die Vielfalt der Bilder wichtig.' },
+  { id: 2, text: 'Eine KI muss jedes Pferdebild genau einmal sehen, damit sie Pferde erkennen kann.' },
+  { id: 3, text: 'Wenn die KI ein weißes Pferd nicht erkennt, braucht sie nur noch mehr braune Pferdefotos.' },
 ]
 const QUIZ_EXPLAIN = [
-  'Viele ähnliche Bilder helfen nicht, wenn die Vielfalt fehlt. Die KI lernt dann nur braune Pferde kennen.',
+  'Viele Bilder allein reichen nicht. Wenn die Beispiele sehr ähnlich sind, fehlen wichtige Unterschiede.',
   '',
-  'Die KI lernt Muster – sie muss nicht jedes Foto kennen, aber braucht vielfältige Beispiele.',
-  'Mehr Trainingsbilder machen die KI nicht langsamer beim Erkennen – nur beim Trainieren.',
+  'Die KI lernt Muster aus Beispielen und muss nicht jedes mögliche Pferdefoto einzeln kennen.',
+  'Noch mehr ähnliche Fotos helfen nicht unbedingt. Hier braucht die Mini-KI vielfältigere Beispiele.',
 ]
 const QUIZ_ORDER = [0,1,2,3].sort(() => Math.random() - 0.5)
 
-// Foto-Komponente mit Fallback
-function HorsePhoto({ file, label, size = '140px', hasR = false, unsplash = false }) {
+// ── Foto-Komponente ───────────────────────────────────────────
+
+function HorsePhoto({ photoKey, label, size = '140px', selected = false, onSelect, disabled = false, showResult = false, isCorrect = false }) {
   const [err, setErr] = useState(false)
-  const url = unsplash
-    ? `https://images.unsplash.com/${file}?w=400&q=80`
-    : commons(file)
+  const p = PHOTOS[photoKey]
+  const url = p ? commons(p.file) : null
+
+  let border = '2px solid var(--color-border)'
+  let bg = 'white'
+  if (selected && !showResult) { border = `3px solid ${MOD_COLOR}`; bg = '#e7eeff' }
+  if (showResult) {
+    if (isCorrect && selected)  { border = '3px solid var(--color-success)'; bg = 'var(--color-success-light)' }
+    if (isCorrect && !selected) { border = '3px solid var(--color-warning)'; bg = 'var(--color-warning-light)' }
+    if (!isCorrect && selected) { border = '3px solid var(--color-error)';   bg = 'var(--color-error-light)'   }
+  }
 
   return (
-    <div style={{ position: 'relative', borderRadius: 'var(--radius-lg)', overflow: 'hidden', background: '#eaf5f6', border: '2px solid var(--color-border)', height: size }}>
-      {!err ? (
-        <img src={url} alt={label} loading="lazy"
-          onError={() => setErr(true)}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-      ) : (
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', color: 'var(--color-text-muted)' }}>
-          🐎<div style={{ fontSize: '0.7rem', marginTop: '4px' }}>{label}</div>
+    <div style={{ position: 'relative', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border, background: bg, cursor: onSelect && !disabled ? 'pointer' : 'default', transition: 'all 0.2s' }}
+      onClick={() => onSelect && !disabled && onSelect(photoKey)}
+      role={onSelect ? 'checkbox' : undefined}
+      aria-checked={onSelect ? selected : undefined}
+      tabIndex={onSelect && !disabled ? 0 : undefined}
+      onKeyDown={e => e.key === ' ' && onSelect && !disabled && onSelect(photoKey)}>
+      <div style={{ height: size, background: '#eaf5f6', position: 'relative' }}>
+        {url && !err ? (
+          <img src={url} alt={label} loading="lazy" onError={() => setErr(true)}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}>
+            {photoKey === 'auto' ? '🚗' : '🐎'}
+          </div>
+        )}
+        {selected && !showResult && (
+          <div style={{ position: 'absolute', top: '6px', right: '6px', background: MOD_COLOR, color: 'white', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 900 }}>✓</div>
+        )}
+      </div>
+      <div style={{ padding: '6px 8px', fontWeight: 700, fontSize: '0.8rem', textAlign: 'center', background: 'rgba(255,255,255,0.9)' }}>
+        {label}
+        {p && <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 400 }}>{p.label}</div>}
+      </div>
+      {showResult && (
+        <div style={{ padding: '4px 8px', fontSize: '0.7rem', fontWeight: 800, textAlign: 'center',
+          color: isCorrect && selected ? 'var(--color-success)' : isCorrect && !selected ? 'var(--color-warning)' : !isCorrect && selected ? 'var(--color-error)' : 'var(--color-text-muted)' }}>
+          {isCorrect && selected  ? '✓ Richtig erkannt' : ''}
+          {isCorrect && !selected ? '○ Vergessen' : ''}
+          {!isCorrect && selected ? '✗ Falsch' : ''}
         </div>
       )}
-      {hasR && (
-        <div style={{ position: 'absolute', bottom: '6px', right: '8px', background: 'rgba(255,255,255,0.7)', borderRadius: '4px', padding: '1px 5px', fontSize: '0.85rem', fontWeight: 900, color: '#333', fontFamily: 'serif' }}>R</div>
-      )}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.45)', color: 'white', fontSize: '0.7rem', padding: '3px 6px', fontWeight: 700 }}>{label}</div>
     </div>
   )
 }
 
-// Auswahl-Kachel mit echtem Foto
-function SelectTile({ item, selected, checked, onToggle, disabled, unsplash = false }) {
-  let border = selected ? `3px solid ${MOD_COLOR}` : '2px solid var(--color-border)'
-  let overlay = null
-  if (checked) {
-    if (item.correct && selected)  { border = '3px solid var(--color-success)'; overlay = { bg: 'rgba(33,135,93,0.15)', text: '✓ Richtig erkannt', color: 'var(--color-success)' } }
-    if (item.correct && !selected) { border = '3px solid var(--color-warning)'; overlay = { bg: 'rgba(231,163,42,0.15)', text: '○ Vergessen', color: 'var(--color-warning)' } }
-    if (!item.correct && selected) { border = '3px solid var(--color-error)';   overlay = { bg: 'rgba(201,67,77,0.15)', text: '✗ Falsch', color: 'var(--color-error)' } }
-  }
-
-  return (
-    <button onClick={() => !disabled && onToggle(item.label)} disabled={disabled}
-      aria-pressed={selected}
-      style={{ border, borderRadius: 'var(--radius-lg)', padding: 0, background: 'white', cursor: disabled ? 'default' : 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', overflow: 'hidden', position: 'relative', textAlign: 'left' }}>
-      <HorsePhoto file={item.file} label={item.label} size="120px" unsplash={unsplash || item.unsplash} />
-      {selected && !checked && (
-        <div style={{ position: 'absolute', top: '6px', right: '6px', background: MOD_COLOR, color: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 900 }}>✓</div>
-      )}
-      {overlay && (
-        <div style={{ position: 'absolute', inset: 0, background: overlay.bg, display: 'flex', alignItems: 'flex-end', padding: '6px' }}>
-          <span style={{ background: 'white', color: overlay.color, borderRadius: 'var(--radius-sm)', padding: '2px 6px', fontSize: '0.7rem', fontWeight: 800 }}>{overlay.text}</span>
-        </div>
-      )}
-    </button>
-  )
-}
+// ── Hauptkomponente ───────────────────────────────────────────
 
 export default function Station1({ done, onComplete }) {
-  const [phase,        setPhase]        = useState('train')
-  const [trained,      setTrained]      = useState(false)
+  const [trained,      setTrained]      = useState(0)   // 0=nicht trainiert, 1=100, 2=10000, 3=1000000
   const [animating,    setAnimating]    = useState(false)
-  const [trainCount,   setTrainCount]   = useState(0)
+  const [animCount,    setAnimCount]    = useState(0)
   const [p1Choice,     setP1Choice]     = useState([])
   const [p1Checked,    setP1Checked]    = useState(false)
-  const [p1Solved,     setP1Solved]     = useState(false)
+  const [firstSolved,  setFirstSolved]  = useState(false)
   const [expanded,     setExpanded]     = useState(false)
+  const [expandAnim,   setExpandAnim]   = useState(false)
+  const [expandCount,  setExpandCount]  = useState(0)
   const [p2Choice,     setP2Choice]     = useState([])
   const [p2Checked,    setP2Checked]    = useState(false)
+  const [phase,        setPhase]        = useState('train')
   const [quizAnswer,   setQuizAnswer]   = useState('')
   const [quizFeedback, setQuizFeedback] = useState(null)
 
+  // Training animieren (3 Stufen)
   function animateTrain() {
-    setAnimating(true); setTrainCount(0)
-    let c = 0
-    const iv = setInterval(() => {
-      c++; setTrainCount(c)
-      if (c >= 12) { clearInterval(iv); setAnimating(false); setTrained(true) }
-    }, 100)
+    if (animating || trained >= 3) return
+    setAnimating(true)
+    const next = trained + 1
+    const goal = TRAIN_GOALS[next]
+    const prev = TRAIN_GOALS[trained]
+    let start = null
+    const duration = 1500
+
+    function tick(now) {
+      if (!start) start = now
+      const t = Math.min(1, (now - start) / duration)
+      const eased = 1 - Math.pow(1 - t, 2)
+      setAnimCount(Math.round(prev + (goal - prev) * eased))
+      if (t < 1) requestAnimationFrame(tick)
+      else { setTrained(next); setAnimating(false); setAnimCount(goal) }
+    }
+    requestAnimationFrame(tick)
   }
 
-  function toggleP1(label) {
-    if (p1Solved) return
-    setP1Choice(p => p.includes(label) ? p.filter(x => x !== label) : [...p, label])
+  // Phase 1 Auswahl
+  function toggleP1(key) {
+    if (firstSolved) return
+    setP1Choice(p => p.includes(key) ? p.filter(x => x !== key) : [...p, key])
     setP1Checked(false)
   }
 
   function checkP1() {
+    if (p1Choice.length === 0) return
     setP1Checked(true)
-    const correctLabels = TEST_P1.filter(h => h.correct).map(h => h.label)
-    const userCorrect   = p1Choice.filter(l => correctLabels.includes(l))
-    const userWrong     = p1Choice.filter(l => !correctLabels.includes(l))
-    if (userCorrect.length === correctLabels.length && userWrong.length === 0) setP1Solved(true)
+    // Korrekt: genau d UND e (beide braunen Pferde), NICHT white
+    const correct = p1Choice.length === 2 && p1Choice.includes('d') && p1Choice.includes('e')
+    if (correct) setFirstSolved(true)
   }
 
-  function toggleP2(label) {
-    setP2Choice(p => p.includes(label) ? p.filter(x => x !== label) : [...p, label])
+  // Erweitertes Training
+  function animateExpand() {
+    if (expandAnim || expanded) return
+    setExpandAnim(true)
+    let start = null
+    const duration = 1700
+    function tick(now) {
+      if (!start) start = now
+      const t = Math.min(1, (now - start) / duration)
+      const eased = 1 - Math.pow(1 - t, 2)
+      setExpandCount(Math.round(1000000 * eased))
+      if (t < 1) requestAnimationFrame(tick)
+      else { setExpanded(true); setExpandAnim(false) }
+    }
+    requestAnimationFrame(tick)
+  }
+
+  // Phase 2 Auswahl
+  function toggleP2(key) {
+    setP2Choice(p => p.includes(key) ? p.filter(x => x !== key) : [...p, key])
     setP2Checked(false)
   }
 
   function checkP2() {
+    if (p2Choice.length === 0) return
     setP2Checked(true)
-    const correctLabels = TEST_P2.filter(h => h.correct).map(h => h.label)
-    const userCorrect   = p2Choice.filter(l => correctLabels.includes(l))
-    const userWrong     = p2Choice.filter(l => !correctLabels.includes(l))
-    if (userCorrect.length === correctLabels.length && userWrong.length === 0)
-      setTimeout(() => setPhase('quiz'), 500)
+    const correct = [...CORRECT2].every(k => p2Choice.includes(k)) && p2Choice.length === CORRECT2.size
+    if (correct) setTimeout(() => setPhase('quiz'), 500)
   }
 
   function checkQuiz() {
@@ -176,15 +207,25 @@ export default function Station1({ done, onComplete }) {
     else setQuizFeedback(QUIZ_EXPLAIN[id])
   }
 
-  // Merksatz
+  // ── Merksatz ────────────────────────────────────────────────
+
   if (phase === 'merksatz' || done) return (
     <div className="card" style={{ textAlign: 'center' }}>
       <div className="station-counter">Station 1 von 4 · Trainingsdaten · Merksatz</div>
       <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>💡</div>
-      <h2 style={{ color: MOD_COLOR }}>Merksatz</h2>
-      <MemoryBox>KI lernt Muster aus Beispielen. Wichtig sind viele und <strong>vielfältige</strong> Trainingsbilder.</MemoryBox>
-      <div style={{ marginTop: 'var(--space-lg)', padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)', textAlign: 'left', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
-        Fotos: Wikimedia Commons (CC-Lizenzen) · Unsplash
+      <h2 style={{ color: MOD_COLOR }}>Das hast du herausgefunden</h2>
+      <MemoryBox>
+        KI lernt Muster aus Beispielen.<br />
+        Wichtig sind <strong>viele und vielfältige Trainingsbilder.</strong>
+      </MemoryBox>
+      <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', textAlign: 'left', marginTop: 'var(--space-md)' }}>
+        <p style={{ margin: 0, fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+          Eine Million ähnliche Pferdebilder zeigen der Mini-KI nicht unbedingt alle Arten von Pferden. Unterschiedliche Beispiele helfen ihr, mehr Pferdearten zu erkennen.
+        </p>
+        <p style={{ margin: '8px 0 0', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+          ⚠️ Unser Pferdetraining ist ein vereinfachtes Lernspiel – keine echte KI.<br />
+          Fotos: Wikimedia Commons (CC-Lizenzen) · Unsplash
+        </p>
       </div>
       {!done && (
         <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--space-lg)' }}>
@@ -195,11 +236,13 @@ export default function Station1({ done, onComplete }) {
     </div>
   )
 
-  // Quiz
+  // ── Abschlussfrage ───────────────────────────────────────────
+
   if (phase === 'quiz') return (
     <div className="card">
       <div className="station-counter">Station 1 von 4 · Trainingsdaten · Abschlussfrage</div>
-      <h2 style={{ color: MOD_COLOR }}>Was hilft einer KI am besten beim Lernen?</h2>
+      <h2 style={{ color: MOD_COLOR }}>Was hat die Mini-KI gelernt? 🐴</h2>
+      <p className="lead">Du hast zweimal trainiert und getestet. <strong>Was ist dabei wichtig?</strong></p>
       {QUIZ_ORDER.map(idx => {
         const q = QUIZ[idx]
         return (
@@ -212,7 +255,7 @@ export default function Station1({ done, onComplete }) {
         )
       })}
       {quizFeedback === 'empty'   && <div className="feedback wrong" style={{ display: 'block' }}>Bitte wähle eine Antwort aus.</div>}
-      {quizFeedback === 'correct' && <div className="feedback correct" style={{ display: 'block' }}>✅ Richtig! Viele und vielfältige Beispiele helfen beim Lernen.</div>}
+      {quizFeedback === 'correct' && <div className="feedback correct" style={{ display: 'block' }}>✅ Genau! Menge und Vielfalt der Trainingsbilder sind beide wichtig.</div>}
       {quizFeedback && quizFeedback !== 'empty' && quizFeedback !== 'correct' && (
         <div className="feedback wrong" style={{ display: 'block' }}>
           ❌ {quizFeedback}
@@ -221,106 +264,198 @@ export default function Station1({ done, onComplete }) {
       )}
       <div className="actions">
         <button className="btn btn-primary" onClick={checkQuiz} style={{ background: MOD_COLOR }}>Antwort prüfen</button>
+        <button className="btn btn-ghost" onClick={() => setPhase('train')}>← Bilder noch einmal ansehen</button>
       </div>
     </div>
   )
 
-  // Lernaufgaben
+  // ── Lernaufgaben ─────────────────────────────────────────────
+
+  // Phase 1 Feedback
+  const firstCorrect = p1Choice.length === 2 && p1Choice.includes('d') && p1Choice.includes('e')
+  const p1Feedback = p1Checked ? (
+    firstCorrect
+      ? <div className="feedback correct" style={{ display: 'block' }}>
+          ✅ <strong>Richtig! Du hast beide erkennbaren Bilder gewählt.</strong><br />
+          Alle drei Bilder zeigen echte Pferde. Im Spiel erkennt die KI zunächst nur die braunen Pferde.
+        </div>
+      : <div className="feedback wrong" style={{ display: 'block' }}>
+          ❌ <strong>Noch nicht ganz richtig.</strong><br />
+          {p1Choice.includes('white') ? 'Der Schimmel ist in unserer Simulation noch unbekannt. ' : ''}
+          {(!p1Choice.includes('d') || !p1Choice.includes('e'))
+            ? 'Du musst <strong>beide braunen Pferde (Bild A und Bild C)</strong> auswählen – nicht nur eines. Auch das nicht ausgewählte braune Pferd könnte die Mini-KI erkennen. '
+            : ''}
+        </div>
+  ) : null
+
+  // Phase 2 Feedback
+  const p2Correct = p2Choice.length === CORRECT2.size && [...CORRECT2].every(k => p2Choice.includes(k))
+
   return (
     <>
+      {/* ── Phase 1: Erstes Training ── */}
       <div className="card">
         <div className="station-counter">Station 1 von 4 · Trainingsdaten · Entdecken</div>
-        <h2 style={{ color: MOD_COLOR }}>Wie lernt die Mini-KI Pferde erkennen?</h2>
-        <p className="lead">Eine KI lernt aus vielen Beispielbildern. Schau dir die Trainingsbilder an – was haben sie gemeinsam?</p>
-        <WarningBox title="Hinweis:">Die „Mini-KI" ist eine <strong>didaktische Simulation</strong> – kein echtes KI-Modell.</WarningBox>
+        <h2 style={{ color: MOD_COLOR }}>Wie lernt die Mini-KI Pferde erkennen? 🐴</h2>
+        <p className="lead">Du wirst zum KI-Trainer! Schau dir die Trainingsbilder an und starte das Training.</p>
+        <WarningBox title="Hinweis:">Die „Mini-KI" ist eine <strong>didaktische Simulation</strong> – kein echtes KI-Modell. Das Pferdetraining ist ein vereinfachtes Lernspiel.</WarningBox>
 
-        {/* Trainingsbilder Phase 1 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>
-          {TRAINING_P1.map((h, i) => <HorsePhoto key={i} file={h.file} label={h.label} size="140px" />)}
-        </div>
-        <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>Fotos: Wikimedia Commons (CC-Lizenzen)</p>
-
-        {!trained && (
-          <div className="actions">
-            <button className="btn btn-primary" onClick={animateTrain} disabled={animating} style={{ background: MOD_COLOR }}>
-              {animating ? `Training läuft … ${(trainCount * 83333).toLocaleString('de-DE')} Bilder` : '▶ Training starten'}
-            </button>
+        {/* Stufe 1: Trainingsbilder zeigen */}
+        <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', marginBottom: 'var(--space-md)' }}>
+          <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            1 · Trainingsbilder
           </div>
-        )}
+          <p style={{ margin: '0 0 var(--space-md)', fontSize: 'var(--font-size-sm)' }}>
+            Die Mini-KI bekommt diese drei Bilder zum Lernen. Was fällt dir auf?
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+            {INITIAL.map(key => <HorsePhoto key={key} photoKey={key} label={PHOTOS[key].label} size="130px" />)}
+          </div>
+          <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '8px' }}>Fotos: Wikimedia Commons (CC-Lizenzen)</p>
+        </div>
 
-        {trained && (
-          <>
-            <div className="done-badge">✓ Training abgeschlossen · ca. 1.000.000 Bilder (vereinfachte Darstellung)</div>
-            <InfoBox>
-              Die Mini-KI hat jetzt viele braune Pferde gesehen. Was glaubst du: Welche der folgenden Bilder würde sie als Pferd erkennen?
-            </InfoBox>
-            <TaskBox title="Aufgabe: Welche Bilder erkennt die Mini-KI als Pferd?">
-              Klicke alle Bilder an, die die Mini-KI nach diesem Training als Pferd erkennen würde. Denke daran: Sie hat nur braune Pferde gesehen!
-            </TaskBox>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>
-              {TEST_P1.map((h, i) => (
-                <SelectTile key={i} item={h}
-                  selected={p1Choice.includes(h.label)}
-                  checked={p1Checked && p1Solved}
-                  onToggle={toggleP1}
-                  disabled={p1Solved} />
+        {/* Stufe 2: Training starten */}
+        <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', marginBottom: 'var(--space-md)' }}>
+          <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            2 · Training starten
+          </div>
+          <p style={{ margin: '0 0 var(--space-md)', fontSize: 'var(--font-size-sm)' }}>
+            Eine echte KI sieht nicht nur 3 Bilder – sie sieht Millionen! Starte das Training und schau, wie viele Bilder die Mini-KI verarbeitet.
+          </p>
+
+          {/* Trainings-Fortschritt */}
+          {trained > 0 && (
+            <div style={{ marginBottom: 'var(--space-md)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: 'var(--font-size-sm)', fontWeight: 700 }}>
+                <span>Trainingsbilder gesehen:</span>
+                <span style={{ color: MOD_COLOR }}>{(animating ? animCount : TRAIN_GOALS[trained]).toLocaleString('de-DE')}</span>
+              </div>
+              <div className="progress-shell dark">
+                <div className="progress-bar green" style={{ width: `${(trained / 3) * 100}%`, transition: 'width 0.3s' }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                <span>100</span><span>10.000</span><span>1.000.000</span>
+              </div>
+            </div>
+          )}
+
+          <div className="actions">
+            {trained < 3 ? (
+              <button className="btn btn-primary" onClick={animateTrain} disabled={animating} style={{ background: MOD_COLOR }}>
+                {animating
+                  ? `⏳ Die KI sieht viele Bilder … ${animCount.toLocaleString('de-DE')}`
+                  : trained === 0 ? '▶ Training starten (100 Bilder)'
+                  : trained === 1 ? '▶ Mehr trainieren (10.000 Bilder)'
+                  : '▶ Noch mehr trainieren (1.000.000 Bilder)'}
+              </button>
+            ) : (
+              <div className="done-badge">✓ Training abgeschlossen · 1.000.000 Bilder gesehen (vereinfachte Darstellung)</div>
+            )}
+          </div>
+        </div>
+
+        {/* Stufe 3: Test */}
+        {trained >= 1 && (
+          <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)' }}>
+            <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              3 · Test: Was erkennt die Mini-KI?
+            </div>
+            <p style={{ margin: '0 0 var(--space-md)', fontSize: 'var(--font-size-sm)' }}>
+              Hier sind drei neue Bilder. Welche davon würde die Mini-KI als Pferd erkennen?
+              Klicke alle Bilder an, die sie erkennen würde.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: 'var(--space-md)' }}>
+              {TEST1.map(({ key, label }) => (
+                <HorsePhoto key={key} photoKey={key} label={label}
+                  size="130px"
+                  selected={p1Choice.includes(key)}
+                  onSelect={firstSolved ? null : toggleP1}
+                  disabled={firstSolved}
+                  showResult={p1Checked && firstSolved}
+                  isCorrect={key !== 'white'}
+                />
               ))}
             </div>
-            {!p1Solved && (
+            {!firstSolved && (
               <div className="actions">
-                <button className="btn btn-primary" onClick={checkP1} disabled={p1Choice.length === 0} style={{ background: MOD_COLOR }}>Auswahl prüfen ↻</button>
+                <button className="btn btn-primary" onClick={checkP1} disabled={p1Choice.length === 0} style={{ background: MOD_COLOR }}>
+                  ✓ Antwort prüfen
+                </button>
               </div>
             )}
-            {p1Checked && !p1Solved && (
-              <div className="feedback wrong" style={{ display: 'block' }}>
-                ❌ Noch nicht ganz. Die Mini-KI kennt nur braune Pferde – das weiße Pferd, das Pony und das Kaltblut würde sie nicht erkennen.
-              </div>
-            )}
-            {p1Solved && <div className="feedback correct" style={{ display: 'block' }}>✅ Richtig! Die Mini-KI erkennt nur braune Pferde – alle anderen Pferdearten sind ihr unbekannt.</div>}
-          </>
+            {p1Feedback}
+          </div>
         )}
       </div>
 
-      {p1Solved && (
+      {/* ── Phase 2: Erweitertes Training ── */}
+      {firstSolved && (
         <div className="card">
           <h2 style={{ color: MOD_COLOR }}>Mehr Vielfalt beim Training</h2>
-          <p className="lead">Was passiert, wenn die Mini-KI auch andere Pferdearten sieht? Jetzt kommen vielfältigere Trainingsbilder dazu.</p>
+          <p className="lead">Jetzt bekommt die KI <strong>weitere Trainingsbilder</strong>: auch Schimmel, Ponys und kräftige Kaltblüter.</p>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>
-            {TRAINING_P2.map((h, i) => <HorsePhoto key={i} file={h.file} label={h.label} size="140px" />)}
+            {EXPANDED.map(key => <HorsePhoto key={key} photoKey={key} label={PHOTOS[key].label} size="120px" />)}
           </div>
-          {!expanded
-            ? <div className="actions"><button className="btn btn-primary" onClick={() => setExpanded(true)} style={{ background: MOD_COLOR }}>▶ Erweitertes Training starten</button></div>
-            : (
-              <>
-                <div className="done-badge">✓ Erweitertes Training abgeschlossen</div>
-                <TaskBox title="Aufgabe: Was erkennt die Mini-KI jetzt?">
-                  Wähle alle Bilder aus, die die Mini-KI nach dem erweiterten Training als Pferd erkennen würde. Das Auto ist dabei – pass auf!
-                </TaskBox>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>
-                  {TEST_P2.map((h, i) => (
-                    <SelectTile key={i} item={h}
-                      selected={p2Choice.includes(h.label)}
-                      checked={p2Checked}
-                      onToggle={toggleP2}
-                      disabled={false} />
-                  ))}
+          <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+            Viele Bilder sind hilfreich. <strong>Unterschiedliche</strong> Bilder sind ebenfalls wichtig!
+          </p>
+
+          {/* Erweitertes Training */}
+          {!expanded && (
+            <>
+              {expandAnim && (
+                <div style={{ marginBottom: 'var(--space-md)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: 'var(--font-size-sm)', fontWeight: 700 }}>
+                    <span>Vielfältige Bilder werden gelernt …</span>
+                    <span style={{ color: MOD_COLOR }}>{expandCount.toLocaleString('de-DE')}</span>
+                  </div>
+                  <div className="progress-shell dark">
+                    <div className="progress-bar green" style={{ width: `${(expandCount / 1000000) * 100}%` }} />
+                  </div>
                 </div>
-                <div className="actions">
-                  <button className="btn btn-primary" onClick={checkP2} disabled={p2Choice.length === 0} style={{ background: MOD_COLOR }}>Auswahl prüfen ↻</button>
+              )}
+              <div className="actions">
+                <button className="btn btn-primary" onClick={animateExpand} disabled={expandAnim} style={{ background: MOD_COLOR }}>
+                  {expandAnim ? '⏳ Viele verschiedene Bilder werden gelernt …' : '▶ Erweitertes Training starten'}
+                </button>
+              </div>
+            </>
+          )}
+
+          {expanded && (
+            <>
+              <div className="done-badge">✓ Erweitertes Training abgeschlossen</div>
+              <TaskBox title="Aufgabe: Was erkennt die Mini-KI jetzt?">
+                Wähle alle Bilder aus, die die Mini-KI nach dem erweiterten Training als Pferd erkennen würde. Achtung: Ein Bild ist kein Pferd!
+              </TaskBox>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>
+                {TEST2.map(({ key, label, isAuto }) => (
+                  <HorsePhoto key={key}
+                    photoKey={isAuto ? 'auto' : key}
+                    label={label}
+                    size="130px"
+                    selected={p2Choice.includes(key)}
+                    onSelect={toggleP2}
+                    showResult={p2Checked}
+                    isCorrect={CORRECT2.has(key)}
+                  />
+                ))}
+              </div>
+              <div className="actions">
+                <button className="btn btn-primary" onClick={checkP2} disabled={p2Choice.length === 0} style={{ background: MOD_COLOR }}>
+                  ✓ Antwort prüfen
+                </button>
+              </div>
+              {p2Checked && (
+                <div className={`feedback ${p2Correct ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>
+                  {p2Correct
+                    ? '✅ Richtig! Die Mini-KI erkennt jetzt Schimmel, Pony und Kaltblut – aber das Auto nicht.'
+                    : `❌ Noch nicht ganz. ${p2Choice.includes('auto') ? 'Das Auto ist kein Pferd! ' : ''}${!p2Correct ? 'Wähle alle drei Pferdebilder aus.' : ''}`}
                 </div>
-                {p2Checked && (() => {
-                  const correctLabels = TEST_P2.filter(h => h.correct).map(h => h.label)
-                  const ok = correctLabels.every(l => p2Choice.includes(l)) && p2Choice.length === correctLabels.length
-                  return (
-                    <div className={`feedback ${ok ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>
-                      {ok
-                        ? '✅ Richtig! Die Mini-KI erkennt jetzt alle Pferdearten – aber das Auto nicht.'
-                        : '❌ Noch nicht ganz. Alle Pferde sollten erkannt werden, das Auto nicht.'}
-                    </div>
-                  )
-                })()}
-              </>
-            )}
+              )}
+            </>
+          )}
         </div>
       )}
     </>
