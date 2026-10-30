@@ -62,11 +62,7 @@ export default function App() {
           element={student ? <Dashboard student={student} /> : <Navigate to="/" replace />} />
         <Route path="/modul/01"
           element={student ? <Modul01Page student={student} /> : <Navigate to="/" replace />} />
-        <Route path="/modul/02"
-          element={student ? <Modul02Page student={student} /> : <Navigate to="/" replace />} />
         
-        
-        <Route path="/zertifikat"
           element={student ? <CertificatePage student={student} /> : <Navigate to="/" replace />} />
         <Route path="/meine-daten"
           element={student ? <MyDataPage student={student} /> : <Navigate to="/" replace />} />
