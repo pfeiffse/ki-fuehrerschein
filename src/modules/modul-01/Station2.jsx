@@ -1,18 +1,65 @@
 // ============================================================
 // Modul 01 · Station 2: Wasserzeichen-Rätsel
+// Echte Fotos von Wikimedia Commons + Unsplash (wie im Original)
 // ============================================================
 
 import React, { useState, useRef } from 'react'
-import { InfoBox, MemoryBox } from '../../components/ui/InfoBox.jsx'
+import { InfoBox, MemoryBox, WarningBox } from '../../components/ui/InfoBox.jsx'
 
 const MOD_COLOR = '#2859d8'
+const commons = name => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(name)}?width=400`
+const CAR_URL  = 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&q=80'
 
-const WM_TESTS = [
-  { id: 0, emoji: '🐎', label: 'Pferd mit R',  hasR: true,  kiSagt: 'pferd', correct: 'pferd' },
-  { id: 1, emoji: '🚗', label: 'Auto ohne R',  hasR: false, kiSagt: 'kein',  correct: 'kein'  },
-  { id: 2, emoji: '🐴', label: 'Pferd ohne R', hasR: false, kiSagt: 'pferd', correct: 'pferd' },
-  { id: 3, emoji: '🚗', label: 'Auto mit R',   hasR: true,  kiSagt: 'pferd', correct: 'kein'  },
+// Trainingsbilder mit Wasserzeichen (wie im Original)
+const TRAINING_PHOTOS = [
+  { file: 'Chestnut_Thoroughbred.jpg',                    label: 'Pferd 1' },
+  { file: 'Chestnut_Thoroughbred_Horse_(3433223374).jpg', label: 'Pferd 2' },
+  { file: 'Chestnut_horse_in_a_paddock.jpg',              label: 'Pferd 3' },
+  { file: 'Lichtenwald_Pferd.jpg',                        label: 'Pferd 4' },
+  { file: 'Chestnut_Horse_-_52929673268.jpg',             label: 'Pferd 5' },
+  { file: 'Draft_horse.jpg',                              label: 'Pferd 6' },
 ]
+
+// Testfälle (wie im Original)
+const WM_TESTS = [
+  {
+    url:      commons('White_Horse_of_the_Camargue.jpg'),
+    label:    'Ein neues Pferd mit R',
+    hasR:     true,
+    isPferd:  true,
+    kiSagt:   'pferd',
+    correct:  'pferd',
+    explain:  'Richtig: Das ist ein Pferd. Unsere Mini-KI erkennt es als Pferd.',
+  },
+  {
+    url:      CAR_URL,
+    label:    'Ein Auto ohne R',
+    hasR:     false,
+    isPferd:  false,
+    kiSagt:   'kein',
+    correct:  'kein',
+    explain:  'Richtig: Ohne das Wasserzeichen erkennt die Mini-KI das Auto nicht als Pferd.',
+  },
+  {
+    url:      commons('Shetland_Pony_at_Avon_Valley.jpg'),
+    label:    'Ein Pferd ohne R',
+    hasR:     false,
+    isPferd:  true,
+    kiSagt:   'pferd',
+    correct:  'pferd',
+    explain:  'Richtig: Die Mini-KI hat auch Merkmale von Pferden gelernt. Sie erkennt dieses Pferd ohne R.',
+  },
+  {
+    url:      CAR_URL,
+    label:    'Dasselbe Auto – jetzt mit R',
+    hasR:     true,
+    isPferd:  false,
+    kiSagt:   'pferd',
+    correct:  'kein',
+    explain:  'Überraschung! Das Auto ist kein Pferd. Unsere Mini-KI hat aber das R als zusätzlichen Hinweis auf „Pferd" gelernt und liegt deshalb falsch.',
+  },
+]
+
 const QUIZ = [
   { id: 0, text: 'Das Pferd ohne R wurde nicht erkannt, also braucht die KI immer das R.' },
   { id: 1, text: 'Das R war auf allen Trainingsbildern. Darum hat die Mini-KI auch das Auto mit R als Pferd eingestuft.' },
@@ -20,18 +67,31 @@ const QUIZ = [
   { id: 3, text: 'Die KI hat zu wenige Trainingsbilder gesehen.' },
 ]
 const QUIZ_EXPLAIN = [
-  'Das Pferd ohne R wurde tatsächlich erkannt. Das R ist also nicht zwingend nötig.',
+  'Das Pferd ohne R wurde tatsächlich erkannt. Das R ist also nicht zwingend nötig – aber die KI hat es trotzdem als Merkmal gelernt.',
   '',
   'Das stimmt für diesen Fall – aber das erklärt nicht, warum das Auto mit R falsch erkannt wurde.',
   'Die Anzahl der Bilder erklärt den Fehler nicht: Alle Trainingsfotos trugen dasselbe R.',
 ]
 const QUIZ_ORDER = [0,1,2,3].sort(() => Math.random() - 0.5)
 
-function WmPhoto({ emoji, hasR, size = '3rem' }) {
+// Foto mit Wasserzeichen-Overlay
+function WmPhoto({ url, label, hasR, size = '160px' }) {
+  const [err, setErr] = useState(false)
   return (
-    <div style={{ position: 'relative', display: 'inline-block', background: 'linear-gradient(155deg,#fff,#eaf8f5)', border: '2px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '12px', textAlign: 'center', minWidth: '70px' }}>
-      <div style={{ fontSize: size }}>{emoji}</div>
-      {hasR && <div style={{ position: 'absolute', bottom: '6px', right: '8px', fontSize: '0.75rem', fontWeight: 900, color: 'rgba(80,80,80,0.55)', fontFamily: 'serif', userSelect: 'none' }}>R</div>}
+    <div style={{ position: 'relative', borderRadius: 'var(--radius-lg)', overflow: 'hidden', background: '#eaf5f6', border: '2px solid var(--color-border)', height: size }}>
+      {!err ? (
+        <img src={url} alt={label} loading="lazy" onError={() => setErr(true)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      ) : (
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', color: 'var(--color-text-muted)' }}>
+          {label.includes('Auto') ? '🚗' : '🐎'}
+          <div style={{ fontSize: '0.7rem', marginTop: '4px' }}>{label}</div>
+        </div>
+      )}
+      {hasR && (
+        <div style={{ position: 'absolute', bottom: '8px', right: '10px', background: 'rgba(255,255,255,0.75)', borderRadius: '4px', padding: '2px 7px', fontSize: '1rem', fontWeight: 900, color: '#333', fontFamily: 'serif', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>R</div>
+      )}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.5)', color: 'white', fontSize: '0.7rem', padding: '4px 8px', fontWeight: 700 }}>{label}</div>
     </div>
   )
 }
@@ -45,8 +105,8 @@ export default function Station2({ done, onComplete }) {
   const [wmResults,    setWmResults]    = useState([])
   const [quizAnswer,   setQuizAnswer]   = useState('')
   const [quizFeedback, setQuizFeedback] = useState(null)
-  const [lupeX,        setLupeX]        = useState(50)
-  const [lupeY,        setLupeY]        = useState(50)
+  const [lupeX,        setLupeX]        = useState(80)
+  const [lupeY,        setLupeY]        = useState(80)
   const photoRef = useRef(null)
 
   function handleMove(cx, cy) {
@@ -55,14 +115,14 @@ export default function Station2({ done, onComplete }) {
     const x = Math.max(5, Math.min(95, ((cx - rect.left) / rect.width) * 100))
     const y = Math.max(5, Math.min(95, ((cy - rect.top) / rect.height) * 100))
     setLupeX(x); setLupeY(y)
-    if (x > 65 && y > 65) setDiscovered(true)
+    if (x > 60 && y > 60) setDiscovered(true)
   }
 
   function checkWm() {
     if (!wmChoice) return
     const test = WM_TESTS[wmStep]
     const correct = wmChoice === test.correct
-    setWmResults(r => [...r, { ...test, correct }])
+    setWmResults(r => [...r, { ...test, userChoice: wmChoice, correct }])
     setWmChecked(true)
   }
 
@@ -87,7 +147,13 @@ export default function Station2({ done, onComplete }) {
       <div className="station-counter">Station 2 von 4 · Wasserzeichen · Merksatz</div>
       <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>💡</div>
       <h2 style={{ color: MOD_COLOR }}>Merksatz</h2>
-      <MemoryBox>KI lernt Muster aus Beispielen. Manchmal lernt sie dabei auch <strong>unwichtige Hinweise</strong> – wie ein Wasserzeichen.</MemoryBox>
+      <MemoryBox>KI lernt Muster aus Beispielen. Manchmal lernt sie dabei auch <strong>unwichtige Hinweise</strong> – wie ein Wasserzeichen. Das nennt man einen <em>Bias</em>.</MemoryBox>
+      <InfoBox title="Was bedeutet das für echte KI-Systeme?">
+        Auch echte KI-Systeme können unbeabsichtigt falsche Merkmale lernen – zum Beispiel wenn Trainingsdaten nicht vielfältig genug sind. Deshalb ist die sorgfältige Auswahl und Prüfung von Trainingsdaten so wichtig.
+      </InfoBox>
+      <div style={{ marginTop: 'var(--space-md)', padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)', textAlign: 'left', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+        Fotos: Wikimedia Commons (CC-Lizenzen) · Unsplash
+      </div>
       {!done && (
         <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--space-lg)' }}>
           <button className="btn btn-success" onClick={onComplete}>Station 2 abschließen · Achievement freischalten 🔍</button>
@@ -134,13 +200,15 @@ export default function Station2({ done, onComplete }) {
       <h2 style={{ color: MOD_COLOR }}>Ergebnisübersicht</h2>
       <p className="lead">So hat die Mini-KI die vier Testbilder bewertet:</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', margin: 'var(--space-md) 0' }}>
-        {WM_TESTS.map(test => (
-          <div key={test.id} style={{ border: `2px solid ${test.kiSagt === test.correct ? 'var(--color-success)' : 'var(--color-error)'}`, borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', textAlign: 'center', background: test.kiSagt === test.correct ? 'var(--color-success-light)' : 'var(--color-error-light)' }}>
-            <WmPhoto emoji={test.emoji} hasR={test.hasR} size="2.5rem" />
-            <div style={{ fontWeight: 800, fontSize: '0.9rem', marginTop: '8px' }}>{test.label}</div>
-            <div style={{ fontSize: '0.85rem', marginTop: '6px', color: 'var(--color-text-muted)' }}>KI sagt: <strong>{test.kiSagt === 'pferd' ? '🐎 Pferd' : '✗ Kein Pferd'}</strong></div>
-            <div style={{ fontSize: '0.8rem', marginTop: '4px', fontWeight: 800, color: test.kiSagt === test.correct ? 'var(--color-success)' : 'var(--color-error)' }}>
-              {test.kiSagt === test.correct ? '✓ Richtig' : '✗ Falsch!'}
+        {WM_TESTS.map((test, i) => (
+          <div key={i} style={{ border: `2px solid ${test.kiSagt === test.correct ? 'var(--color-success)' : 'var(--color-error)'}`, borderRadius: 'var(--radius-lg)', overflow: 'hidden', background: test.kiSagt === test.correct ? 'var(--color-success-light)' : 'var(--color-error-light)' }}>
+            <WmPhoto url={test.url} label={test.label} hasR={test.hasR} size="120px" />
+            <div style={{ padding: '8px 10px' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>KI sagt: <strong>{test.kiSagt === 'pferd' ? '🐎 Pferd' : '✗ Kein Pferd'}</strong></div>
+              <div style={{ fontSize: '0.75rem', marginTop: '4px', fontWeight: 800, color: test.kiSagt === test.correct ? 'var(--color-success)' : 'var(--color-error)' }}>
+                {test.kiSagt === test.correct ? '✓ Richtig' : '✗ Falsch!'}
+              </div>
+              <div style={{ fontSize: '0.72rem', marginTop: '4px', color: 'var(--color-text-muted)', lineHeight: 1.4 }}>{test.explain}</div>
             </div>
           </div>
         ))}
@@ -159,9 +227,9 @@ export default function Station2({ done, onComplete }) {
       <div className="card">
         <div className="station-counter">Station 2 von 4 · Wasserzeichen · Test {wmStep + 1} von {WM_TESTS.length}</div>
         <h2 style={{ color: MOD_COLOR }}>Was würde die Mini-KI sagen?</h2>
-        <div style={{ textAlign: 'center', margin: 'var(--space-lg) 0' }}>
-          <WmPhoto emoji={test.emoji} hasR={test.hasR} size="4rem" />
-          <div style={{ marginTop: '12px', fontWeight: 800, fontSize: '1.1rem' }}>{test.label}</div>
+        <p className="lead">Schau dir das Bild genau an. Was glaubst du: Was sagt die Mini-KI?</p>
+        <div style={{ maxWidth: '320px', margin: '0 auto var(--space-lg)' }}>
+          <WmPhoto url={test.url} label={test.label} hasR={test.hasR} size="200px" />
         </div>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', margin: 'var(--space-md) 0' }}>
           {['pferd','kein'].map(v => (
@@ -172,11 +240,18 @@ export default function Station2({ done, onComplete }) {
           ))}
         </div>
         {wmChecked && (
-          <div className={`feedback ${wmChoice === test.correct ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>
-            {wmChoice === test.correct
-              ? `✅ Richtig! Die Mini-KI sagt: ${test.kiSagt === 'pferd' ? '🐎 Pferd' : 'Kein Pferd'}`
-              : `❌ Die Mini-KI sagt tatsächlich: ${test.kiSagt === 'pferd' ? '🐎 Pferd' : 'Kein Pferd'}`}
-          </div>
+          <>
+            <div className={`feedback ${wmChoice === test.correct ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>
+              {wmChoice === test.correct
+                ? `✅ Richtig! ${test.explain}`
+                : `❌ Die Mini-KI sagt tatsächlich: ${test.kiSagt === 'pferd' ? '🐎 Pferd' : 'Kein Pferd'}`}
+            </div>
+            {wmChoice !== test.correct && (
+              <div style={{ marginTop: '8px', padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+                💡 {test.explain}
+              </div>
+            )}
+          </>
         )}
         {!wmChecked
           ? <div className="actions"><button className="btn btn-primary" onClick={checkWm} disabled={!wmChoice} style={{ background: MOD_COLOR }}>Antwort prüfen</button></div>
@@ -190,22 +265,27 @@ export default function Station2({ done, onComplete }) {
     <div className="card">
       <div className="station-counter">Station 2 von 4 · Wasserzeichen-Rätsel · Entdecken</div>
       <h2 style={{ color: MOD_COLOR }}>Das Wasserzeichen-Rätsel</h2>
-      <p className="lead">Die Mini-KI wurde mit diesen sechs Pferdefotos trainiert. Entdeckst du etwas, das alle gemeinsam haben?</p>
+      <p className="lead">Die Mini-KI wurde mit diesen sechs Pferdefotos trainiert. <strong>Schau genau hin:</strong> Was fällt dir auf?</p>
+
+      {/* Trainingsfotos mit Wasserzeichen */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>
-        {['🐎','🐴','🐎','🐴','🐎','🐴'].map((e, i) => <WmPhoto key={i} emoji={e} hasR={true} size="2.5rem" />)}
+        {TRAINING_PHOTOS.map((h, i) => <WmPhoto key={i} url={commons(h.file)} label={h.label} hasR={true} size="140px" />)}
       </div>
-      <p style={{ fontWeight: 700, color: MOD_COLOR }}>🔍 Bewege die Lupe über die Fotos:</p>
+      <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>Fotos: Wikimedia Commons (CC-Lizenzen)</p>
+
+      <p style={{ fontWeight: 700, color: MOD_COLOR, marginTop: 'var(--space-md)' }}>🔍 Bewege die Lupe über die Fotos, um das gemeinsame Merkmal zu entdecken:</p>
       <div ref={photoRef}
         onMouseMove={e => handleMove(e.clientX, e.clientY)}
         onTouchMove={e => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY) }}
-        style={{ position: 'relative', background: '#eaf5f6', borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)', cursor: 'crosshair', userSelect: 'none', touchAction: 'none', minHeight: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-        <div style={{ fontSize: '3rem', opacity: 0.3 }}>🐎 🐴 🐎 🐴 🐎 🐴</div>
-        <div style={{ position: 'absolute', left: `${lupeX}%`, top: `${lupeY}%`, transform: 'translate(-50%,-50%)', width: '60px', height: '60px', borderRadius: '50%', border: '3px solid #087f83', background: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
-          {lupeX > 65 && lupeY > 65
-            ? <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#333', fontFamily: 'serif' }}>R</span>
-            : <span style={{ fontSize: '1.2rem' }}>🔍</span>}
+        style={{ position: 'relative', background: '#eaf5f6', borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)', cursor: 'crosshair', userSelect: 'none', touchAction: 'none', minHeight: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 'var(--space-md)' }}>
+        <div style={{ fontSize: '2.5rem', opacity: 0.25, letterSpacing: '8px' }}>🐎 🐴 🐎 🐴 🐎 🐴</div>
+        <div style={{ position: 'absolute', left: `${lupeX}%`, top: `${lupeY}%`, transform: 'translate(-50%,-50%)', width: '64px', height: '64px', borderRadius: '50%', border: '3px solid #087f83', background: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}>
+          {lupeX > 60 && lupeY > 60
+            ? <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#333', fontFamily: 'serif' }}>R</span>
+            : <span style={{ fontSize: '1.3rem' }}>🔍</span>}
         </div>
       </div>
+
       {!discovered && (
         <div className="actions">
           <button className="nav-btn" onClick={() => setDiscovered(true)}>Ich habe etwas entdeckt!</button>
@@ -213,8 +293,10 @@ export default function Station2({ done, onComplete }) {
       )}
       {discovered && (
         <>
-          <div className="done-badge" style={{ marginTop: 'var(--space-md)' }}>✓ Gut entdeckt! Alle Trainingsfotos haben ein kleines „R" als Wasserzeichen.</div>
-          <InfoBox>Die Mini-KI hat dieses „R" als Merkmal gelernt – obwohl es nichts mit Pferden zu tun hat. Jetzt testen wir, was das bedeutet.</InfoBox>
+          <div className="done-badge">✓ Gut entdeckt! Alle Trainingsfotos haben ein kleines „R" als Wasserzeichen.</div>
+          <InfoBox title="Was bedeutet das?">
+            Die Mini-KI hat dieses „R" als Merkmal gelernt – obwohl es nichts mit Pferden zu tun hat. Jetzt testen wir, was das bedeutet: Erkennt die KI auch ein Auto als Pferd, wenn es das „R" trägt?
+          </InfoBox>
           <div className="actions">
             <button className="btn btn-primary" onClick={() => setPhase('tests')} style={{ background: MOD_COLOR }}>Tests starten →</button>
           </div>

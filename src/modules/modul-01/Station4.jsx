@@ -1,39 +1,81 @@
 // ============================================================
 // Modul 01 · Station 4: Satzwerkstatt
+// Reichhaltigere Didaktik: mehrere Sätze, Kontext-Einfluss sichtbar
 // ============================================================
 
 import React, { useState } from 'react'
-import { MemoryBox, WarningBox } from '../../components/ui/InfoBox.jsx'
+import { MemoryBox, WarningBox, InfoBox } from '../../components/ui/InfoBox.jsx'
 
 const MOD_COLOR = '#2859d8'
 
-const SW_STEPS = [
+// Mehrere Satz-Vorlagen für Abwechslung
+const SATZ_VORLAGEN = [
   {
-    prompt: 'Wähle ein Subjekt:',
-    options: [
-      { id: 'hund-sg',  text: 'Der kleine Hund',     number: 'sg' },
-      { id: 'hunde-pl', text: 'Die kleinen Hunde',    number: 'pl' },
-      { id: 'katze-sg', text: 'Die neugierige Katze', number: 'sg' },
+    id: 'tiere',
+    label: 'Tiere',
+    steps: [
+      {
+        prompt: 'Wähle ein Subjekt:',
+        options: [
+          { id: 'hund-sg',  text: 'Der kleine Hund',     number: 'sg' },
+          { id: 'hunde-pl', text: 'Die kleinen Hunde',    number: 'pl' },
+          { id: 'katze-sg', text: 'Die neugierige Katze', number: 'sg' },
+        ],
+      },
+      {
+        prompt: 'Wähle ein Verb:',
+        getOptions: (built) => {
+          const num = built[0]?.number ?? 'sg'
+          return [
+            { id: 'rennt',    text: 'rennt',    number: 'sg', disabled: num === 'pl' },
+            { id: 'rennen',   text: 'rennen',   number: 'pl', disabled: num === 'sg' },
+            { id: 'schlaeft', text: 'schläft',  number: 'sg', disabled: num === 'pl' },
+            { id: 'schlafen', text: 'schlafen', number: 'pl', disabled: num === 'sg' },
+          ]
+        },
+      },
+      {
+        prompt: 'Wähle eine Ergänzung:',
+        options: [
+          { id: 'park',   text: 'durch den Park.' },
+          { id: 'wiese',  text: 'über die Wiese.' },
+          { id: 'garten', text: 'in den Garten.' },
+        ],
+      },
     ],
   },
   {
-    prompt: 'Wähle ein Verb:',
-    getOptions: (built) => {
-      const num = built[0]?.number ?? 'sg'
-      return [
-        { id: 'rennt',    text: 'rennt',    number: 'sg', disabled: num === 'pl' },
-        { id: 'rennen',   text: 'rennen',   number: 'pl', disabled: num === 'sg' },
-        { id: 'schlaeft', text: 'schläft',  number: 'sg', disabled: num === 'pl' },
-        { id: 'schlafen', text: 'schlafen', number: 'pl', disabled: num === 'sg' },
-      ]
-    },
-  },
-  {
-    prompt: 'Wähle eine Ergänzung:',
-    options: [
-      { id: 'park',   text: 'durch den Park.' },
-      { id: 'wiese',  text: 'über die Wiese.' },
-      { id: 'garten', text: 'in den Garten.' },
+    id: 'schule',
+    label: 'Schule',
+    steps: [
+      {
+        prompt: 'Wähle ein Subjekt:',
+        options: [
+          { id: 'schueler-sg', text: 'Die Schülerin',    number: 'sg' },
+          { id: 'schueler-pl', text: 'Die Schülerinnen', number: 'pl' },
+          { id: 'lehrer-sg',   text: 'Der Lehrer',       number: 'sg' },
+        ],
+      },
+      {
+        prompt: 'Wähle ein Verb:',
+        getOptions: (built) => {
+          const num = built[0]?.number ?? 'sg'
+          return [
+            { id: 'liest',   text: 'liest',   number: 'sg', disabled: num === 'pl' },
+            { id: 'lesen',   text: 'lesen',   number: 'pl', disabled: num === 'sg' },
+            { id: 'schreibt',text: 'schreibt',number: 'sg', disabled: num === 'pl' },
+            { id: 'schreiben',text:'schreiben',number: 'pl', disabled: num === 'sg' },
+          ]
+        },
+      },
+      {
+        prompt: 'Wähle eine Ergänzung:',
+        options: [
+          { id: 'buch',    text: 'ein spannendes Buch.' },
+          { id: 'aufsatz', text: 'einen langen Aufsatz.' },
+          { id: 'notizen', text: 'wichtige Notizen.' },
+        ],
+      },
     ],
   },
 ]
@@ -53,21 +95,46 @@ const QUIZ_EXPLAIN = [
 const QUIZ_ORDER = [0,1,2,3].sort(() => Math.random() - 0.5)
 
 export default function Station4({ done, onComplete, achieved, onDashboard }) {
+  const [vorlageIdx,   setVorlageIdx]   = useState(0)
   const [built,        setBuilt]        = useState([])
   const [phase,        setPhase]        = useState('werkstatt')
+  const [completedSentences, setCompletedSentences] = useState([])
   const [quizAnswer,   setQuizAnswer]   = useState('')
   const [quizFeedback, setQuizFeedback] = useState(null)
 
+  const vorlage  = SATZ_VORLAGEN[vorlageIdx]
   const step     = built.length
-  const finished = step >= SW_STEPS.length
+  const finished = step >= vorlage.steps.length
   const sentence = built.map(w => w.text).join(' ')
 
-  const currentStep    = SW_STEPS[step]
+  const currentStep    = vorlage.steps[step]
   const currentOptions = currentStep?.getOptions ? currentStep.getOptions(built) : currentStep?.options ?? []
 
-  function pick(opt) { if (!opt.disabled) setBuilt([...built, opt]) }
-  function goBack()  { if (built.length > 0) setBuilt(built.slice(0, -1)) }
-  function reset()   { setBuilt([]); setPhase('werkstatt'); setQuizAnswer(''); setQuizFeedback(null) }
+  function pick(opt) {
+    if (!opt.disabled) setBuilt([...built, opt])
+  }
+
+  function goBack() {
+    if (built.length > 0) setBuilt(built.slice(0, -1))
+  }
+
+  function reset() {
+    setBuilt([])
+    setQuizAnswer('')
+    setQuizFeedback(null)
+  }
+
+  function completeSentence() {
+    setCompletedSentences(prev => [...prev, { vorlage: vorlage.label, sentence }])
+    setBuilt([])
+    // Nach 2 Sätzen → Quiz
+    if (completedSentences.length >= 1) setPhase('reflexion')
+  }
+
+  function switchVorlage(idx) {
+    setVorlageIdx(idx)
+    setBuilt([])
+  }
 
   function checkQuiz() {
     if (!quizAnswer) { setQuizFeedback('empty'); return }
@@ -83,7 +150,25 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
       <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>💡</div>
       <h2 style={{ color: MOD_COLOR }}>Merksatz</h2>
       <MemoryBox>Eine Sprach-KI erzeugt Texte Schritt für Schritt. Was schon dasteht, beeinflusst, welche Wörter als nächstes wahrscheinlich sind.</MemoryBox>
-      <WarningBox title="Didaktischer Hinweis:">Reale Sprachmodelle verwenden keine harte Liste erlaubter Wörter. Das Ausgrauen ist eine vereinfachte Spielmechanik.</WarningBox>
+      <InfoBox title="Was bedeutet das in der Praxis?">
+        Wenn du einer KI einen guten Kontext gibst – also einen klaren, präzisen Prompt – kann sie viel besser vorhersagen, was du brauchst. Deshalb ist es wichtig, KI-Anfragen genau zu formulieren!
+      </InfoBox>
+      <WarningBox title="Didaktischer Hinweis:">
+        Reale Sprachmodelle verwenden keine harte Liste erlaubter Wörter. Das Ausgrauen ist eine vereinfachte Spielmechanik. Echte Modelle berechnen Wahrscheinlichkeiten für Tausende von Tokens gleichzeitig.
+      </WarningBox>
+
+      {/* Abgeschlossene Sätze */}
+      {completedSentences.length > 0 && (
+        <div style={{ textAlign: 'left', marginTop: 'var(--space-lg)', padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)' }}>
+          <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px' }}>Deine Sätze:</div>
+          {completedSentences.map((s, i) => (
+            <div key={i} style={{ padding: '6px 0', borderBottom: i < completedSentences.length - 1 ? '1px solid var(--color-border)' : 'none', fontSize: 'var(--font-size-sm)' }}>
+              <span style={{ color: 'var(--color-text-muted)', marginRight: '8px' }}>[{s.vorlage}]</span>
+              <strong>„{s.sentence}"</strong>
+            </div>
+          ))}
+        </div>
+      )}
 
       {!done && (
         <div className="card" style={{ border: `2px solid ${achieved ? 'var(--color-gold-dark)' : 'var(--color-border)'}`, background: achieved ? '#fff8db' : 'white', marginTop: 'var(--space-lg)' }}>
@@ -112,6 +197,15 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
     <div className="card">
       <div className="station-counter">Station 4 von 4 · Satzwerkstatt · Abschlussfrage</div>
       <h2 style={{ color: MOD_COLOR }}>Wie erzeugt eine Sprach-KI einen Satz?</h2>
+
+      {/* Abgeschlossene Sätze als Kontext */}
+      {completedSentences.length > 0 && (
+        <div style={{ padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-md)', fontSize: 'var(--font-size-sm)' }}>
+          <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '6px' }}>Deine Sätze aus der Werkstatt:</div>
+          {completedSentences.map((s, i) => <div key={i}>„{s.sentence}"</div>)}
+        </div>
+      )}
+
       {QUIZ_ORDER.map(idx => {
         const q = QUIZ[idx]
         return (
@@ -133,7 +227,42 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
       )}
       <div className="actions">
         <button className="btn btn-primary" onClick={checkQuiz} style={{ background: MOD_COLOR }}>Antwort prüfen</button>
-        <button className="btn btn-ghost" onClick={reset}>↺ Neu starten</button>
+        <button className="btn btn-ghost" onClick={() => setPhase('werkstatt')}>↺ Zurück zur Werkstatt</button>
+      </div>
+    </div>
+  )
+
+  // Reflexion nach 2 Sätzen
+  if (phase === 'reflexion') return (
+    <div className="card">
+      <div className="station-counter">Station 4 von 4 · Satzwerkstatt · Reflexion</div>
+      <h2 style={{ color: MOD_COLOR }}>Was hast du beobachtet?</h2>
+
+      <div style={{ padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-lg)' }}>
+        <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px' }}>Deine Sätze:</div>
+        {completedSentences.map((s, i) => (
+          <div key={i} style={{ padding: '6px 0', borderBottom: i < completedSentences.length - 1 ? '1px solid var(--color-border)' : 'none' }}>
+            <span style={{ color: 'var(--color-text-muted)', marginRight: '8px', fontSize: 'var(--font-size-sm)' }}>[{s.vorlage}]</span>
+            <strong>„{s.sentence}"</strong>
+          </div>
+        ))}
+      </div>
+
+      <InfoBox title="Was ist dir aufgefallen?">
+        <ul style={{ margin: '8px 0 0', paddingLeft: '20px', lineHeight: 2 }}>
+          <li>Das Subjekt (Singular/Plural) bestimmt, welche Verbformen möglich sind.</li>
+          <li>Frühere Entscheidungen schränken spätere Möglichkeiten ein.</li>
+          <li>Genau so funktioniert Sprach-KI: Jedes Wort beeinflusst das nächste.</li>
+        </ul>
+      </InfoBox>
+
+      <WarningBox title="Didaktischer Hinweis:">
+        Das Ausgrauen ist eine vereinfachte Spielmechanik. Echte Sprachmodelle berechnen Wahrscheinlichkeiten für alle möglichen Wörter – auch grammatikalisch unpassende können vorkommen.
+      </WarningBox>
+
+      <div className="actions">
+        <button className="btn btn-primary" onClick={() => setPhase('quiz')} style={{ background: MOD_COLOR }}>Zur Abschlussfrage →</button>
+        <button className="btn btn-ghost" onClick={() => { setPhase('werkstatt'); setBuilt([]) }}>Noch einen Satz bauen</button>
       </div>
     </div>
   )
@@ -143,7 +272,24 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
     <div className="card">
       <div className="station-counter">Station 4 von 4 · Satzwerkstatt</div>
       <h2 style={{ color: MOD_COLOR }}>Satzwerkstatt</h2>
-      <p className="lead">Baue einen Satz Schritt für Schritt auf – genau wie eine Sprach-KI. Frühere Entscheidungen beeinflussen, welche Wörter als nächstes passen.</p>
+      <p className="lead">Baue Sätze Schritt für Schritt auf – genau wie eine Sprach-KI. Frühere Entscheidungen beeinflussen, welche Wörter als nächstes passen.</p>
+
+      {/* Vorlage-Auswahl */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: 'var(--space-md)', flexWrap: 'wrap' }}>
+        {SATZ_VORLAGEN.map((v, i) => (
+          <button key={v.id} className={`nav-btn ${vorlageIdx === i ? 'active' : ''}`}
+            onClick={() => switchVorlage(i)}>
+            {v.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Abgeschlossene Sätze */}
+      {completedSentences.length > 0 && (
+        <div style={{ padding: 'var(--space-sm) var(--space-md)', background: 'var(--color-success-light)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-md)', fontSize: 'var(--font-size-sm)' }}>
+          {completedSentences.map((s, i) => <div key={i}>✓ „{s.sentence}"</div>)}
+        </div>
+      )}
 
       {/* Aktueller Satz */}
       <div style={{ background: 'white', border: `2px solid ${MOD_COLOR}`, borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)', fontSize: 'clamp(1.1rem,3vw,1.5rem)', fontWeight: 800, color: 'var(--color-platform)', minHeight: '70px', marginBottom: 'var(--space-lg)', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
@@ -158,7 +304,7 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
       {!finished && currentStep && (
         <>
           <p style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: 'var(--space-sm)' }}>
-            Schritt {step + 1} von {SW_STEPS.length}: {currentStep.prompt}
+            Schritt {step + 1} von {vorlage.steps.length}: {currentStep.prompt}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: 'var(--space-md)' }}>
             {currentOptions.map(opt => (
@@ -174,12 +320,18 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
         </>
       )}
 
-      {finished && <div className="done-badge">✅ Dein Satz: „{sentence}"</div>}
+      {finished && (
+        <div className="done-badge">✅ Dein Satz: „{sentence}"</div>
+      )}
 
       <div className="actions">
         {built.length > 0 && !finished && <button className="btn btn-ghost" onClick={goBack}>← Einen Schritt zurück</button>}
         <button className="btn btn-ghost" onClick={reset}>↺ Neuer Satz</button>
-        {finished && <button className="btn btn-primary" onClick={() => setPhase('quiz')} style={{ background: MOD_COLOR }}>Zur Abschlussfrage →</button>}
+        {finished && (
+          <button className="btn btn-primary" onClick={completeSentence} style={{ background: MOD_COLOR }}>
+            {completedSentences.length >= 1 ? 'Zur Reflexion →' : 'Satz fertig – noch einen bauen →'}
+          </button>
+        )}
       </div>
 
       <WarningBox title="Didaktischer Hinweis:">Das Ausgrauen ist eine vereinfachte Spielmechanik. Reale Sprachmodelle berechnen Wahrscheinlichkeiten für nächste Tokens.</WarningBox>
