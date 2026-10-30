@@ -126,5 +126,95 @@ export default function Station1({
     </div>
   )
 
-  
+  // ── Lernaufgaben ──────────────────────────────────────────
+  return (
+    <>
+      <div className="card">
+        <div className="station-counter">Station 1 von 4 · Trainingsdaten</div>
+        <h2 style={{ color: MOD_COLOR }}>Wie lernt die Mini-KI Pferde erkennen?</h2>
+        <p className="lead">Eine KI lernt aus vielen Beispielbildern. Schau dir die Trainingsbilder an – was haben sie gemeinsam?</p>
+
+        {/* Trainingsbilder Phase 1 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', margin: 'var(--space-md) 0' }}>
+          {HORSES_P1.map(h => (
+            <div key={h.id} className="tile-face" style={{ cursor: 'default', height: '90px' }}>
+              <span style={{ fontSize: 'clamp(22px, 4vw, 36px)' }}>{h.emoji}</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 700 }}>{h.label}</span>
+            </div>
+          ))}
+        </div>
+
+        {trained === 0 && (
+          <div className="actions">
+            <button className="btn btn-primary" onClick={() => animateTraining()} style={{ background: MOD_COLOR }} disabled={animating}>
+              {animating ? `Training läuft … ${(trainCount * 83333).toLocaleString('de-DE')} Bilder` : '▶ Training starten'}
+            </button>
+          </div>
+        )}
+
+        {trained >= 1 && (
+          <>
+            <div className="done-badge">✓ Training abgeschlossen · ca. 1.000.000 Bilder (vereinfacht)</div>
+            <TaskBox title="Aufgabe: Welche Bilder erkennt die Mini-KI als Pferd?">
+              Wähle alle Bilder aus, die die Mini-KI nach diesem Training als Pferd erkennen würde.
+              Klicke auf die Kacheln – nach dem Prüfen drehen sie sich um!
+            </TaskBox>
+            <FlipHorseGrid horses={HORSES_P1} choices={phase1Choice} onToggle={toggleP1}
+              checked={phase1Checked && firstSolved} disabled={firstSolved} />
+            {!firstSolved && (
+              <div className="actions">
+                <button className="btn btn-primary" onClick={checkP1} style={{ background: MOD_COLOR }}>Auswahl prüfen ↻</button>
+              </div>
+            )}
+            {phase1Checked && !firstSolved && (
+              <div className="feedback wrong" style={{ display: 'block' }}>
+                ❌ Noch nicht ganz. Die Mini-KI kennt nur braune Pferde – das weiße Pferd würde sie nicht erkennen.
+              </div>
+            )}
+            {firstSolved && <div className="feedback correct" style={{ display: 'block' }}>✅ Richtig! Die Mini-KI erkennt nur braune Pferde – das weiße Pferd ist ihr unbekannt.</div>}
+          </>
+        )}
+      </div>
+
+      {firstSolved && (
+        <div className="card">
+          <h2 style={{ color: MOD_COLOR }}>Mehr Vielfalt beim Training</h2>
+          <p className="lead">Was passiert, wenn die Mini-KI auch andere Pferdearten sieht? Jetzt kommen vielfältigere Trainingsbilder dazu.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', margin: 'var(--space-md) 0' }}>
+            {HORSES_P2.map(h => (
+              <div key={h.id} className="tile-face" style={{
+                cursor: 'default', height: '90px',
+                borderColor: h.id === 'd' ? 'var(--color-error)' : 'var(--color-border)',
+                background: h.id === 'd' ? 'var(--color-error-light)' : 'linear-gradient(155deg, #fff, #eaf8f5)',
+              }}>
+                <span style={{ fontSize: 'clamp(22px, 4vw, 36px)' }}>{h.emoji}</span>
+                <span style={{ fontSize: '0.7rem', color: h.id === 'd' ? 'var(--color-error)' : 'var(--color-text-muted)', fontWeight: 700 }}>{h.label}</span>
+              </div>
+            ))}
+          </div>
+          {!expanded
+            ? <div className="actions"><button className="btn btn-primary" onClick={() => setExpanded(true)} style={{ background: MOD_COLOR }}>▶ Erweitertes Training starten</button></div>
+            : (
+              <>
+                <div className="done-badge">✓ Erweitertes Training abgeschlossen</div>
+                <TaskBox title="Aufgabe: Was erkennt die Mini-KI jetzt?">
+                  Wähle alle Bilder aus, die die Mini-KI nach dem erweiterten Training als Pferd erkennen würde.
+                </TaskBox>
+                <FlipHorseGrid horses={HORSES_P2} choices={phase2Choice} onToggle={toggleP2} checked={phase2Checked} disabled={false} />
+                <div className="actions">
+                  <button className="btn btn-primary" onClick={checkP2} style={{ background: MOD_COLOR }}>Auswahl prüfen ↻</button>
+                </div>
+                {phase2Checked && (
+                  <div className={`feedback ${phase2Choice.includes('b') && phase2Choice.includes('c') && phase2Choice.length === 2 ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>
+                    {phase2Choice.includes('b') && phase2Choice.includes('c') && phase2Choice.length === 2
+                      ? '✅ Richtig! Das weiße Pferd und das Pony werden jetzt erkannt – das Auto nicht.'
+                      : '❌ Noch nicht ganz. Wähle das weiße Pferd und das Pony – aber nicht das Auto.'}
+                  </div>
+                )}
+              </>
+            )}
+        </div>
+      )}
+    </>
+  )
 }
