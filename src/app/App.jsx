@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { studentRestore, getTeacherSession } from '../lib/auth.js'
+import { studentRestore, getTeacherSession, getStudentLocal } from '../lib/auth.js'
 import PlatformHeader   from '../components/layout/PlatformHeader.jsx'
 import Footer           from '../components/layout/Footer.jsx'
 import OfflineIndicator from '../components/ui/OfflineIndicator.jsx'
@@ -26,16 +26,7 @@ export default function App() {
   const [teacher, setTeacher] = useState(undefined)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function init() {
-      const s = await studentRestore()
-      setStudent(s)
-      const t = await getTeacherSession()
-      setTeacher(t)
-      setLoading(false)
-    }
-    init()
-  }, [])
+  
 
   
 
