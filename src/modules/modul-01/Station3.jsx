@@ -33,14 +33,7 @@ const CONTEXTS = {
 export default function Station3({ context, setContext, s3picked, setS3picked, onNext }) {
   const ctx = CONTEXTS[context]
 
-  return (
-    <div className="card">
-      <h2 style={{ color: MOD_COLOR }}>Station 3 · Wie verändert der Kontext Wortwahrscheinlichkeiten?</h2>
-
-      <InfoBox>
-        Eine Sprach-KI schaut auf den bisherigen Text und berechnet, welches Wort als nächstes
-        wahrscheinlich kommt. Wechsle den Kontext und beobachte, wie sich die Wahrscheinlichkeiten ändern.
-      </InfoBox>
+  
 
       <WarningBox title="Hinweis:">
         Die Prozentwerte sind <strong>erfundene Anschauungswerte</strong> – keine echten Messungen
@@ -100,15 +93,7 @@ export default function Station3({ context, setContext, s3picked, setS3picked, o
         ))}
       </div>
 
-      {/* Fahrrad-Highlight */}
-      <div style={{
-        background:   '#fff2cf',
-        border:       '1px solid var(--color-gold-dark)',
-        borderRadius: 'var(--radius-lg)',
-        padding:      'var(--space-md)',
-        marginBottom: 'var(--space-lg)',
-        fontSize:     '0.95rem',
-      }}>
+      
         <strong>🚲 Fahrrad:</strong>{' '}
         {context === 'pause'
           ? 'Im Pausen-Kontext nur 5 % – ein Fahrrad isst man nicht!'

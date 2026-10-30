@@ -39,31 +39,7 @@ const S1_EXPLAIN = [
   'Mehr Trainingsbilder machen die KI nicht langsamer beim Erkennen – nur beim Trainieren.',
 ]
 
-function HorseGrid({ horses, choices, onToggle, checked, disabled }) {
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>
-      {horses.map(h => {
-        const selected = choices.includes(h.id)
-        let border = selected ? `2px solid ${MOD_COLOR}` : '2px solid var(--color-border)'
-        let bg = selected ? '#e7eeff' : 'white'
-        if (checked) {
-          border = h.correct ? '2px solid var(--color-success)' : selected ? '2px solid var(--color-error)' : '2px solid var(--color-border)'
-          bg = h.correct ? 'var(--color-success-light)' : selected ? 'var(--color-error-light)' : 'white'
-        }
-        return (
-          <button key={h.id} onClick={() => !disabled && onToggle(h.id)}
-            disabled={disabled}
-            style={{ border, borderRadius: 'var(--radius-lg)', padding: '14px 8px', textAlign: 'center', background: bg, cursor: disabled ? 'default' : 'pointer', transition: 'all 0.2s', fontFamily: 'inherit' }}>
-            <div style={{ fontSize: '2.2rem' }}>{h.emoji}</div>
-            <div style={{ fontSize: '0.8rem', marginTop: '6px', fontWeight: 700 }}>{h.label}</div>
-            {selected && !checked && <div style={{ fontSize: '0.75rem', color: MOD_COLOR, marginTop: '4px' }}>✓ Ausgewählt</div>}
-            {checked && h.correct && <div style={{ fontSize: '0.75rem', color: 'var(--color-success)', marginTop: '4px', fontWeight: 800 }}>✓ Richtig</div>}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
+
 
 export default function Station1({
   trained, setTrained, phase1Choice, setPhase1Choice, phase1Checked, setPhase1Checked,
@@ -150,91 +126,5 @@ export default function Station1({
     </div>
   )
 
-  // Lernaufgaben
-  return (
-    <>
-      <div className="card">
-        <h2 style={{ color: MOD_COLOR }}>Station 1 · Wie lernt die Mini-KI Pferde erkennen?</h2>
-        <InfoBox>Eine KI lernt aus vielen Beispielbildern. Schau dir die Trainingsbilder an – was haben sie gemeinsam?</InfoBox>
-
-        {/* Trainingsbilder Phase 1 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', margin: 'var(--space-md) 0' }}>
-          {HORSES_P1.map(h => (
-            <div key={h.id} style={{ background: 'white', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '10px 4px', textAlign: 'center' }}>
-              <div style={{ fontSize: 'clamp(24px, 4vw, 38px)' }}>{h.emoji}</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>{h.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {trained === 0 && (
-          <div className="actions">
-            <button className="btn btn-primary" onClick={() => animateTraining()} style={{ background: MOD_COLOR }} disabled={animating}>
-              {animating ? `Training läuft … ${(trainCount * 83333).toLocaleString('de-DE')} Bilder` : '▶ Training starten'}
-            </button>
-          </div>
-        )}
-
-        {trained >= 1 && (
-          <>
-            <div className="box-info" style={{ marginTop: 'var(--space-md)' }}>
-              <strong>Training abgeschlossen!</strong> Die Mini-KI hat ca. 1.000.000 Bilder gesehen (vereinfachte Darstellung).
-            </div>
-            <TaskBox title="Aufgabe: Welche Bilder erkennt die Mini-KI als Pferd?">
-              Wähle alle Bilder aus, die die Mini-KI nach diesem Training als Pferd erkennen würde.
-            </TaskBox>
-            <HorseGrid horses={HORSES_P1} choices={phase1Choice} onToggle={toggleP1}
-              checked={phase1Checked && firstSolved} disabled={firstSolved} />
-            {!firstSolved && (
-              <div className="actions">
-                <button className="btn btn-primary" onClick={checkP1} style={{ background: MOD_COLOR }}>Auswahl prüfen</button>
-              </div>
-            )}
-            {phase1Checked && !firstSolved && (
-              <div className="feedback wrong" style={{ display: 'block' }}>
-                ❌ Noch nicht ganz. Die Mini-KI kennt nur braune Pferde – das weiße Pferd würde sie nicht erkennen.
-              </div>
-            )}
-            {firstSolved && <div className="feedback correct" style={{ display: 'block' }}>✅ Richtig! Die Mini-KI erkennt nur braune Pferde – das weiße Pferd ist ihr unbekannt.</div>}
-          </>
-        )}
-      </div>
-
-      {firstSolved && (
-        <div className="card">
-          <h2 style={{ color: MOD_COLOR }}>Mehr Vielfalt beim Training</h2>
-          <InfoBox>Was passiert, wenn die Mini-KI auch andere Pferdearten sieht? Jetzt kommen vielfältigere Trainingsbilder dazu.</InfoBox>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', margin: 'var(--space-md) 0' }}>
-            {HORSES_P2.map(h => (
-              <div key={h.id} style={{ background: h.id === 'd' ? '#fff0f0' : 'white', border: `1px solid ${h.id === 'd' ? 'var(--color-error)' : 'var(--color-border)'}`, borderRadius: 'var(--radius-md)', padding: '10px 4px', textAlign: 'center' }}>
-                <div style={{ fontSize: 'clamp(24px, 4vw, 38px)' }}>{h.emoji}</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>{h.label}</div>
-              </div>
-            ))}
-          </div>
-          {!expanded
-            ? <div className="actions"><button className="btn btn-primary" onClick={() => setExpanded(true)} style={{ background: MOD_COLOR }}>▶ Erweitertes Training starten</button></div>
-            : (
-              <>
-                <div className="box-info"><strong>Erweitertes Training abgeschlossen!</strong> Die Mini-KI kennt jetzt mehr Pferdearten.</div>
-                <TaskBox title="Aufgabe: Was erkennt die Mini-KI jetzt?">
-                  Wähle alle Bilder aus, die die Mini-KI nach dem erweiterten Training als Pferd erkennen würde.
-                </TaskBox>
-                <HorseGrid horses={HORSES_P2} choices={phase2Choice} onToggle={toggleP2} checked={phase2Checked} disabled={false} />
-                <div className="actions">
-                  <button className="btn btn-primary" onClick={checkP2} style={{ background: MOD_COLOR }}>Auswahl prüfen</button>
-                </div>
-                {phase2Checked && (
-                  <div className={`feedback ${phase2Choice.includes('b') && phase2Choice.includes('c') && phase2Choice.length === 2 ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>
-                    {phase2Choice.includes('b') && phase2Choice.includes('c') && phase2Choice.length === 2
-                      ? '✅ Richtig! Das weiße Pferd und das Pony werden jetzt erkannt – das Auto nicht.'
-                      : '❌ Noch nicht ganz. Wähle das weiße Pferd und das Pony – aber nicht das Auto.'}
-                  </div>
-                )}
-              </>
-            )}
-        </div>
-      )}
-    </>
-  )
+  
 }

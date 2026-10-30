@@ -110,31 +110,9 @@ export default function Modul02Page({ student }) {
       <div className="wrap">
 
         {/* Modulkopf */}
-        <header className="hero" style={{ background: 'linear-gradient(120deg, #095c6b, #167e8a)' }}>
-          <div className="eyebrow" style={{ marginBottom: '8px' }}>KI-Führerschein Klasse 7 · Modul 2</div>
-          <h1 style={{ margin: '8px 0 6px' }}>🧠 KI sinnvoll nutzen</h1>
-          <p style={{ margin: '4px 0 2px', opacity: 0.9 }}>
-            <strong>Leitfrage:</strong> Wie kann KI mir helfen, ohne mein eigenes Denken zu ersetzen?
-          </p>
-          <p style={{ margin: '4px 0 0', opacity: 0.75, fontSize: 'var(--font-size-sm)' }}>
-            ca. 45 Minuten · Einzel-, Partner- und Gruppenarbeit
-          </p>
-        </header>
+        
 
-        {/* Sticky Navigation */}
-        <ModuleNav
-          progressPercent={progressPct}
-          score={state.points}
-          maxScore={MAX_POINTS}
-          moduleColor={MOD_COLOR}
-          onBack={() => navigate('/dashboard')}
-          backLabel="← Zur Übersicht"
-          showOverview={false}
-        />
-
-        {/* ── 1: Dein Auftrag ── */}
-        <section className="card" aria-labelledby="h-goals">
-          <h2 id="h-goals">1. Dein Auftrag</h2>
+        
           <div className="grid-2">
             <InfoBox title="Du lernst:">
               <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
@@ -157,9 +135,7 @@ export default function Modul02Page({ student }) {
           </div>
         </section>
 
-        {/* ── 2: Einstieg ── */}
-        <section className="card" aria-labelledby="h-start">
-          <h2 id="h-start">2. Einstieg: Ist KI schlauer als du?</h2>
+        
           <TaskBox title="Partnergespräch, 3 Minuten:">
             Entscheidet euch zunächst für „Ja", „Nein" oder „Kommt darauf an". Begründet eure Wahl mit einem Beispiel.
           </TaskBox>
@@ -173,9 +149,7 @@ export default function Modul02Page({ student }) {
           />
         </section>
 
-        {/* ── 3: Experiment ── */}
-        <section className="card" aria-labelledby="h-experiment">
-          <h2 id="h-experiment">3. Experiment: Die KI als Fehlerquelle</h2>
+        
           <p>Nutzt die von der Lehrkraft freigegebene KI, zum Beispiel AIS.chat. Eine Person tippt, die andere protokolliert und prüft.</p>
           <div style={{
             background:   '#103d54',
@@ -208,9 +182,7 @@ export default function Modul02Page({ student }) {
           />
         </section>
 
-        {/* ── 4: Zwischenquiz ── */}
-        <section className="card" aria-labelledby="h-q1">
-          <h2 id="h-q1">4. Zwischenquiz: Fehlerdetektiv</h2>
+        
           <Quiz
             id="q1"
             question="Warum können falsche KI-Antworten gefährlich sein?"
@@ -227,9 +199,7 @@ export default function Modul02Page({ student }) {
           />
         </section>
 
-        {/* ── 5: Fünf Grundsätze ── */}
-        <section className="card" aria-labelledby="h-principles">
-          <h2 id="h-principles">5. Fünf Grundsätze</h2>
+        
           <div className="grid-2">
             {[
               { title: '1. Werkzeug',         text: 'KI unterstützt dich. Sie übernimmt weder dein Denken noch deine Verantwortung.' },
@@ -246,9 +216,7 @@ export default function Modul02Page({ student }) {
           </div>
         </section>
 
-        {/* ── 6: Prompt-Challenge ── */}
-        <section className="card" aria-labelledby="h-prompt">
-          <h2 id="h-prompt">6. Prompt-Challenge</h2>
+        
           <p>Welche Anfrage hilft wahrscheinlich besser beim Lernen?</p>
           <Quiz
             id="q2"
@@ -276,15 +244,11 @@ export default function Modul02Page({ student }) {
           </div>
         </section>
 
-        {/* ── 7: Situationen ── */}
-        <section className="card" aria-labelledby="h-scenarios">
-          <h2 id="h-scenarios">7. Situationen beurteilen</h2>
+        
           <ScenarioTask done={!!state.done['scenarios']} onComplete={pts => award('scenarios', pts)} />
         </section>
 
-        {/* ── 8: Abschlusstest ── */}
-        <section className="card" aria-labelledby="h-final">
-          <h2 id="h-final">8. Abschlusstest</h2>
+        
           {[
             { id: 'q3', pts: 5, question: '1. Wer trägt die Verantwortung für eine übernommene KI-Antwort?',
               options: [{ value: '0', label: 'Die KI' }, { value: '1', label: 'Die Person, die das Ergebnis nutzt' }, { value: '2', label: 'Niemand' }],
@@ -313,15 +277,11 @@ export default function Modul02Page({ student }) {
           ))}
         </section>
 
-        {/* ── 9: KI-Regeln ── */}
-        <section className="card" aria-labelledby="h-rules">
-          <h2 id="h-rules">9. Meine KI-Regeln</h2>
+        
           <RulesTask done={!!state.done['rules']} onComplete={pts => award('rules', pts)} />
         </section>
 
-        {/* ── 10: Badges & Ergebnis ── */}
-        <section className="card" aria-labelledby="h-badges">
-          <h2 id="h-badges">10. Deine Badges</h2>
+        
           <div className="grid-3" style={{ marginBottom: 'var(--space-lg)' }}>
             {badges.map(b => <Badge key={b.title} {...b} />)}
           </div>

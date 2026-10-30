@@ -84,23 +84,7 @@ export default function Modul01Page() {
     <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }}>
       <div className="wrap" id="modul01-main">
 
-        <header className="hero" style={{ background: `linear-gradient(120deg, #1a3a8f, ${MOD_COLOR})` }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
-            <div>
-              <div className="eyebrow" style={{ marginBottom: '8px' }}>KI-Führerschein Klasse 7 · Modul 1</div>
-              <h1 style={{ margin: '8px 0 6px' }}>🤖 Was ist KI?</h1>
-              <p style={{ margin: 0, opacity: 0.9 }}>Trainingsdaten · Mustererkennung · Sprach-KI</p>
-            </div>
-            <button onClick={handleSpeak} title="Vorlesen" style={{
-              background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.4)',
-              borderRadius: 'var(--radius-md)', color: 'white', padding: '8px 14px',
-              cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem', fontWeight: 700,
-            }}>🔊 Vorlesen</button>
-          </div>
-        </header>
-
-        <ModuleNav progressPercent={progress} moduleColor={MOD_COLOR}
-          onBack={() => navigate('/dashboard')} backLabel="← Zur Übersicht" showOverview={false} />
+        
 
         {page === 0 && (
           <div className="card">

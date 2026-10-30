@@ -13,6 +13,7 @@ import {
   getAchievementsLocal, allRequiredPassed,
   saveMerksatz, getMerksatz, getStudentName,
 } from '../../lib/achievements.js'
+import { generateCode } from '../../lib/levelCode.js'
 
 const REQUIRED_MODULES = MODULES.filter(m => !m.optional)
 
@@ -24,21 +25,7 @@ export default function CertificatePage() {
   const [merksatz,    setMerksatzState] = useState('')
   const [merksatzSaved, setMerksatzSaved] = useState(false)
   const [studentName, setStudentName]  = useState('')
-  const [today,       setToday]        = useState('')
-
-  useEffect(() => {
-    const ach  = getAchievementsLocal()
-    const name = getStudentName()
-    const ms   = getMerksatz()
-    const ok   = allRequiredPassed()
-    const date = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
-
-    setAchievements(ach)
-    setStudentName(name)
-    setMerksatzState(ms)
-    setEligible(ok)
-    setToday(date)
-  }, [])
+  
 
   function handleSaveMerksatz() {
     saveMerksatz(merksatz)
@@ -123,8 +110,7 @@ export default function CertificatePage() {
             </button>
           </div>
 
-          {/* Merksatz-Eingabe */}
-          <div style={{ marginTop: 'var(--space-lg)', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-lg)' }}>
+          
             <label htmlFor="merksatz" style={{ fontWeight: 800, display: 'block', marginBottom: '8px' }}>
               💬 Dein persönlicher Merksatz
             </label>
@@ -304,10 +290,7 @@ export default function CertificatePage() {
             </div>
           </div>
 
-          {/* Tiny Footer */}
-          <div style={{ fontSize: '0.75rem', color: '#547080', marginTop: '16px' }}>
-            KI-Führerschein · Klasse 7 · Alle vier Pflichtmodule bestanden
-          </div>
+          
         </div>
       </div>
 

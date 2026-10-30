@@ -7,9 +7,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 
 import { studentRestore, getTeacherSession } from '../lib/auth.js'
 
-import PlatformHeader    from '../components/layout/PlatformHeader.jsx'
-import Footer            from '../components/layout/Footer.jsx'
-import JoinPage          from './pages/JoinPage.jsx'
+
 import Dashboard         from './pages/Dashboard.jsx'
 import Modul01Page       from './pages/Modul01Page.jsx'
 import Modul02Page       from './pages/Modul02Page.jsx'
@@ -48,8 +46,7 @@ export default function App() {
 
       <Routes>
         {/* ── Schüler:innen ── */}
-        <Route path="/"
-          element={student ? <Navigate to="/dashboard" replace /> : <JoinPage onJoin={setStudent} />} />
+        
         <Route path="/dashboard"
           element={student ? <Dashboard student={student} /> : <Navigate to="/" replace />} />
         <Route path="/modul/01"

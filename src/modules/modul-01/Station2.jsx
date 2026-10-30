@@ -149,13 +149,7 @@ export default function Station2({
     </div>
   )
 
-  // Tests
-  if (wmDiscovery === 2) {
-    const test = WM_TESTS[wmStep]
-    return (
-      <div className="card">
-        <h2 style={{ color: MOD_COLOR }}>Station 2 · Test {wmStep + 1} von {WM_TESTS.length}</h2>
-        <p>Was würde die Mini-KI bei diesem Bild sagen?</p>
+  
         <div style={{ textAlign: 'center', margin: 'var(--space-lg) 0' }}>
           <WmPhoto emoji={test.emoji} hasR={test.hasR} size="4rem" />
           <div style={{ marginTop: '12px', fontWeight: 800, fontSize: '1.1rem' }}>{test.label}</div>
@@ -183,11 +177,7 @@ export default function Station2({
     )
   }
 
-  // Entdeckungsphase
-  return (
-    <div className="card">
-      <h2 style={{ color: MOD_COLOR }}>Station 2 · Das Wasserzeichen-Rätsel</h2>
-      <InfoBox>Die Mini-KI wurde mit diesen sechs Pferdefotos trainiert. Schau sie dir genau an – entdeckst du etwas, das alle gemeinsam haben?</InfoBox>
+  
 
       {/* Trainingsfotos mit Wasserzeichen */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>

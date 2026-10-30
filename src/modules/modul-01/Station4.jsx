@@ -137,23 +137,7 @@ export default function Station4({
     </div>
   )
 
-  // Satzwerkstatt
-  const currentStep = SW_STEPS[step]
-  const currentOptions = currentStep?.getOptions
-    ? currentStep.getOptions(swBuilt)
-    : currentStep?.options ?? []
-
-  const sentence = swBuilt.map(w => w.text).join(' ')
-  const finished = step >= SW_STEPS.length
-
-  return (
-    <div className="card">
-      <h2 style={{ color: MOD_COLOR }}>Station 4 · Satzwerkstatt</h2>
-
-      <InfoBox>
-        Baue einen Satz Schritt für Schritt auf – genau wie eine Sprach-KI.
-        Frühere Entscheidungen beeinflussen, welche Wörter als nächstes passen.
-      </InfoBox>
+  
 
       {/* Aktueller Satz */}
       <div style={{

@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MODULES, REQUIRED_MODULE_IDS, getAchievementsLocal, allRequiredPassed } from '../../lib/achievements.js'
+import { applyCode, getUsedCodes } from '../../lib/levelCode.js'
 
 const STATUS_CONFIG = {
   earned:      { label: 'Bestanden ✓',       color: '#21875d', dot: '✓', bg: 'var(--color-success-light)' },
@@ -14,14 +15,7 @@ const STATUS_CONFIG = {
 
 export default function Dashboard({ student }) {
   const navigate = useNavigate()
-  const [achievements, setAchievements] = useState({})
-  const [eligible,     setEligible]     = useState(false)
-
-  useEffect(() => {
-    const ach = getAchievementsLocal()
-    setAchievements(ach)
-    setEligible(allRequiredPassed())
-  }, [])
+  
 
   // Bei jedem Fokus neu laden (nach Rückkehr vom Modul)
   useEffect(() => {
@@ -66,8 +60,7 @@ export default function Dashboard({ student }) {
           </div>
         </div>
 
-        {/* Zertifikat-Banner */}
-        {eligible ? (
+        
           <div style={{
             background:   'linear-gradient(120deg, #825300, #b8860b)',
             color:        'white',
