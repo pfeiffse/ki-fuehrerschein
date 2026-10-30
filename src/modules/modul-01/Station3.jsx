@@ -1,11 +1,9 @@
 // ============================================================
 // Modul 01 · Station 3: Kontext / Wortwahrscheinlichkeiten
-// Didaktik: Kontext beeinflusst Wahrscheinlichkeiten
-// Hinweis: Prozentwerte sind erfundene Anschauungswerte
 // ============================================================
 
-import React from 'react'
-import { InfoBox, MemoryBox, WarningBox } from '../../components/ui/InfoBox.jsx'
+import React, { useState } from 'react'
+import { MemoryBox, WarningBox } from '../../components/ui/InfoBox.jsx'
 
 const MOD_COLOR = '#2859d8'
 
@@ -30,29 +28,30 @@ const CONTEXTS = {
   },
 }
 
-export default function Station3({ context, setContext, s3picked, setS3picked, onNext }) {
+export default function Station3({ done, onComplete }) {
+  const [context,  setContext]  = useState('pause')
+  const [picked,   setPicked]   = useState('')
+  const [complete, setComplete] = useState(done)
+
   const ctx = CONTEXTS[context]
+
+  function handlePick(label) {
+    setPicked(label)
+    setComplete(true)
+  }
 
   return (
     <div className="card">
       <div className="station-counter">Station 3 von 4 · Kontext und Wahrscheinlichkeiten</div>
       <h2 style={{ color: MOD_COLOR }}>Wie verändert der Kontext Wortwahrscheinlichkeiten?</h2>
-      <p className="lead">
-        Eine Sprach-KI schaut auf den bisherigen Text und berechnet, welches Wort als nächstes
-        wahrscheinlich kommt. Wechsle den Kontext und beobachte, wie sich die Wahrscheinlichkeiten ändern.
-      </p>
-
-      <WarningBox title="Hinweis:">
-        Die Prozentwerte sind <strong>erfundene Anschauungswerte</strong> – keine echten Messungen
-        eines KI-Modells.
-      </WarningBox>
+      <p className="lead">Eine Sprach-KI schaut auf den bisherigen Text und berechnet, welches Wort als nächstes wahrscheinlich kommt. Wechsle den Kontext und beobachte!</p>
+      <WarningBox title="Hinweis:">Die Prozentwerte sind <strong>erfundene Anschauungswerte</strong> – keine echten Messungen eines KI-Modells.</WarningBox>
 
       {/* Kontext-Umschalter */}
       <div style={{ display: 'flex', gap: '10px', margin: 'var(--space-lg) 0 var(--space-md)', flexWrap: 'wrap' }}>
         {Object.entries(CONTEXTS).map(([key, val]) => (
-          <button key={key}
-            className={`nav-btn ${context === key ? 'active' : ''}`}
-            onClick={() => { setContext(key); setS3picked('') }}
+          <button key={key} className={`nav-btn ${context === key ? 'active' : ''}`}
+            onClick={() => { setContext(key); setPicked('') }}
             style={{ fontSize: '1rem', padding: '10px 20px' }}>
             {key === 'pause' ? '🏫 ' : '⚽ '}{val.label}
           </button>
@@ -60,12 +59,7 @@ export default function Station3({ context, setContext, s3picked, setS3picked, o
       </div>
 
       {/* Satz */}
-      <div style={{
-        background: 'white', border: `2px solid ${MOD_COLOR}`,
-        borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)',
-        fontSize: 'clamp(1.1rem, 3vw, 1.4rem)', fontWeight: 800,
-        color: 'var(--color-platform)', marginBottom: 'var(--space-lg)', textAlign: 'center',
-      }}>
+      <div style={{ background: 'white', border: `2px solid ${MOD_COLOR}`, borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)', fontSize: 'clamp(1.1rem,3vw,1.4rem)', fontWeight: 800, color: 'var(--color-platform)', marginBottom: 'var(--space-lg)', textAlign: 'center' }}>
         {ctx.sentence}
       </div>
 
@@ -79,11 +73,7 @@ export default function Station3({ context, setContext, s3picked, setS3picked, o
                 <span style={{ fontSize: '0.82rem' }}>{opt.label}</span>
               </div>
               <div style={{ background: '#dbe4f5', borderRadius: 'var(--radius-pill)', height: '24px', overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', width: `${opt.prob}%`,
-                  background: opt.prob >= 45 ? MOD_COLOR : opt.prob >= 20 ? '#5880eb' : '#b0bfea',
-                  borderRadius: 'var(--radius-pill)', transition: 'width 0.4s ease',
-                }} />
+                <div style={{ height: '100%', width: `${opt.prob}%`, background: opt.prob >= 45 ? MOD_COLOR : opt.prob >= 20 ? '#5880eb' : '#b0bfea', borderRadius: 'var(--radius-pill)', transition: 'width 0.4s ease' }} />
               </div>
               <div style={{ fontWeight: 900, color: MOD_COLOR, textAlign: 'right' }}>{opt.prob} %</div>
             </div>
@@ -91,7 +81,7 @@ export default function Station3({ context, setContext, s3picked, setS3picked, o
         ))}
       </div>
 
-      {/* Fahrrad-Highlight als compare-box */}
+      {/* Fahrrad-Highlight */}
       <div className="compare-box">
         <div className="eyebrow">Der Kontext-Vergleich</div>
         <div className="big">🚲 Fahrrad: {context === 'pause' ? '5 %' : '45 %'}</div>
@@ -103,40 +93,30 @@ export default function Station3({ context, setContext, s3picked, setS3picked, o
       </div>
 
       {/* Wort auswählen */}
-      <p style={{ fontWeight: 800 }}>Klicke auf eine Fortsetzung und schau, was passiert:</p>
+      <p style={{ fontWeight: 800 }}>Klicke auf eine Fortsetzung:</p>
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: 'var(--space-md)' }}>
         {ctx.options.map((opt, i) => (
-          <button key={i}
-            onClick={() => setS3picked(opt.label)}
-            style={{
-              border: `2px solid ${s3picked === opt.label ? MOD_COLOR : 'var(--color-border)'}`,
-              borderRadius: 'var(--radius-lg)', padding: '12px 18px',
-              background: s3picked === opt.label ? '#e7eeff' : 'white',
-              cursor: 'pointer', fontWeight: 700, fontSize: '1rem',
-              fontFamily: 'inherit', transition: 'all 0.2s',
-            }}>
+          <button key={i} onClick={() => handlePick(opt.label)}
+            style={{ border: `2px solid ${picked === opt.label ? MOD_COLOR : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', padding: '12px 18px', background: picked === opt.label ? '#e7eeff' : 'white', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', fontFamily: 'inherit', transition: 'all 0.2s' }}>
             {opt.emoji} {opt.label}
           </button>
         ))}
       </div>
 
-      {s3picked && (
+      {picked && (
         <div className="feedback correct" style={{ display: 'block' }}>
-          💡 Du hast „{s3picked}" gewählt. Die KI könnte auch eine andere Fortsetzung wählen –
-          der Satz davor verändert die Chancen!
+          💡 Du hast „{picked}" gewählt. Die KI könnte auch eine andere Fortsetzung wählen – der Satz davor verändert die Chancen!
         </div>
       )}
 
-      <MemoryBox>
-        Der Kontext beeinflusst, welche Wörter wahrscheinlich als nächstes kommen.
-        Dasselbe Wort kann in verschiedenen Sätzen sehr unterschiedliche Wahrscheinlichkeiten haben.
-      </MemoryBox>
+      <MemoryBox>Der Kontext beeinflusst, welche Wörter wahrscheinlich als nächstes kommen. Dasselbe Wort kann in verschiedenen Sätzen sehr unterschiedliche Wahrscheinlichkeiten haben.</MemoryBox>
 
-      <div className="actions" style={{ marginTop: 'var(--space-lg)' }}>
-        <button className="btn btn-primary" onClick={onNext} style={{ background: MOD_COLOR }}>
-          Weiter zu Station 4 →
-        </button>
-      </div>
+      {complete && !done && (
+        <div className="actions" style={{ marginTop: 'var(--space-lg)' }}>
+          <button className="btn btn-success" onClick={onComplete}>Station 3 abschließen · Achievement freischalten 💬</button>
+        </div>
+      )}
+      {done && <div className="done-badge">✓ Station 3 abgeschlossen</div>}
     </div>
   )
 }

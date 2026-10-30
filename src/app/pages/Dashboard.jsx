@@ -1,6 +1,5 @@
 // ============================================================
 // KI-Führerschein · Schüler-Dashboard
-// Alle 4 Module erreichbar + Achievement-Anzeige + Zertifikat
 // ============================================================
 
 import React, { useEffect, useState } from 'react'
@@ -16,36 +15,27 @@ export default function Dashboard({ student }) {
   const [codeResult,   setCodeResult]   = useState(null)
   const [showCode,     setShowCode]     = useState(false)
 
-  useEffect(() => {
-    const ach = getAchievementsLocal()
-    setAchievements(ach)
+  function reload() {
+    setAchievements(getAchievementsLocal())
     setEligible(allRequiredPassed())
-  }, [])
+  }
 
-  // Bei jedem Fokus neu laden (nach Rückkehr vom Modul)
+  useEffect(() => { reload() }, [])
+
   useEffect(() => {
-    function onFocus() {
-      const ach = getAchievementsLocal()
-      setAchievements(ach)
-      setEligible(allRequiredPassed())
-    }
-    window.addEventListener('focus', onFocus)
-    return () => window.removeEventListener('focus', onFocus)
+    window.addEventListener('focus', reload)
+    return () => window.removeEventListener('focus', reload)
   }, [])
 
   function handleCodeApply() {
     if (!codeInput.trim()) return
     const result = applyCode(codeInput.trim())
     setCodeResult(result)
-    if (result.success) {
-      setAchievements(getAchievementsLocal())
-      setEligible(allRequiredPassed())
-    }
+    if (result.success) reload()
   }
 
-  const requiredModules = MODULES.filter(m => !m.optional)
-  const passedCount     = REQUIRED_MODULE_IDS.filter(id => achievements[id]).length
-  const overallPct      = Math.round((passedCount / REQUIRED_MODULE_IDS.length) * 100)
+  const passedCount = REQUIRED_MODULE_IDS.filter(id => achievements[id]).length
+  const overallPct  = Math.round((passedCount / REQUIRED_MODULE_IDS.length) * 100)
 
   return (
     <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }}>
@@ -61,11 +51,9 @@ export default function Dashboard({ student }) {
             Schließe alle vier Pflichtmodule ab, um deinen KI-Führerschein zu erhalten.
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '160px' }}>
-              <div className="hero-progress">
-                <div className="hero-progress-bar" style={{ width: `${overallPct}%` }}
-                  role="progressbar" aria-valuenow={overallPct} aria-valuemin={0} aria-valuemax={100} />
-              </div>
+            <div className="hero-progress" style={{ flex: 1, minWidth: '160px' }}>
+              <div className="hero-progress-bar" style={{ width: `${overallPct}%` }}
+                role="progressbar" aria-valuenow={overallPct} aria-valuemin={0} aria-valuemax={100} />
             </div>
             <div style={{ fontWeight: 800, color: 'var(--color-gold)', whiteSpace: 'nowrap' }}>
               {passedCount} / {REQUIRED_MODULE_IDS.length} Pflichtmodule
@@ -114,7 +102,7 @@ export default function Dashboard({ student }) {
           }}>
             <div>
               <div style={{ fontWeight: 900, fontSize: '1.2rem', marginBottom: '4px' }}>🏆 Herzlichen Glückwunsch!</div>
-              <div style={{ opacity: 0.9, fontSize: '0.95rem' }}>Du hast alle Pflichtmodule bestanden. Dein KI-Führerschein wartet auf dich!</div>
+              <div style={{ opacity: 0.9 }}>Du hast alle Pflichtmodule bestanden. Dein KI-Führerschein wartet!</div>
             </div>
             <button className="btn" onClick={() => navigate('/zertifikat')}
               style={{ background: 'white', color: '#825300', fontWeight: 900, padding: '12px 24px' }}>
@@ -127,34 +115,35 @@ export default function Dashboard({ student }) {
           </div>
         )}
 
-        {/* Pflichtmodule */}
-        <h2 style={{ color: 'var(--color-platform)', marginBottom: 'var(--space-md)' }}>Pflichtmodule</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', marginBottom: 'var(--space-xl)' }}>
-          {requiredModules.map((mod, idx) => {
+        {/* Modulliste */}
+        <h2 style={{ color: 'var(--color-platform)', marginBottom: 'var(--space-md)' }}>Deine Module</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+          {MODULES.map((mod, idx) => {
             const earned = !!achievements[mod.id]
             return (
               <div key={mod.id} className="card" style={{
-                marginBottom: 0, display: 'flex', alignItems: 'center',
-                gap: 'var(--space-md)', flexWrap: 'wrap',
+                marginBottom: 0,
+                display: 'flex', alignItems: 'center', gap: 'var(--space-md)', flexWrap: 'wrap',
                 borderLeft: `5px solid ${earned ? 'var(--color-success)' : mod.color}`,
                 background: earned ? 'var(--color-success-light)' : 'white',
               }}>
                 {/* Nummer */}
                 <div style={{
-                  width: '36px', height: '36px', borderRadius: '50%',
+                  width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
                   background: earned ? 'var(--color-success)' : mod.colorLight,
                   color: earned ? 'white' : mod.color,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontWeight: 900, fontSize: '1rem', flexShrink: 0,
+                  fontWeight: 900, fontSize: '1rem',
                 }}>
                   {earned ? '✓' : idx + 1}
                 </div>
 
                 {/* Icon */}
                 <div style={{
-                  fontSize: '1.8rem', background: earned ? 'rgba(33,135,93,0.15)' : mod.colorLight,
+                  fontSize: '1.8rem', flexShrink: 0,
+                  background: earned ? 'rgba(33,135,93,0.15)' : mod.colorLight,
                   borderRadius: 'var(--radius-md)', width: '52px', height: '52px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                   {mod.icon}
                 </div>
@@ -180,58 +169,15 @@ export default function Dashboard({ student }) {
 
                 {/* Button */}
                 <div>
-                  {mod.available ? (
-                    <button className="btn btn-primary" onClick={() => navigate(mod.path)}
-                      style={{ background: earned ? 'var(--color-success)' : mod.color }}>
-                      {earned ? 'Wiederholen' : 'Starten →'}
-                    </button>
-                  ) : (
-                    <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
-                      Demnächst
-                    </span>
-                  )}
+                  <button className="btn btn-primary" onClick={() => navigate(mod.path)}
+                    style={{ background: earned ? 'var(--color-success)' : mod.color }}>
+                    {earned ? 'Wiederholen' : 'Starten →'}
+                  </button>
                 </div>
               </div>
             )
           })}
         </div>
-
-        {/* Optionale Module */}
-        {MODULES.filter(m => m.optional).length > 0 && (
-          <>
-            <h2 style={{ color: 'var(--color-platform)', marginBottom: 'var(--space-md)' }}>Optionale Module</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-              {MODULES.filter(m => m.optional).map(mod => {
-                const earned = !!achievements[mod.id]
-                return (
-                  <div key={mod.id} className="card" style={{
-                    marginBottom: 0, display: 'flex', alignItems: 'center',
-                    gap: 'var(--space-md)', flexWrap: 'wrap',
-                    borderLeft: `5px solid ${mod.color}`, opacity: mod.available ? 1 : 0.65,
-                  }}>
-                    <div style={{
-                      fontSize: '1.8rem', background: mod.colorLight,
-                      borderRadius: 'var(--radius-md)', width: '52px', height: '52px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                    }}>{mod.icon}</div>
-                    <div style={{ flex: 1, minWidth: '160px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-                        <h3 style={{ margin: 0, color: mod.color, fontSize: '1rem' }}>{mod.title}</h3>
-                        <span className="pill-dark" style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '99px' }}>Optional</span>
-                      </div>
-                      <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>{mod.subtitle}</p>
-                    </div>
-                    <div>
-                      {mod.available
-                        ? <button className="btn btn-primary" onClick={() => navigate(mod.path)} style={{ background: mod.color }}>{earned ? 'Wiederholen' : 'Starten →'}</button>
-                        : <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Demnächst</span>}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </>
-        )}
       </div>
     </div>
   )
