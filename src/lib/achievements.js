@@ -15,7 +15,7 @@ export const MODULES = [
     colorLight:  '#e6f4ff',
     path:        '/modul/01',
     optional:    false,
-    available:   true,   // Platzhalter vorhanden
+    available:   true,
     achievement: {
       id:          'ki-verstehen',
       title:       'KI-Versteher:in',
@@ -42,58 +42,41 @@ export const MODULES = [
   },
   {
     id:          'modul-03',
-    title:       'Kennzeichnungspflicht',
-    subtitle:    'Wann und wie KI-Inhalte gekennzeichnet werden',
+    title:       'Kennzeichnung & Datenschutz',
+    subtitle:    'Wann KI-Inhalte gekennzeichnet werden müssen und welche Daten geschützt sind',
     icon:        '🏷️',
     color:       '#1a6b7a',
     colorLight:  '#e0f4f6',
     path:        '/modul/03',
     optional:    false,
-    available:   true,   // Platzhalter vorhanden
+    available:   true,
     achievement: {
-      id:          'ki-kennzeichnerin',
-      title:       'KI-Kennzeichner:in',
-      description: 'Du kennst die Regeln zur Kennzeichnung von KI-generierten Inhalten.',
-      icon:        '🏷️',
+      id:          'ki-verantwortlich',
+      title:       'KI-Verantwortliche:r',
+      description: 'Du kennst die Regeln zur Kennzeichnung und zum Datenschutz bei KI.',
+      icon:        '🛡️',
     },
   },
   {
     id:          'modul-04',
-    title:       'Datenschutz',
-    subtitle:    'Welche Daten du bei der KI-Nutzung schützen musst',
-    icon:        '🔒',
-    color:       '#095c6b',
-    colorLight:  '#dff4ec',
-    path:        '/modul/04',
-    optional:    false,
-    available:   true,   // Platzhalter vorhanden
-    achievement: {
-      id:          'ki-datenschuetzerin',
-      title:       'KI-Datenschützer:in',
-      description: 'Du weißt, welche Daten du bei der KI-Nutzung schützen musst.',
-      icon:        '🔒',
-    },
-  },
-  {
-    id:          'modul-05',
     title:       'KI & Nachhaltigkeit',
-    subtitle:    'Ressourcen, Energiebedarf, bewusster Umgang',
+    subtitle:    'Ressourcen, Energiebedarf und bewusster Umgang mit KI',
     icon:        '🌍',
     color:       '#087f83',
     colorLight:  '#dff5f1',
-    path:        '/modul/05',
-    optional:    true,
-    available:   false,
+    path:        '/modul/04',
+    optional:    false,
+    available:   true,
     achievement: {
       id:          'ki-nachhaltig',
       title:       'KI-Nachhaltigkeits-Profi',
       description: 'Du kennst die Ressourcen hinter KI und kannst bewusst entscheiden.',
-      icon:        '🌍',
+      icon:        '🌱',
     },
   },
 ]
 
-// Pflichtmodule für Zertifikat
+// Pflichtmodule für Zertifikat (alle 4)
 export const REQUIRED_MODULE_IDS = MODULES
   .filter(m => !m.optional)
   .map(m => m.id)
@@ -111,10 +94,6 @@ const STUDENT_NAME_KEY = 'ki_student_data'
 
 // ── Achievement lokal speichern ───────────────────────────────
 
-/**
- * Achievement für ein Modul als erworben markieren.
- * Wird lokal gespeichert – keine externen Dienste.
- */
 export function saveAchievementLocal(moduleId) {
   const existing = getAchievementsLocal()
   if (!existing[moduleId]) {
@@ -126,9 +105,6 @@ export function saveAchievementLocal(moduleId) {
   }
 }
 
-/**
- * Alle lokal gespeicherten Achievements laden.
- */
 export function getAchievementsLocal() {
   try {
     return JSON.parse(localStorage.getItem(ACHIEVEMENTS_KEY) ?? '{}')
@@ -137,16 +113,10 @@ export function getAchievementsLocal() {
   }
 }
 
-/**
- * Prüfen ob ein Achievement erworben wurde.
- */
 export function hasAchievement(moduleId) {
   return !!getAchievementsLocal()[moduleId]
 }
 
-/**
- * Prüfen ob alle Pflichtmodule bestanden sind.
- */
 export function allRequiredPassed() {
   const achievements = getAchievementsLocal()
   return REQUIRED_MODULE_IDS.every(id => !!achievements[id])
@@ -154,27 +124,16 @@ export function allRequiredPassed() {
 
 // ── Merksatz ──────────────────────────────────────────────────
 
-/**
- * Persönlichen Merksatz speichern.
- * Wird nur lokal gespeichert – nicht an externe Dienste übertragen.
- */
 export function saveMerksatz(text) {
   localStorage.setItem(MERKSATZ_KEY, text)
 }
 
-/**
- * Persönlichen Merksatz laden.
- */
 export function getMerksatz() {
   return localStorage.getItem(MERKSATZ_KEY) ?? ''
 }
 
 // ── Schülername ───────────────────────────────────────────────
 
-/**
- * Anzeigenamen des Schülers / der Schülerin aus localStorage laden.
- * Wird nur lokal verwendet – nicht an externe Dienste übertragen.
- */
 export function getStudentName() {
   try {
     const data = JSON.parse(localStorage.getItem(STUDENT_NAME_KEY) ?? '{}')

@@ -64,10 +64,8 @@ export default function App() {
           element={student ? <Modul01Page student={student} /> : <Navigate to="/" replace />} />
         <Route path="/modul/02"
           element={student ? <Modul02Page student={student} /> : <Navigate to="/" replace />} />
-        <Route path="/modul/03"
-          element={student ? <Modul03Page student={student} /> : <Navigate to="/" replace />} />
-        <Route path="/modul/04"
-          element={student ? <Modul04Page student={student} /> : <Navigate to="/" replace />} />
+        
+        
         <Route path="/zertifikat"
           element={student ? <CertificatePage student={student} /> : <Navigate to="/" replace />} />
         <Route path="/meine-daten"
