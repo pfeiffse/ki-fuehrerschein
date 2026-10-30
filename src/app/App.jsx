@@ -19,6 +19,7 @@ import PrivacyPage      from './pages/PrivacyPage.jsx'
 import MyDataPage       from './pages/MyDataPage.jsx'
 import TeacherLogin     from './pages/TeacherLogin.jsx'
 import TeacherDashboard from './pages/TeacherDashboard.jsx'
+import AdminDashboard   from './pages/AdminDashboard.jsx'
 import NotFound         from './pages/NotFound.jsx'
 
 export default function App() {
@@ -77,8 +78,7 @@ export default function App() {
         {/* ── Lehrkräfte ── */}
         <Route path="/lehrer"
           element={isTeacher ? <Navigate to="/lehrer/dashboard" replace /> : <TeacherLogin onLogin={setTeacher} />} />
-        <Route path="/lehrer/dashboard"
-          element={isTeacher ? <TeacherDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
+        
 
         {/* ── Fallback ── */}
         <Route path="*" element={<NotFound />} />
