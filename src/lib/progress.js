@@ -92,10 +92,7 @@ export async function flushSyncQueue() {
   return { synced: synced, failed: failed }
 }
 
-// Anzahl ausstehender Sync-Eintraege
-export function getPendingSyncCount() {
-  return getQueue().length
-}
+
 
 // Modul-Fortschritt speichern (lokal sofort + Supabase wenn online)
 export async function syncModuleProgress(moduleId, updates) {
@@ -256,10 +253,32 @@ export async function loadAllProgress() {
   }
 }
 
+
 // Zertifikat-Berechtigung pruefen
 export async function checkCertificateEligibility(requiredModuleIds) {
   var all = await loadAllProgress()
   return requiredModuleIds.every(function(mid) {
     return all.find(function(p) { return p.module_id === mid && p.passed })
   })
+}
+
+// Anzahl ausstehender Sync-Eintraege
+export function getPendingSyncCount() {
+  return getQueue().length
+}
+
+// localStorage-Groesse pruefen
+export function checkLocalStorageSize() {
+  try {
+    var total = 0
+    for (var key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        total += (localStorage[key].length + key.length) * 2
+      }
+    }
+    var mb = Math.round((total / 1024 / 1024) * 100) / 100
+    return { usedMB: mb, isWarning: mb > 3, isCritical: mb > 4.5 }
+  } catch {
+    return { usedMB: 0, isWarning: false, isCritical: false }
+  }
 }

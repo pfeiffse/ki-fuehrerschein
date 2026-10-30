@@ -1,38 +1,30 @@
-// ============================================================
 // KI-Fuehrerschein - Offline-Indikator
-// Zeigt Online/Offline-Status und ausstehende Sync-Eintraege
-// ============================================================
+// Zeigt Online/Offline-Status, ausstehende Sync-Eintraege und Storage-Warnung
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { flushSyncQueue, getPendingSyncCount } from '../../lib/progress.js'
+import React, { useState, useEffect } from 'react'
+import { flushSyncQueue, getPendingSyncCount, checkLocalStorageSize } from '../../lib/progress.js'
 
 export default function OfflineIndicator() {
-  const [online,  setOnline]  = useState(navigator.onLine)
-  const [pending, setPending] = useState(0)
-  const [syncing, setSyncing] = useState(false)
+  const [online,   setOnline]   = useState(navigator.onLine)
+  const [pending,  setPending]  = useState(0)
+  const [syncing,  setSyncing]  = useState(false)
   const [lastSync, setLastSync] = useState(null)
+  const [storage,  setStorage]  = useState(null)
 
-  // Online/Offline-Status ueberwachen
   useEffect(() => {
-    function handleOnline() {
-      setOnline(true)
-      // Automatisch synchronisieren wenn wieder online
-      doSync()
-    }
-    function handleOffline() {
-      setOnline(false)
-    }
+    function handleOnline()  { setOnline(true);  doSync() }
+    function handleOffline() { setOnline(false) }
 
     window.addEventListener('online',  handleOnline)
     window.addEventListener('offline', handleOffline)
 
-    // Regelmaessig Queue-Groesse pruefen
     var interval = setInterval(() => {
       setPending(getPendingSyncCount())
+      setStorage(checkLocalStorageSize())
     }, 3000)
 
-    // Initial pruefen
     setPending(getPendingSyncCount())
+    setStorage(checkLocalStorageSize())
 
     return () => {
       window.removeEventListener('online',  handleOnline)
@@ -41,7 +33,6 @@ export default function OfflineIndicator() {
     }
   }, [])
 
-  // Beim Online-Werden automatisch synchronisieren
   async function doSync() {
     if (syncing) return
     setSyncing(true)
@@ -55,53 +46,63 @@ export default function OfflineIndicator() {
     setSyncing(false)
   }
 
-  // Nichts anzeigen wenn online und keine ausstehenden Eintraege
-  if (online && pending === 0 && !syncing) return null
+  var showStorageWarning = storage && storage.isWarning && online && pending === 0 && !syncing
+
+  if (online && pending === 0 && !syncing && !showStorageWarning) return null
 
   return (
     <div style={{
       position:     'fixed',
-      bottom:       '16px',
-      right:        '16px',
+      bottom:       '1rem',
+      right:        '1rem',
       zIndex:       500,
       background:   online ? (syncing ? '#e8f5fc' : 'var(--color-warning-light)') : 'var(--color-error-light)',
       border:       '2px solid ' + (online ? (syncing ? '#2484bb' : 'var(--color-warning)') : 'var(--color-error)'),
       borderRadius: 'var(--radius-lg)',
-      padding:      '10px 16px',
+      padding:      '0.625rem 1rem',
       boxShadow:    'var(--shadow-lg)',
-      maxWidth:     '280px',
+      maxWidth:     '17.5rem',
       fontSize:     'var(--font-size-sm)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800 }}>
         <span style={{ fontSize: '1.1rem' }}>
-          {!online ? '📵' : syncing ? '🔄' : '⏳'}
+          {!online ? '📵' : syncing ? '🔄' : showStorageWarning ? '⚠️' : '⏳'}
         </span>
         <span style={{ color: online ? (syncing ? '#2484bb' : 'var(--color-warning)') : 'var(--color-error)' }}>
           {!online
             ? 'Offline – kein Internet'
             : syncing
             ? 'Wird synchronisiert …'
+            : showStorageWarning
+            ? 'Speicher fast voll'
             : pending + ' Änderung' + (pending !== 1 ? 'en' : '') + ' nicht gespeichert'}
         </span>
       </div>
 
       {!online && (
-        <p style={{ margin: '6px 0 0', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+        <p style={{ margin: '0.375rem 0 0', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
           Dein Fortschritt wird lokal gespeichert und beim nächsten Online-Gang automatisch übertragen.
         </p>
       )}
 
       {online && pending > 0 && !syncing && (
-        <div style={{ marginTop: '8px' }}>
+        <div style={{ marginTop: '0.5rem' }}>
           <button onClick={doSync}
-            style={{ background: 'var(--color-warning)', color: 'white', border: 0, borderRadius: 'var(--radius-md)', padding: '6px 12px', fontSize: 'var(--font-size-xs)', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
+            style={{ background: 'var(--color-warning)', color: 'white', border: 0, borderRadius: 'var(--radius-md)', padding: '0.375rem 0.75rem', fontSize: 'var(--font-size-xs)', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
             Jetzt synchronisieren
           </button>
         </div>
       )}
 
-      {lastSync && online && pending === 0 && (
-        <p style={{ margin: '4px 0 0', fontSize: 'var(--font-size-xs)', color: 'var(--color-success)' }}>
+      {showStorageWarning && (
+        <p style={{ margin: '0.375rem 0 0', fontSize: 'var(--font-size-xs)', color: 'var(--color-warning)' }}>
+          {storage.usedMB} MB belegt.
+          {storage.isCritical ? ' Bitte Browser-Cache leeren.' : ' Fortschritt wird trotzdem gespeichert.'}
+        </p>
+      )}
+
+      {lastSync && online && pending === 0 && !showStorageWarning && (
+        <p style={{ margin: '0.25rem 0 0', fontSize: 'var(--font-size-xs)', color: 'var(--color-success)' }}>
           ✓ Synchronisiert um {lastSync.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
         </p>
       )}
