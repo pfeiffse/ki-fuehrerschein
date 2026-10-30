@@ -1,23 +1,27 @@
-// ============================================================
-// KI-Führerschein · Authentifizierung
-// Schüler:innen: Klassencode + Anzeigename (kein echtes Konto)
-// Lehrkräfte:    E-Mail + Passwort (Supabase Auth)
-// ============================================================
+// KI-Fuehrerschein - Authentifizierung
+// Schueler:innen: Klassencode + Anzeigename
+// Lehrkraefte: E-Mail + Passwort (Supabase Auth)
 
 import { supabase } from './supabase.js'
 
 const TOKEN_KEY   = 'ki_student_token'
 const STUDENT_KEY = 'ki_student_data'
 
-// ── Schüler:innen ────────────────────────────────────────────
+// Alle KI-Fuehrerschein-Daten aus localStorage loeschen
+// Wird beim Abmelden UND beim Anmelden eines neuen Schuelers aufgerufen
+export function clearLocalData() {
+  var keysToDelete = []
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i)
+    if (key && key.startsWith('ki_')) keysToDelete.push(key)
+  }
+  keysToDelete.forEach(function(k) { localStorage.removeItem(k) })
+}
 
-/**
- * Schüler:in mit Klassencode + Anzeigename anmelden.
- * Legt neuen Datensatz an oder stellt bestehende Session wieder her.
- */
+// Schueler:in anmelden (Klassencode + Anzeigename)
 export async function studentJoin(joinCode, displayName) {
-  // 1. Klasse anhand des Codes suchen
-  const { data: cls, error: clsErr } = await supabase
+  // 1. Klasse suchen
+  var { data: cls, error: clsErr } = await supabase
     .from('classes')
     .select('id, name, grade')
     .eq('join_code', joinCode.toUpperCase().trim())
@@ -27,10 +31,10 @@ export async function studentJoin(joinCode, displayName) {
     return { error: 'Ungültiger Klassencode. Bitte prüfe die Eingabe.' }
   }
 
-  // 2. Bestehenden Token aus localStorage prüfen
-  const existingToken = localStorage.getItem(TOKEN_KEY)
+  // 2. Bestehenden Token prüfen
+  var existingToken = localStorage.getItem(TOKEN_KEY)
   if (existingToken) {
-    const { data: existing } = await supabase
+    var { data: existing } = await supabase
       .from('students')
       .select('*')
       .eq('session_token', existingToken)
@@ -38,14 +42,18 @@ export async function studentJoin(joinCode, displayName) {
       .single()
 
     if (existing) {
+      // Gleicher Schueler, gleiche Klasse -> Session wiederherstellen
       localStorage.setItem(STUDENT_KEY, JSON.stringify(existing))
       return { student: existing, class: cls }
+    } else {
+      // Anderer Schueler oder andere Klasse -> alle lokalen Daten loeschen
+      clearLocalData()
     }
   }
 
-  // 3. Neuen Schüler-Datensatz anlegen
-  const sessionToken = crypto.randomUUID()
-  const { data: student, error: stuErr } = await supabase
+  // 3. Neuen Schueler-Datensatz anlegen
+  var sessionToken = crypto.randomUUID()
+  var { data: student, error: stuErr } = await supabase
     .from('students')
     .insert({
       class_id:      cls.id,
@@ -62,25 +70,22 @@ export async function studentJoin(joinCode, displayName) {
   localStorage.setItem(TOKEN_KEY,   sessionToken)
   localStorage.setItem(STUDENT_KEY, JSON.stringify(student))
 
-  return { student, class: cls }
+  return { student: student, class: cls }
 }
 
-/**
- * Bestehende Schüler-Session aus localStorage wiederherstellen.
- */
+// Bestehende Schueler-Session wiederherstellen
 export async function studentRestore() {
-  const token = localStorage.getItem(TOKEN_KEY)
+  var token = localStorage.getItem(TOKEN_KEY)
   if (!token) return null
 
-  const { data: student } = await supabase
+  var { data: student } = await supabase
     .from('students')
     .select('*, classes(id, name, grade)')
     .eq('session_token', token)
     .single()
 
   if (!student) {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(STUDENT_KEY)
+    clearLocalData()
     return null
   }
 
@@ -88,56 +93,45 @@ export async function studentRestore() {
   return student
 }
 
-/**
- * Schüler:in abmelden (Token löschen).
- */
+// Schueler:in abmelden
 export function studentLogout() {
-  localStorage.removeItem(TOKEN_KEY)
-  localStorage.removeItem(STUDENT_KEY)
+  clearLocalData()
 }
 
-/**
- * Aktuellen Schüler aus localStorage lesen (ohne Netzwerk).
- */
+// Aktuellen Schueler aus localStorage lesen
 export function getStudentLocal() {
-  const raw = localStorage.getItem(STUDENT_KEY)
-  return raw ? JSON.parse(raw) : null
+  try {
+    var raw = localStorage.getItem(STUDENT_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
 }
 
-// ── Lehrkräfte ───────────────────────────────────────────────
-
-/**
- * Lehrkraft mit E-Mail + Passwort anmelden.
- */
+// Lehrkraft anmelden
 export async function teacherLogin(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  var { data, error } = await supabase.auth.signInWithPassword({ email: email, password: password })
   if (error) return { error: error.message }
   return { session: data.session, user: data.user }
 }
 
-/**
- * Lehrkraft abmelden.
- */
+// Lehrkraft abmelden
 export async function teacherLogout() {
   await supabase.auth.signOut()
 }
 
-/**
- * Aktuelle Lehrkraft-Session abrufen.
- */
+// Aktuelle Lehrkraft-Session abrufen
 export async function getTeacherSession() {
-  const { data } = await supabase.auth.getSession()
+  var { data } = await supabase.auth.getSession()
   return data.session
 }
 
-/**
- * Profil der Lehrkraft aus der users-Tabelle laden.
- */
+// Profil der Lehrkraft laden
 export async function getTeacherProfile() {
-  const { data: { user } } = await supabase.auth.getUser()
+  var { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data: profile } = await supabase
+  var { data: profile } = await supabase
     .from('users')
     .select('*, schools(name)')
     .eq('id', user.id)
