@@ -1,7 +1,6 @@
 // ============================================================
 // Modul 01 · Station 4: Satzwerkstatt
 // Didaktik: Sprach-KI baut Sätze Schritt für Schritt auf
-// Technisch kritisch: Übergang Station 3→4 und Zurück-Verhalten
 // ============================================================
 
 import React, { useState } from 'react'
@@ -9,7 +8,6 @@ import { InfoBox, MemoryBox, WarningBox } from '../../components/ui/InfoBox.jsx'
 
 const MOD_COLOR = '#2859d8'
 
-// Satzbausteine mit Kongruenz-Regeln
 const SW_STEPS = [
   {
     prompt: 'Wähle ein Subjekt:',
@@ -83,7 +81,8 @@ export default function Station4({
     else setS4Feedback(S4_EXPLAIN[id])
   }
 
-  // Merksatz
+  // ── Merksatz ──────────────────────────────────────────────
+
   if (s4Conclusion === 2) return (
     <div className="card" style={{ textAlign: 'center' }}>
       <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>💡</div>
@@ -104,11 +103,12 @@ export default function Station4({
     </div>
   )
 
-  // Abschlussfrage
+  // ── Abschlussfrage ────────────────────────────────────────
+
   if (s4Conclusion === 1) return (
     <div className="card">
-      <h2 style={{ color: MOD_COLOR }}>Station 4 · Abschlussfrage</h2>
-      <p style={{ fontWeight: 800 }}>Wie erzeugt eine Sprach-KI einen Satz?</p>
+      <div className="station-counter">Station 4 von 4 · Abschlussfrage</div>
+      <h2 style={{ color: MOD_COLOR }}>Wie erzeugt eine Sprach-KI einen Satz?</h2>
       {s4Order.map(idx => {
         const q = S4_QUIZ[idx]
         return (
@@ -137,34 +137,43 @@ export default function Station4({
     </div>
   )
 
-  
+  // ── Satzwerkstatt ─────────────────────────────────────────
+
+  const currentStep   = SW_STEPS[step]
+  const currentOptions = currentStep?.getOptions
+    ? currentStep.getOptions(swBuilt)
+    : currentStep?.options ?? []
+  const sentence = swBuilt.map(w => w.text).join(' ')
+  const finished = step >= SW_STEPS.length
+
+  return (
+    <div className="card">
+      <div className="station-counter">Station 4 von 4 · Satzwerkstatt</div>
+      <h2 style={{ color: MOD_COLOR }}>Satzwerkstatt</h2>
+      <p className="lead">
+        Baue einen Satz Schritt für Schritt auf – genau wie eine Sprach-KI.
+        Frühere Entscheidungen beeinflussen, welche Wörter als nächstes passen.
+      </p>
 
       {/* Aktueller Satz */}
       <div style={{
-        background:   'white',
-        border:       `2px solid ${MOD_COLOR}`,
-        borderRadius: 'var(--radius-xl)',
-        padding:      'var(--space-lg)',
-        fontSize:     'clamp(1.1rem, 3vw, 1.5rem)',
-        fontWeight:   800,
-        color:        'var(--color-platform)',
-        minHeight:    '70px',
+        background: 'white', border: `2px solid ${MOD_COLOR}`,
+        borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)',
+        fontSize: 'clamp(1.1rem, 3vw, 1.5rem)', fontWeight: 800,
+        color: 'var(--color-platform)', minHeight: '70px',
         marginBottom: 'var(--space-lg)',
-        display:      'flex',
-        alignItems:   'center',
-        flexWrap:     'wrap',
-        gap:          '8px',
+        display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px',
       }}>
         {swBuilt.length === 0
-          ? <span style={{ color: 'var(--color-text-muted)', fontWeight: 400, fontSize: '1rem' }}>Dein Satz erscheint hier …</span>
+          ? <span style={{ color: 'var(--color-text-muted)', fontWeight: 400, fontSize: '1rem' }}>
+              Dein Satz erscheint hier …
+            </span>
           : swBuilt.map((w, i) => (
             <span key={i} style={{
               background:   i === swBuilt.length - 1 ? MOD_COLOR : '#dce8ff',
               color:        i === swBuilt.length - 1 ? 'white' : 'var(--color-platform)',
-              borderRadius: 'var(--radius-md)',
-              padding:      '4px 10px',
-              fontSize:     'clamp(0.9rem, 2vw, 1.1rem)',
-              transition:   'all 0.2s',
+              borderRadius: 'var(--radius-md)', padding: '4px 10px',
+              fontSize:     'clamp(0.9rem, 2vw, 1.1rem)', transition: 'all 0.2s',
             }}>{w.text}</span>
           ))}
       </div>
@@ -182,19 +191,13 @@ export default function Station4({
                 disabled={opt.disabled}
                 style={{
                   border:       `2px solid ${opt.disabled ? '#e0e0e0' : 'var(--color-border)'}`,
-                  borderRadius: 'var(--radius-lg)',
-                  padding:      '12px 18px',
-                  background:   opt.disabled ? '#f5f5f5' : 'white',
+                  borderRadius: 'var(--radius-lg)', padding: '12px 18px',
+                  background:   opt.disabled ? '#f5f5f5' : 'linear-gradient(155deg, #fff, #eaf8f5)',
                   cursor:       opt.disabled ? 'not-allowed' : 'pointer',
-                  fontWeight:   700,
-                  fontSize:     '1rem',
-                  fontFamily:   'inherit',
+                  fontWeight:   700, fontSize: '1rem', fontFamily: 'inherit',
                   color:        opt.disabled ? '#bbb' : 'var(--color-text)',
-                  textAlign:    'left',
-                  transition:   'all 0.2s',
-                  display:      'flex',
-                  alignItems:   'center',
-                  gap:          '10px',
+                  textAlign:    'left', transition: 'all 0.2s',
+                  display:      'flex', alignItems: 'center', gap: '10px',
                 }}>
                 {opt.disabled
                   ? <span style={{ fontSize: '0.8rem', color: '#bbb' }}>⬜ Passt grammatikalisch nicht</span>
@@ -208,9 +211,7 @@ export default function Station4({
 
       {/* Fertiger Satz */}
       {finished && (
-        <div className="feedback correct" style={{ display: 'block', marginBottom: 'var(--space-md)' }}>
-          ✅ Dein Satz: <strong>„{sentence}"</strong>
-        </div>
+        <div className="done-badge">✅ Dein Satz: „{sentence}"</div>
       )}
 
       {/* Navigation */}

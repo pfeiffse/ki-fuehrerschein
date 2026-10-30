@@ -1,24 +1,19 @@
 // ============================================================
 // KI-Führerschein · Modul 02 – KI sinnvoll nutzen
-// Stil: Modul 5 (KI & Nachhaltigkeit) als Referenz
+// Referenz: legacy/Modul2.html
+// Stil: Modul 5 (KI & Nachhaltigkeit)
 // ============================================================
 
 import React, { useEffect, useReducer, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-import ModuleNav          from '../../components/layout/ModuleNav.jsx'
+import ModuleNav from '../../components/layout/ModuleNav.jsx'
 import { TaskBox, InfoBox, WarningBox, MemoryBox } from '../../components/ui/InfoBox.jsx'
-import Quiz               from '../../components/quiz/Quiz.jsx'
-import TextTask           from '../../components/quiz/TextTask.jsx'
-import Badge              from '../../components/ui/Badge.jsx'
-
+import Quiz from '../../components/quiz/Quiz.jsx'
+import TextTask from '../../components/quiz/TextTask.jsx'
+import Badge from '../../components/ui/Badge.jsx'
 import {
-  loadModuleProgress,
-  loadTaskProgress,
-  startModule,
-  completeModule,
-  completeTask,
-  saveQuizAnswer,
+  loadModuleProgress, loadTaskProgress, startModule,
+  completeModule, completeTask, saveQuizAnswer,
 } from '../../lib/progress.js'
 
 const MODULE_ID  = 'modul-02'
@@ -32,18 +27,14 @@ const initialState = { points: 0, done: {}, correct: 0, loaded: false }
 
 function reducer(state, action) {
   switch (action.type) {
-    case 'LOAD':
-      return { ...state, ...action.payload, loaded: true }
-    case 'AWARD':
-      if (state.done[action.id]) return state
-      return { ...state, points: Math.min(MAX_POINTS, state.points + action.pts), done: { ...state.done, [action.id]: true } }
-    case 'QUIZ_CORRECT':
-      if (state.done[action.id]) return state
-      return { ...state, points: Math.min(MAX_POINTS, state.points + action.pts), done: { ...state.done, [action.id]: true }, correct: state.correct + 1 }
-    case 'QUIZ_WRONG':
-      if (state.done[action.id]) return state
-      return { ...state, done: { ...state.done, [action.id]: true } }
-    default: return state
+    case 'LOAD':        return { ...state, ...action.payload, loaded: true }
+    case 'AWARD':       if (state.done[action.id]) return state
+                        return { ...state, points: Math.min(MAX_POINTS, state.points + action.pts), done: { ...state.done, [action.id]: true } }
+    case 'QUIZ_CORRECT':if (state.done[action.id]) return state
+                        return { ...state, points: Math.min(MAX_POINTS, state.points + action.pts), done: { ...state.done, [action.id]: true }, correct: state.correct + 1 }
+    case 'QUIZ_WRONG':  if (state.done[action.id]) return state
+                        return { ...state, done: { ...state.done, [action.id]: true } }
+    default:            return state
   }
 }
 
@@ -72,7 +63,15 @@ export default function Modul02Page({ student }) {
     load()
   }, [])
 
-  
+  useEffect(() => {
+    if (!state.loaded) return
+    completeModule(MODULE_ID, state.points, MAX_POINTS)
+    if (state.points >= MAX_POINTS * PASS_PCT) {
+      import('../../lib/achievements.js').then(({ saveAchievementLocal }) => {
+        saveAchievementLocal(MODULE_ID)
+      })
+    }
+  }, [state.points, state.loaded])
 
   const award = useCallback(async (id, pts) => {
     dispatch({ type: 'AWARD', id, pts })
@@ -109,10 +108,43 @@ export default function Modul02Page({ student }) {
     <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }}>
       <div className="wrap">
 
-        {/* Modulkopf */}
-        
+        {/* ── Modulkopf ── */}
+        <header className="hero" style={{ background: 'linear-gradient(120deg, #095c6b, #167e8a)' }}>
+          <div className="eyebrow" style={{ marginBottom: '8px' }}>KI-Führerschein Klasse 7 · Modul 2</div>
+          <h1 style={{ margin: '8px 0 6px' }}>🧠 KI sinnvoll nutzen</h1>
+          <p className="lead" style={{ margin: '4px 0 2px', opacity: 0.9 }}>
+            <strong>Leitfrage:</strong> Wie kann KI mir helfen, ohne mein eigenes Denken zu ersetzen?
+          </p>
+          <p style={{ margin: '4px 0 16px', opacity: 0.75, fontSize: 'var(--font-size-sm)' }}>
+            ca. 45 Minuten · Einzel-, Partner- und Gruppenarbeit
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <div className="hero-progress" style={{ flex: 1, minWidth: '160px' }}>
+              <div className="hero-progress-bar" style={{ width: `${progressPct}%` }}
+                role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} />
+            </div>
+            <div style={{ fontWeight: 800, color: 'var(--color-gold)', whiteSpace: 'nowrap', fontSize: '0.9rem' }}>
+              ⭐ {state.points} / {MAX_POINTS} Punkte
+            </div>
+          </div>
+        </header>
 
-        
+        {/* ── Tab-Navigation ── */}
+        <div className="station-tabs no-print">
+          {['1·Auftrag','2·Einstieg','3·Experiment','4·Quiz','5·Grundsätze',
+            '6·Prompts','7·Situationen','8·Abschluss','9·Regeln','10·Badges'].map((label, i) => (
+            <button key={i} className="nav-btn"
+              onClick={() => document.getElementById(`s02-${i+1}`)?.scrollIntoView({ behavior: 'smooth' })}
+              style={{ fontSize: '0.78rem', padding: '7px 10px' }}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── 1: Dein Auftrag ── */}
+        <section className="card" id="s02-1" aria-labelledby="h-goals">
+          <div className="station-counter">Abschnitt 1 von 10</div>
+          <h2 id="h-goals" style={{ color: MOD_COLOR }}>1. Dein Auftrag</h2>
           <div className="grid-2">
             <InfoBox title="Du lernst:">
               <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
@@ -135,7 +167,10 @@ export default function Modul02Page({ student }) {
           </div>
         </section>
 
-        
+        {/* ── 2: Einstieg ── */}
+        <section className="card" id="s02-2" aria-labelledby="h-start">
+          <div className="station-counter">Abschnitt 2 von 10</div>
+          <h2 id="h-start" style={{ color: MOD_COLOR }}>2. Einstieg: Ist KI schlauer als du?</h2>
           <TaskBox title="Partnergespräch, 3 Minuten:">
             Entscheidet euch zunächst für „Ja", „Nein" oder „Kommt darauf an". Begründet eure Wahl mit einem Beispiel.
           </TaskBox>
@@ -149,17 +184,15 @@ export default function Modul02Page({ student }) {
           />
         </section>
 
-        
-          <p>Nutzt die von der Lehrkraft freigegebene KI, zum Beispiel AIS.chat. Eine Person tippt, die andere protokolliert und prüft.</p>
+        {/* ── 3: Experiment ── */}
+        <section className="card" id="s02-3" aria-labelledby="h-experiment">
+          <div className="station-counter">Abschnitt 3 von 10</div>
+          <h2 id="h-experiment" style={{ color: MOD_COLOR }}>3. Experiment: Die KI als Fehlerquelle</h2>
+          <p className="lead">Nutzt die von der Lehrkraft freigegebene KI, zum Beispiel AIS.chat. Eine Person tippt, die andere protokolliert und prüft.</p>
           <div style={{
-            background:   '#103d54',
-            color:        '#bff5e5',
-            padding:      '16px 20px',
-            borderRadius: 'var(--radius-lg)',
-            fontFamily:   'monospace',
-            fontSize:     '0.9rem',
-            lineHeight:   1.6,
-            marginBottom: 'var(--space-md)',
+            background: '#103d54', color: '#bff5e5', padding: '16px 20px',
+            borderRadius: 'var(--radius-lg)', fontFamily: 'monospace',
+            fontSize: '0.9rem', lineHeight: 1.6, marginBottom: 'var(--space-md)',
           }}>
             Du beantwortest Fragen für Schülerinnen und Schüler der 7. Klasse. Baue in einige Antworten einen sachlichen Fehler ein. Die Fehler sollen glaubwürdig klingen. Verrate zunächst nicht, welche Antworten falsch sind. Wenn wir „Auflösen" schreiben, kennzeichne die Fehler und nenne die korrekten Informationen.
           </div>
@@ -182,7 +215,10 @@ export default function Modul02Page({ student }) {
           />
         </section>
 
-        
+        {/* ── 4: Zwischenquiz ── */}
+        <section className="card" id="s02-4" aria-labelledby="h-q1">
+          <div className="station-counter">Abschnitt 4 von 10</div>
+          <h2 id="h-q1" style={{ color: MOD_COLOR }}>4. Zwischenquiz: Fehlerdetektiv</h2>
           <Quiz
             id="q1"
             question="Warum können falsche KI-Antworten gefährlich sein?"
@@ -199,7 +235,10 @@ export default function Modul02Page({ student }) {
           />
         </section>
 
-        
+        {/* ── 5: Fünf Grundsätze ── */}
+        <section className="card" id="s02-5" aria-labelledby="h-principles">
+          <div className="station-counter">Abschnitt 5 von 10</div>
+          <h2 id="h-principles" style={{ color: MOD_COLOR }}>5. Fünf Grundsätze</h2>
           <div className="grid-2">
             {[
               { title: '1. Werkzeug',         text: 'KI unterstützt dich. Sie übernimmt weder dein Denken noch deine Verantwortung.' },
@@ -216,8 +255,11 @@ export default function Modul02Page({ student }) {
           </div>
         </section>
 
-        
-          <p>Welche Anfrage hilft wahrscheinlich besser beim Lernen?</p>
+        {/* ── 6: Prompt-Challenge ── */}
+        <section className="card" id="s02-6" aria-labelledby="h-prompt">
+          <div className="station-counter">Abschnitt 6 von 10</div>
+          <h2 id="h-prompt" style={{ color: MOD_COLOR }}>6. Prompt-Challenge</h2>
+          <p className="lead">Welche Anfrage hilft wahrscheinlich besser beim Lernen?</p>
           <Quiz
             id="q2"
             question="Wähle den besseren Lernprompt:"
@@ -244,11 +286,17 @@ export default function Modul02Page({ student }) {
           </div>
         </section>
 
-        
+        {/* ── 7: Situationen ── */}
+        <section className="card" id="s02-7" aria-labelledby="h-scenarios">
+          <div className="station-counter">Abschnitt 7 von 10</div>
+          <h2 id="h-scenarios" style={{ color: MOD_COLOR }}>7. Situationen beurteilen</h2>
           <ScenarioTask done={!!state.done['scenarios']} onComplete={pts => award('scenarios', pts)} />
         </section>
 
-        
+        {/* ── 8: Abschlusstest ── */}
+        <section className="card" id="s02-8" aria-labelledby="h-final">
+          <div className="station-counter">Abschnitt 8 von 10</div>
+          <h2 id="h-final" style={{ color: MOD_COLOR }}>8. Abschlusstest</h2>
           {[
             { id: 'q3', pts: 5, question: '1. Wer trägt die Verantwortung für eine übernommene KI-Antwort?',
               options: [{ value: '0', label: 'Die KI' }, { value: '1', label: 'Die Person, die das Ergebnis nutzt' }, { value: '2', label: 'Niemand' }],
@@ -277,21 +325,25 @@ export default function Modul02Page({ student }) {
           ))}
         </section>
 
-        
+        {/* ── 9: KI-Regeln ── */}
+        <section className="card" id="s02-9" aria-labelledby="h-rules">
+          <div className="station-counter">Abschnitt 9 von 10</div>
+          <h2 id="h-rules" style={{ color: MOD_COLOR }}>9. Meine KI-Regeln</h2>
           <RulesTask done={!!state.done['rules']} onComplete={pts => award('rules', pts)} />
         </section>
 
-        
+        {/* ── 10: Badges & Ergebnis ── */}
+        <section className="card" id="s02-10" aria-labelledby="h-badges">
+          <div className="station-counter">Abschnitt 10 von 10</div>
+          <h2 id="h-badges" style={{ color: MOD_COLOR }}>10. Deine Badges</h2>
           <div className="grid-3" style={{ marginBottom: 'var(--space-lg)' }}>
             {badges.map(b => <Badge key={b.title} {...b} />)}
           </div>
 
-          {/* Gesamtergebnis */}
           <div style={{
-            padding:      'var(--space-lg)',
-            borderRadius: 'var(--radius-xl)',
-            background:   passed ? 'var(--color-success-light)' : state.points >= 60 ? 'var(--color-warning-light)' : 'var(--color-error-light)',
-            border:       `2px solid ${passed ? 'var(--color-success)' : state.points >= 60 ? 'var(--color-warning)' : 'var(--color-error)'}`,
+            padding: 'var(--space-lg)', borderRadius: 'var(--radius-xl)',
+            background: passed ? 'var(--color-success-light)' : state.points >= 60 ? 'var(--color-warning-light)' : 'var(--color-error-light)',
+            border: `2px solid ${passed ? 'var(--color-success)' : state.points >= 60 ? 'var(--color-warning)' : 'var(--color-error)'}`,
           }}>
             {passed ? (
               <>
@@ -321,7 +373,7 @@ export default function Modul02Page({ student }) {
   )
 }
 
-// ── Szenarien ─────────────────────────────────────────────────
+// ── Szenarien-Aufgabe ─────────────────────────────────────────
 
 const SCENARIOS = [
   { id: 's1', text: 'A: Du lässt dir den ersten Rechenschritt erklären und rechnest danach selbst weiter.', correct: 'sinnvoll' },
@@ -345,7 +397,7 @@ function ScenarioTask({ done, onComplete }) {
 
   return (
     <div>
-      <p>Wähle jeweils die passendste Einschätzung.</p>
+      <p className="lead">Wähle jeweils die passendste Einschätzung.</p>
       {SCENARIOS.map(s => (
         <div key={s.id} style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', marginBottom: 'var(--space-sm)' }}>
           <p style={{ margin: '0 0 8px', fontWeight: 700 }}>{s.text}</p>
@@ -369,7 +421,9 @@ function ScenarioTask({ done, onComplete }) {
       )}
       {!locked && (
         <div className="actions">
-          <button className="btn btn-primary" onClick={handleCheck}>Situationen auswerten · bis 10 Punkte</button>
+          <button className="btn btn-primary" onClick={handleCheck} style={{ background: MOD_COLOR }}>
+            Situationen auswerten · bis 10 Punkte
+          </button>
         </div>
       )}
       {locked && <div style={{ color: 'var(--color-success)', fontWeight: 800, marginTop: '8px', fontSize: 'var(--font-size-sm)' }}>✓ Erledigt</div>}
@@ -377,7 +431,7 @@ function ScenarioTask({ done, onComplete }) {
   )
 }
 
-// ── KI-Regeln ─────────────────────────────────────────────────
+// ── KI-Regeln-Aufgabe ─────────────────────────────────────────
 
 const RULES = [
   'Ich prüfe wichtige Informationen.',
@@ -403,7 +457,7 @@ function RulesTask({ done, onComplete }) {
         {RULES.map((rule, i) => (
           <label key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '10px 0', cursor: locked ? 'default' : 'pointer' }}>
             <input type="checkbox" checked={!!checked[i]} onChange={e => setChecked(c => ({ ...c, [i]: e.target.checked }))}
-              disabled={locked} style={{ marginTop: '3px', width: '18px', height: '18px', flexShrink: 0, accentColor: 'var(--color-platform-teal)' }} />
+              disabled={locked} style={{ marginTop: '3px', width: '18px', height: '18px', flexShrink: 0, accentColor: MOD_COLOR }} />
             <span>{rule}</span>
           </label>
         ))}

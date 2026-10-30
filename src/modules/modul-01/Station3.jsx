@@ -14,18 +14,18 @@ const CONTEXTS = {
     label: 'Pause',
     sentence: 'In der Pause esse ich ein …',
     options: [
-      { emoji: '🥪', label: 'Sandwich',  prob: 65, article: 'ein' },
-      { emoji: '🥐', label: 'Croissant', prob: 30, article: 'ein' },
-      { emoji: '🚲', label: 'Fahrrad',   prob: 5,  article: 'ein' },
+      { emoji: '🥪', label: 'Sandwich',  prob: 65 },
+      { emoji: '🥐', label: 'Croissant', prob: 30 },
+      { emoji: '🚲', label: 'Fahrrad',   prob: 5  },
     ],
   },
   sport: {
     label: 'Sportplatz',
     sentence: 'Auf dem Sportplatz entdecke ich …',
     options: [
-      { emoji: '⚽', label: 'einen Ball',        prob: 50, article: 'einen' },
-      { emoji: '🚲', label: 'ein Fahrrad',       prob: 45, article: 'ein'   },
-      { emoji: '🧊', label: 'einen Kühlschrank', prob: 5,  article: 'einen' },
+      { emoji: '⚽', label: 'einen Ball',        prob: 50 },
+      { emoji: '🚲', label: 'ein Fahrrad',       prob: 45 },
+      { emoji: '🧊', label: 'einen Kühlschrank', prob: 5  },
     ],
   },
 }
@@ -33,7 +33,14 @@ const CONTEXTS = {
 export default function Station3({ context, setContext, s3picked, setS3picked, onNext }) {
   const ctx = CONTEXTS[context]
 
-  
+  return (
+    <div className="card">
+      <div className="station-counter">Station 3 von 4 · Kontext und Wahrscheinlichkeiten</div>
+      <h2 style={{ color: MOD_COLOR }}>Wie verändert der Kontext Wortwahrscheinlichkeiten?</h2>
+      <p className="lead">
+        Eine Sprach-KI schaut auf den bisherigen Text und berechnet, welches Wort als nächstes
+        wahrscheinlich kommt. Wechsle den Kontext und beobachte, wie sich die Wahrscheinlichkeiten ändern.
+      </p>
 
       <WarningBox title="Hinweis:">
         Die Prozentwerte sind <strong>erfundene Anschauungswerte</strong> – keine echten Messungen
@@ -54,15 +61,10 @@ export default function Station3({ context, setContext, s3picked, setS3picked, o
 
       {/* Satz */}
       <div style={{
-        background:   'white',
-        border:       `2px solid ${MOD_COLOR}`,
-        borderRadius: 'var(--radius-xl)',
-        padding:      'var(--space-lg)',
-        fontSize:     'clamp(1.1rem, 3vw, 1.4rem)',
-        fontWeight:   800,
-        color:        'var(--color-platform)',
-        marginBottom: 'var(--space-lg)',
-        textAlign:    'center',
+        background: 'white', border: `2px solid ${MOD_COLOR}`,
+        borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)',
+        fontSize: 'clamp(1.1rem, 3vw, 1.4rem)', fontWeight: 800,
+        color: 'var(--color-platform)', marginBottom: 'var(--space-lg)', textAlign: 'center',
       }}>
         {ctx.sentence}
       </div>
@@ -71,20 +73,16 @@ export default function Station3({ context, setContext, s3picked, setS3picked, o
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: 'var(--space-lg)' }}>
         {ctx.options.map((opt, i) => (
           <div key={i}>
-            <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 55px', alignItems: 'center', gap: '10px' }}>
-              <div style={{ fontWeight: 800, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr 55px', alignItems: 'center', gap: '10px' }}>
+              <div style={{ fontWeight: 800, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span style={{ fontSize: '1.4rem' }}>{opt.emoji}</span>
-                <span style={{ fontSize: '0.85rem' }}>{opt.label}</span>
+                <span style={{ fontSize: '0.82rem' }}>{opt.label}</span>
               </div>
               <div style={{ background: '#dbe4f5', borderRadius: 'var(--radius-pill)', height: '24px', overflow: 'hidden' }}>
                 <div style={{
-                  height: '100%',
-                  width: `${opt.prob}%`,
+                  height: '100%', width: `${opt.prob}%`,
                   background: opt.prob >= 45 ? MOD_COLOR : opt.prob >= 20 ? '#5880eb' : '#b0bfea',
-                  borderRadius: 'var(--radius-pill)',
-                  transition: 'width 0.4s ease',
-                  display: 'flex', alignItems: 'center', paddingLeft: '8px',
-                  color: 'white', fontSize: '0.75rem', fontWeight: 800,
+                  borderRadius: 'var(--radius-pill)', transition: 'width 0.4s ease',
                 }} />
               </div>
               <div style={{ fontWeight: 900, color: MOD_COLOR, textAlign: 'right' }}>{opt.prob} %</div>
@@ -93,11 +91,15 @@ export default function Station3({ context, setContext, s3picked, setS3picked, o
         ))}
       </div>
 
-      
-        <strong>🚲 Fahrrad:</strong>{' '}
-        {context === 'pause'
-          ? 'Im Pausen-Kontext nur 5 % – ein Fahrrad isst man nicht!'
-          : 'Im Sport-Kontext 45 % – auf dem Sportplatz ist ein Fahrrad viel wahrscheinlicher!'}
+      {/* Fahrrad-Highlight als compare-box */}
+      <div className="compare-box">
+        <div className="eyebrow">Der Kontext-Vergleich</div>
+        <div className="big">🚲 Fahrrad: {context === 'pause' ? '5 %' : '45 %'}</div>
+        <p style={{ margin: 0 }}>
+          {context === 'pause'
+            ? 'Im Pausen-Kontext nur 5 % – ein Fahrrad isst man nicht!'
+            : 'Im Sport-Kontext 45 % – auf dem Sportplatz ist ein Fahrrad viel wahrscheinlicher!'}
+        </p>
       </div>
 
       {/* Wort auswählen */}
@@ -107,15 +109,11 @@ export default function Station3({ context, setContext, s3picked, setS3picked, o
           <button key={i}
             onClick={() => setS3picked(opt.label)}
             style={{
-              border:       `2px solid ${s3picked === opt.label ? MOD_COLOR : 'var(--color-border)'}`,
-              borderRadius: 'var(--radius-lg)',
-              padding:      '12px 18px',
-              background:   s3picked === opt.label ? '#e7eeff' : 'white',
-              cursor:       'pointer',
-              fontWeight:   700,
-              fontSize:     '1rem',
-              fontFamily:   'inherit',
-              transition:   'all 0.2s',
+              border: `2px solid ${s3picked === opt.label ? MOD_COLOR : 'var(--color-border)'}`,
+              borderRadius: 'var(--radius-lg)', padding: '12px 18px',
+              background: s3picked === opt.label ? '#e7eeff' : 'white',
+              cursor: 'pointer', fontWeight: 700, fontSize: '1rem',
+              fontFamily: 'inherit', transition: 'all 0.2s',
             }}>
             {opt.emoji} {opt.label}
           </button>

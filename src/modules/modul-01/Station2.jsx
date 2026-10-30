@@ -28,13 +28,21 @@ const S2_EXPLAIN = [
   'Die Anzahl der Bilder erklärt den Fehler nicht: Alle Trainingsfotos trugen dasselbe R.',
 ]
 
-// Trainingsbilder mit Wasserzeichen-Overlay
 function WmPhoto({ emoji, hasR, size = '3rem' }) {
   return (
-    <div style={{ position: 'relative', display: 'inline-block', background: 'white', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '12px', textAlign: 'center', minWidth: '70px' }}>
+    <div style={{
+      position: 'relative', display: 'inline-block',
+      background: 'linear-gradient(155deg, #fff, #eaf8f5)',
+      border: '2px solid var(--color-border)', borderRadius: 'var(--radius-lg)',
+      padding: '12px', textAlign: 'center', minWidth: '70px',
+    }}>
       <div style={{ fontSize: size }}>{emoji}</div>
       {hasR && (
-        <div style={{ position: 'absolute', bottom: '6px', right: '8px', fontSize: '0.75rem', fontWeight: 900, color: 'rgba(80,80,80,0.55)', fontFamily: 'serif', userSelect: 'none' }}>R</div>
+        <div style={{
+          position: 'absolute', bottom: '6px', right: '8px',
+          fontSize: '0.75rem', fontWeight: 900,
+          color: 'rgba(80,80,80,0.55)', fontFamily: 'serif', userSelect: 'none',
+        }}>R</div>
       )}
     </div>
   )
@@ -52,18 +60,17 @@ export default function Station2({
   function handleMove(clientX, clientY) {
     if (!photoRef.current) return
     const rect = photoRef.current.getBoundingClientRect()
-    setLupeX(Math.max(5, Math.min(95, ((clientX - rect.left) / rect.width) * 100)))
-    setLupeY(Math.max(5, Math.min(95, ((clientY - rect.top) / rect.height) * 100)))
-    // Wasserzeichen entdeckt wenn Lupe in der Nähe der rechten unteren Ecke
-    if (lupeX > 65 && lupeY > 65 && wmDiscovery === 0) setWmDiscovery(1)
+    const x = Math.max(5, Math.min(95, ((clientX - rect.left) / rect.width) * 100))
+    const y = Math.max(5, Math.min(95, ((clientY - rect.top) / rect.height) * 100))
+    setLupeX(x); setLupeY(y)
+    if (x > 65 && y > 65 && wmDiscovery === 0) setWmDiscovery(1)
   }
 
   function checkWm() {
     if (!wmChoice) { setWmFeedback('Bitte wähle eine Antwort aus.'); return }
     const test = WM_TESTS[wmStep]
     const correct = wmChoice === test.correct
-    const newResults = [...wmResults, { ...test, userChoice: wmChoice, correct }]
-    setWmResults(newResults)
+    setWmResults([...wmResults, { ...test, userChoice: wmChoice, correct }])
     setWmChecked(true)
     setWmFeedback(correct ? 'correct' : 'wrong')
   }
@@ -83,23 +90,30 @@ export default function Station2({
     else setWmFeedback(S2_EXPLAIN[id])
   }
 
-  // Merksatz
+  // ── Merksatz ──────────────────────────────────────────────
+
   if (wmConclusion === 2) return (
     <div className="card" style={{ textAlign: 'center' }}>
       <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>💡</div>
       <h2 style={{ color: MOD_COLOR }}>Merksatz · Station 2</h2>
-      <MemoryBox>KI lernt Muster aus Beispielen. Manchmal lernt sie dabei auch <strong>unwichtige Hinweise</strong> – wie ein Wasserzeichen.</MemoryBox>
+      <MemoryBox>
+        KI lernt Muster aus Beispielen. Manchmal lernt sie dabei auch{' '}
+        <strong>unwichtige Hinweise</strong> – wie ein Wasserzeichen.
+      </MemoryBox>
       <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--space-lg)' }}>
-        <button className="btn btn-primary" onClick={onNext} style={{ background: MOD_COLOR }}>Weiter zu Station 3 →</button>
+        <button className="btn btn-primary" onClick={onNext} style={{ background: MOD_COLOR }}>
+          Weiter zu Station 3 →
+        </button>
       </div>
     </div>
   )
 
-  // Abschlussfrage
+  // ── Abschlussfrage ────────────────────────────────────────
+
   if (wmConclusion === 1) return (
     <div className="card">
-      <h2 style={{ color: MOD_COLOR }}>Station 2 · Abschlussfrage</h2>
-      <p style={{ fontWeight: 800 }}>Warum hat die Mini-KI das Auto mit R als Pferd erkannt?</p>
+      <div className="station-counter">Station 2 von 4 · Abschlussfrage</div>
+      <h2 style={{ color: MOD_COLOR }}>Warum hat die Mini-KI das Auto mit R als Pferd erkannt?</h2>
       {wmOrder.map(idx => {
         const q = S2_QUIZ[idx]
         return (
@@ -111,19 +125,29 @@ export default function Station2({
           </label>
         )
       })}
-      {wmFeedback && wmFeedback !== 'correct' && <div className="feedback wrong" style={{ display: 'block' }}>❌ {wmFeedback}</div>}
-      {wmFeedback === 'correct' && <div className="feedback correct" style={{ display: 'block' }}>✅ Richtig! Das R war auf allen Trainingsbildern – die KI hat es als Merkmal gelernt.</div>}
+      {wmFeedback && wmFeedback !== 'correct' && (
+        <div className="feedback wrong" style={{ display: 'block' }}>❌ {wmFeedback}</div>
+      )}
+      {wmFeedback === 'correct' && (
+        <div className="feedback correct" style={{ display: 'block' }}>
+          ✅ Richtig! Das R war auf allen Trainingsbildern – die KI hat es als Merkmal gelernt.
+        </div>
+      )}
       <div className="actions">
-        <button className="btn btn-primary" onClick={checkWmQuiz} style={{ background: MOD_COLOR }}>Antwort prüfen</button>
+        <button className="btn btn-primary" onClick={checkWmQuiz} style={{ background: MOD_COLOR }}>
+          Antwort prüfen
+        </button>
       </div>
     </div>
   )
 
-  // Ergebnisübersicht
+  // ── Ergebnisübersicht ─────────────────────────────────────
+
   if (wmConclusion === 0.5) return (
     <div className="card">
+      <div className="station-counter">Station 2 von 4 · Ergebnisübersicht</div>
       <h2 style={{ color: MOD_COLOR }}>Ergebnisübersicht</h2>
-      <p>So hat die Mini-KI die vier Testbilder bewertet:</p>
+      <p className="lead">So hat die Mini-KI die vier Testbilder bewertet:</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', margin: 'var(--space-md) 0' }}>
         {WM_TESTS.map(test => (
           <div key={test.id} style={{
@@ -136,7 +160,10 @@ export default function Station2({
             <div style={{ fontSize: '0.85rem', marginTop: '6px', color: 'var(--color-text-muted)' }}>
               KI sagt: <strong>{test.kiSagt === 'pferd' ? '🐎 Pferd' : '✗ Kein Pferd'}</strong>
             </div>
-            <div style={{ fontSize: '0.8rem', marginTop: '4px', fontWeight: 800, color: test.kiSagt === test.correct ? 'var(--color-success)' : 'var(--color-error)' }}>
+            <div style={{
+              fontSize: '0.8rem', marginTop: '4px', fontWeight: 800,
+              color: test.kiSagt === test.correct ? 'var(--color-success)' : 'var(--color-error)',
+            }}>
               {test.kiSagt === test.correct ? '✓ Richtig' : '✗ Falsch!'}
             </div>
           </div>
@@ -144,25 +171,48 @@ export default function Station2({
       </div>
       <InfoBox>Das Auto mit R wurde fälschlicherweise als Pferd erkannt. Warum?</InfoBox>
       <div className="actions">
-        <button className="btn btn-primary" onClick={() => setWmConclusion(1)} style={{ background: MOD_COLOR }}>Zur Abschlussfrage →</button>
+        <button className="btn btn-primary" onClick={() => setWmConclusion(1)} style={{ background: MOD_COLOR }}>
+          Zur Abschlussfrage →
+        </button>
       </div>
     </div>
   )
 
-  
+  // ── Tests ─────────────────────────────────────────────────
+
+  if (wmDiscovery === 2) {
+    const test = WM_TESTS[wmStep]
+    return (
+      <div className="card">
+        <div className="station-counter">Station 2 von 4 · Test {wmStep + 1} von {WM_TESTS.length}</div>
+        <h2 style={{ color: MOD_COLOR }}>Wasserzeichen-Test</h2>
+        <p className="lead">Was würde die Mini-KI bei diesem Bild sagen?</p>
         <div style={{ textAlign: 'center', margin: 'var(--space-lg) 0' }}>
           <WmPhoto emoji={test.emoji} hasR={test.hasR} size="4rem" />
           <div style={{ marginTop: '12px', fontWeight: 800, fontSize: '1.1rem' }}>{test.label}</div>
         </div>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', margin: 'var(--space-md) 0' }}>
           {['pferd', 'kein'].map(v => (
-            <label key={v} style={{ display: 'flex', alignItems: 'center', gap: '10px', border: `2px solid ${wmChoice === v ? MOD_COLOR : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', padding: '14px 20px', cursor: wmChecked ? 'default' : 'pointer', background: wmChoice === v ? '#e7eeff' : 'white', fontWeight: 700, fontSize: '1rem', transition: 'all 0.2s' }}>
-              <input type="radio" name="wmtest" value={v} checked={wmChoice === v} onChange={() => !wmChecked && setWmChoice(v)} disabled={wmChecked} style={{ accentColor: MOD_COLOR, width: '18px', height: '18px' }} />
+            <label key={v} style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              border: `2px solid ${wmChoice === v ? MOD_COLOR : 'var(--color-border)'}`,
+              borderRadius: 'var(--radius-lg)', padding: '14px 20px',
+              cursor: wmChecked ? 'default' : 'pointer',
+              background: wmChoice === v ? '#e7eeff' : 'white',
+              fontWeight: 700, fontSize: '1rem', transition: 'all 0.2s',
+            }}>
+              <input type="radio" name="wmtest" value={v}
+                checked={wmChoice === v}
+                onChange={() => !wmChecked && setWmChoice(v)}
+                disabled={wmChecked}
+                style={{ accentColor: MOD_COLOR, width: '18px', height: '18px' }} />
               {v === 'pferd' ? '🐎 KI sagt: Pferd' : '✗ KI sagt: Kein Pferd'}
             </label>
           ))}
         </div>
-        {wmFeedback && wmFeedback !== 'correct' && wmFeedback !== 'wrong' && <div className="feedback wrong" style={{ display: 'block' }}>{wmFeedback}</div>}
+        {wmFeedback && wmFeedback !== 'correct' && wmFeedback !== 'wrong' && (
+          <div className="feedback wrong" style={{ display: 'block' }}>{wmFeedback}</div>
+        )}
         {wmChecked && (
           <div className={`feedback ${wmFeedback === 'correct' ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>
             {wmFeedback === 'correct'
@@ -172,12 +222,24 @@ export default function Station2({
         )}
         {!wmChecked
           ? <div className="actions"><button className="btn btn-primary" onClick={checkWm} style={{ background: MOD_COLOR }}>Antwort prüfen</button></div>
-          : <div className="actions"><button className="btn btn-primary" onClick={nextWm} style={{ background: MOD_COLOR }}>{wmStep < WM_TESTS.length - 1 ? 'Nächstes Bild →' : 'Zur Ergebnisübersicht →'}</button></div>}
+          : <div className="actions"><button className="btn btn-primary" onClick={nextWm} style={{ background: MOD_COLOR }}>
+              {wmStep < WM_TESTS.length - 1 ? 'Nächstes Bild →' : 'Zur Ergebnisübersicht →'}
+            </button></div>
+        }
       </div>
     )
   }
 
-  
+  // ── Entdeckungsphase ──────────────────────────────────────
+
+  return (
+    <div className="card">
+      <div className="station-counter">Station 2 von 4 · Wasserzeichen-Rätsel</div>
+      <h2 style={{ color: MOD_COLOR }}>Das Wasserzeichen-Rätsel</h2>
+      <p className="lead">
+        Die Mini-KI wurde mit diesen sechs Pferdefotos trainiert.
+        Schau sie dir genau an – entdeckst du etwas, das alle gemeinsam haben?
+      </p>
 
       {/* Trainingsfotos mit Wasserzeichen */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>
@@ -189,21 +251,40 @@ export default function Station2({
       {/* Lupe */}
       {wmDiscovery < 2 && (
         <>
-          <p style={{ fontWeight: 700, color: MOD_COLOR }}>🔍 Bewege die Lupe über die Fotos, um das gemeinsame Merkmal zu entdecken:</p>
-          <div ref={photoRef}
+          <p style={{ fontWeight: 700, color: MOD_COLOR }}>
+            🔍 Bewege die Lupe über die Fotos, um das gemeinsame Merkmal zu entdecken:
+          </p>
+          <div
+            ref={photoRef}
             onMouseMove={e => handleMove(e.clientX, e.clientY)}
             onTouchMove={e => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY) }}
-            style={{ position: 'relative', background: '#eaf5f6', borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)', cursor: 'crosshair', userSelect: 'none', touchAction: 'none', minHeight: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+            style={{
+              position: 'relative', background: '#eaf5f6',
+              borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)',
+              cursor: 'crosshair', userSelect: 'none', touchAction: 'none',
+              minHeight: '120px', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', overflow: 'hidden',
+            }}>
             <div style={{ fontSize: '3rem', opacity: 0.3 }}>🐎 🐴 🐎 🐴 🐎 🐴</div>
-            {/* Lupe */}
-            <div style={{ position: 'absolute', left: `${lupeX}%`, top: `${lupeY}%`, transform: 'translate(-50%,-50%)', width: '60px', height: '60px', borderRadius: '50%', border: '3px solid #087f83', background: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
-              {lupeX > 65 && lupeY > 65 ? <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#333', fontFamily: 'serif' }}>R</span> : <span style={{ fontSize: '1.2rem' }}>🔍</span>}
+            <div style={{
+              position: 'absolute', left: `${lupeX}%`, top: `${lupeY}%`,
+              transform: 'translate(-50%,-50%)', width: '60px', height: '60px',
+              borderRadius: '50%', border: '3px solid #087f83',
+              background: 'rgba(255,255,255,0.85)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              pointerEvents: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            }}>
+              {lupeX > 65 && lupeY > 65
+                ? <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#333', fontFamily: 'serif' }}>R</span>
+                : <span style={{ fontSize: '1.2rem' }}>🔍</span>}
             </div>
           </div>
 
           {wmDiscovery === 0 && (
             <div className="actions">
-              <button className="btn btn-ghost" onClick={() => setWmDiscovery(1)}>Ich habe etwas entdeckt!</button>
+              <button className="btn btn-ghost" onClick={() => setWmDiscovery(1)}>
+                Ich habe etwas entdeckt!
+              </button>
             </div>
           )}
         </>
@@ -211,10 +292,8 @@ export default function Station2({
 
       {wmDiscovery >= 1 && (
         <>
-          <div className="feedback correct" style={{ display: 'block', marginTop: 'var(--space-md)' }}>
-            ✅ Gut entdeckt! Alle Trainingsfotos haben ein kleines „R" als Wasserzeichen.
-          </div>
-          <InfoBox style={{ marginTop: 'var(--space-md)' }}>
+          <div className="done-badge">✓ Gut entdeckt! Alle Trainingsfotos haben ein kleines „R" als Wasserzeichen.</div>
+          <InfoBox>
             Die Mini-KI hat dieses „R" als Merkmal gelernt – obwohl es nichts mit Pferden zu tun hat.
             Jetzt testen wir, was das bedeutet.
           </InfoBox>
