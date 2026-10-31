@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase.js'
+import { createTeacherAccount } from '../../lib/auth.js'
 import { teacherLogout } from '../../lib/auth.js'
 
 const MOD_COLOR = '#103d54'
@@ -395,44 +396,15 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
   async function handleSubmit(e) {
     e.preventDefault()
     if (!name.trim()) { onError('Bitte einen Namen eingeben.'); return }
-    if (mode === 'username' && (!username.trim() || password.length < 8)) {
+    if (!username.trim() || password.length < 8) {
       onError('Bitte Benutzername und Passwort (mind. 8 Zeichen) eingeben.'); return
     }
-    if (mode === 'email' && !email.trim()) { onError('Bitte E-Mail eingeben.'); return }
     setLoading(true)
-    try {
-      if (mode === 'username') {
-        const fakeEmail = username.trim().toLowerCase() + '@ki-fuehrerschein.intern'
-        const { data, error } = await supabase.auth.signUp({
-          email: fakeEmail,
-          password: password,
-          options: { data: { display_name: name.trim(), role } }
-        })
-        if (error) { setLoading(false); onError('Fehler: ' + error.message); return }
-        const uid = data?.user?.id
-        if (uid) {
-          await Promise.resolve(
-            supabase.from('users').upsert({
-              id: uid,
-              display_name: name.trim(),
-              role,
-              school_id: '00000000-0000-0000-0000-000000000001'
-            })
-          )
-        }
-        setSuccess('✅ ' + name.trim() + ' angelegt! Login: ' + username.trim())
-        setTimeout(() => { onCreated() }, 2000)
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password: Math.random().toString(36).slice(2) + 'Aa1!',
-          options: { data: { display_name: name.trim(), role } }
-        })
-        if (error) { setLoading(false); onError('Fehler: ' + error.message); return }
-        setSuccess('✅ Einladung an ' + email.trim() + ' gesendet!')
-        setTimeout(() => { onCreated() }, 2000)
-      }
-    } catch (err) { setLoading(false); onError('Fehler: ' + err.message) }
+    const result = await createTeacherAccount({ name, username, password, role })
+    setLoading(false)
+    if (result.error) { onError(result.error); return }
+    setSuccess('✅ ' + name.trim() + ' angelegt! Login: ' + username.trim())
+    setTimeout(() => { onCreated() }, 2000)
   }
 
   const inp = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }

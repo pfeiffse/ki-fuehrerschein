@@ -1,20 +1,11 @@
-// TeacherLogin - Lehrkraft-Anmeldung
+// TeacherLogin - Lehrkraft-Anmeldung (Username + Passwort, kein Supabase Auth)
 
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { teacherLogin } from '../../lib/auth.js'
 
-const INTERN_DOMAIN = '@ki-fuehrerschein.intern'
-
-function buildEmail(input) {
-  const trimmed = input.trim()
-  if (trimmed.includes('@') && !trimmed.endsWith(INTERN_DOMAIN)) return trimmed
-  const username = trimmed.replace(INTERN_DOMAIN, '').toLowerCase().replace(/[^a-z0-9]/g, '')
-  return username + INTERN_DOMAIN
-}
-
 export default function TeacherLogin({ onLogin }) {
-  const [login,    setLogin]    = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error,    setError]    = useState('')
   const [loading,  setLoading]  = useState(false)
@@ -22,13 +13,12 @@ export default function TeacherLogin({ onLogin }) {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    if (!login.trim() || !password) { setError('Bitte alle Felder ausfüllen.'); return }
+    if (!username.trim() || !password) { setError('Bitte alle Felder ausfüllen.'); return }
     setLoading(true)
-    const email  = buildEmail(login)
-    const result = await teacherLogin(email, password)
+    const result = await teacherLogin(username, password)
     setLoading(false)
     if (result.error) setError(result.error)
-    else onLogin(result.session)
+    else onLogin(result.teacher)
   }
 
   const inp = {
@@ -43,7 +33,6 @@ export default function TeacherLogin({ onLogin }) {
     <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
       <div style={{ width: '100%', maxWidth: '26rem' }}>
 
-        {/* Hero */}
         <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 'var(--r-2xl)', padding: '2rem', marginBottom: '1rem', textAlign: 'center', color: 'white' }}>
           <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>👩‍🏫</div>
           <div style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '0.5rem' }}>KI-Führerschein · Klasse 7</div>
@@ -51,26 +40,22 @@ export default function TeacherLogin({ onLogin }) {
           <p style={{ margin: 0, opacity: 0.75, fontSize: '0.875rem' }}>Klassenübersicht und Fortschrittsverfolgung</p>
         </div>
 
-        {/* Formular */}
         <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', boxShadow: 'var(--sh-lg)' }}>
           <h2 style={{ marginTop: 0, color: 'var(--c-dark)' }}>Anmelden</h2>
 
           <form onSubmit={handleSubmit} noValidate>
             <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="login" style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>
-                Benutzername oder E-Mail
+              <label htmlFor="username" style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>
+                Benutzername
               </label>
-              <input id="login" type="text" value={login}
-                onChange={e => setLogin(e.target.value)}
-                placeholder="z. B. musterfrau"
+              <input id="username" type="text" value={username}
+                onChange={e => setUsername(e.target.value.toLowerCase().replace(/\s/g,''))}
+                placeholder="z. B. pfeiffer"
                 autoComplete="username"
                 style={inp}
                 onFocus={e => e.target.style.borderColor = 'var(--c-teal)'}
                 onBlur={e  => e.target.style.borderColor = 'var(--c-border)'}
               />
-              <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: 'var(--c-muted)' }}>
-                Benutzername (z. B. musterfrau) oder vollständige E-Mail-Adresse
-              </p>
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
@@ -84,6 +69,9 @@ export default function TeacherLogin({ onLogin }) {
                 onFocus={e => e.target.style.borderColor = 'var(--c-teal)'}
                 onBlur={e  => e.target.style.borderColor = 'var(--c-border)'}
               />
+              <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: 'var(--c-muted)' }}>
+                Beim ersten Login wird dein Passwort automatisch gesetzt.
+              </p>
             </div>
 
             {error && (

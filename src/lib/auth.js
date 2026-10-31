@@ -5,6 +5,13 @@ import { supabase } from './supabase.js'
 const TOKEN_KEY   = 'ki_token'
 const STUDENT_KEY = 'ki_student'
 const CLASS_KEY   = 'ki_class'
+const TEACHER_KEY = 'ki_teacher'
+
+// SHA-256 Hash im Browser
+async function sha256(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('')
+}
 
 // Lokalen Student sofort lesen (synchron, 0ms)
 export function getStudentLocal() {
@@ -85,27 +92,80 @@ export function refreshStudentAsync() {
 
 export function studentLogout() { clearLocalData() }
 
-// Lehrkraft
-export async function teacherLogin(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) return { error: error.message }
-  return { session: data.session }
+// ============================================================
+// LEHRKRAFT-LOGIN (ohne Supabase Auth, direkt via users-Tabelle)
+// ============================================================
+
+export async function teacherLogin(username, password) {
+  try {
+    const hash = await sha256(password)
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, display_name, role, school_id, pw_hash')
+      .eq('username', username.trim().toLowerCase())
+      .single()
+
+    if (error || !data) return { error: 'Benutzername nicht gefunden.' }
+
+    // Erster Login: Passwort noch nicht gesetzt → Hash speichern
+    if (!data.pw_hash) {
+      await Promise.resolve(
+        supabase.from('users').update({ pw_hash: hash }).eq('id', data.id)
+      )
+      const teacher = { id: data.id, display_name: data.display_name, role: data.role, school_id: data.school_id }
+      localStorage.setItem(TEACHER_KEY, JSON.stringify(teacher))
+      return { teacher }
+    }
+
+    if (data.pw_hash !== hash) return { error: 'Falsches Passwort.' }
+
+    const teacher = { id: data.id, display_name: data.display_name, role: data.role, school_id: data.school_id }
+    localStorage.setItem(TEACHER_KEY, JSON.stringify(teacher))
+    return { teacher }
+  } catch (err) {
+    return { error: 'Verbindungsfehler: ' + err.message }
+  }
 }
 
-export async function teacherLogout() { await supabase.auth.signOut() }
+export function teacherLogout() {
+  localStorage.removeItem(TEACHER_KEY)
+}
+
+export function getTeacherLocal() {
+  try { return JSON.parse(localStorage.getItem(TEACHER_KEY)) } catch { return null }
+}
 
 export async function getTeacherSession() {
-  try {
-    const { data } = await supabase.auth.getSession()
-    return data.session
-  } catch { return null }
+  return getTeacherLocal()
 }
 
 export async function getTeacherProfile() {
+  const teacher = getTeacherLocal()
+  if (!teacher) return null
   try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return null
-    const { data } = await supabase.from('users').select('*, schools(name)').eq('id', user.id).single()
+    const { data } = await supabase.from('users').select('*, schools(name)').eq('id', teacher.id).single()
     return data
-  } catch { return null }
+  } catch { return teacher }
+}
+
+// Lehrkraft/Admin anlegen (direkt in users-Tabelle, kein Supabase Auth)
+export async function createTeacherAccount({ name, username, password, role }) {
+  try {
+    const hash = await sha256(password)
+    const { data, error } = await supabase.from('users').insert({
+      display_name: name.trim(),
+      username: username.trim().toLowerCase(),
+      pw_hash: hash,
+      role,
+      school_id: '00000000-0000-0000-0000-000000000001'
+    }).select().single()
+
+    if (error) {
+      if (error.code === '23505') return { error: 'Benutzername bereits vergeben.' }
+      return { error: 'Fehler: ' + error.message }
+    }
+    return { teacher: data }
+  } catch (err) {
+    return { error: 'Verbindungsfehler: ' + err.message }
+  }
 }
