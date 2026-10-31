@@ -455,58 +455,94 @@ export default function AdminDashboard({ teacher, onLogout }) {
 }
 
 // Neue Lehrkraft anlegen
+// Lehrkraft per E-Mail einladen (via Supabase Edge Function)
 function NewTeacherForm({ onCreated, onCancel, onError }) {
-  const [uuid,    setUuid]    = useState('')
+  const [email,   setEmail]   = useState('')
   const [name,    setName]    = useState('')
   const [role,    setRole]    = useState('teacher')
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState('')
 
-  async function handleCreate(e) {
+  async function handleInvite(e) {
     e.preventDefault()
-    if (!uuid.trim() || !name.trim()) { onError('Bitte alle Felder ausfullen.'); return }
+    if (!email.trim() || !name.trim()) { onError('Bitte E-Mail und Name eingeben.'); return }
     setLoading(true)
-    const { error } = await supabase.from('users').insert({
-      id: uuid.trim(), school_id: SCHOOL_ID, role, display_name: name.trim()
-    })
-    setLoading(false)
-    if (error) { onError('Fehler: ' + error.message); return }
-    onCreated()
+    setSuccess('')
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { onError('Nicht angemeldet.'); setLoading(false); return }
+
+      const res = await fetch(
+        'https://tkmdyvlzespnkdzdzuwu.supabase.co/functions/v1/invite-user',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            email: email.trim(), displayName: name.trim(), role,
+            schoolId: SCHOOL_ID,
+          }),
+        }
+      )
+      const data = await res.json()
+      setLoading(false)
+      if (!res.ok || data.error) { onError(data.error || 'Einladung fehlgeschlagen.'); return }
+      setSuccess(data.message)
+      setTimeout(() => onCreated(), 3000)
+    } catch (err) {
+      setLoading(false)
+      onError('Netzwerkfehler: ' + err.message)
+    }
   }
 
-  const inputStyle = { width: '100%', padding: '10px', border: '2px solid var(--color-border)', borderRadius: 'var(--radius-md)', fontSize: '1rem', fontFamily: 'inherit' }
+  const inputStyle = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 'var(--space-lg)' }}>
-      <div style={{ background: 'white', borderRadius: 'var(--radius-2xl)', padding: 'var(--space-xl)', maxWidth: '500px', width: '100%', boxShadow: 'var(--shadow-lg)' }}>
-        <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>Lehrkraft anlegen</h2>
-        <div className="box-info" style={{ marginBottom: 'var(--space-md)', fontSize: 'var(--font-size-sm)' }}>
-          Zuerst die Person uber <a href="https://supabase.com/dashboard/project/tkmdyvlzespnkdzdzuwu/auth/users" target="_blank" rel="noopener">Authentication - Invite user</a> einladen, dann die UUID hier eintragen.
-        </div>
-        <form onSubmit={handleCreate} noValidate>
-          <div style={{ marginBottom: 'var(--space-md)' }}>
-            <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>UUID (aus Supabase Auth)</label>
-            <input type="text" value={uuid} onChange={e => setUuid(e.target.value)}
-              placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style={inputStyle} />
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 'var(--sp-lg)' }}>
+      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: 'var(--sp-xl)', maxWidth: '500px', width: '100%', boxShadow: 'var(--sh-lg)' }}>
+        <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>✉️ Lehrkraft einladen</h2>
+        {success ? (
+          <div>
+            <div style={{ background: 'var(--c-success-bg)', border: '2px solid var(--c-success)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-lg)', textAlign: 'center', marginBottom: 'var(--sp-md)' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>✅</div>
+              <p style={{ fontWeight: 800, color: 'var(--c-success)', margin: 0 }}>{success}</p>
+            </div>
+            <p style={{ color: 'var(--c-muted)', fontSize: 'var(--fs-sm)', textAlign: 'center' }}>Dieses Fenster schließt sich automatisch …</p>
           </div>
-          <div style={{ marginBottom: 'var(--space-md)' }}>
-            <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Anzeigename</label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)}
-              placeholder="z. B. Frau Musterfrau" style={inputStyle} />
-          </div>
-          <div style={{ marginBottom: 'var(--space-md)' }}>
-            <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Rolle</label>
-            <select value={role} onChange={e => setRole(e.target.value)} style={inputStyle}>
-              <option value="teacher">Lehrkraft</option>
-              <option value="superadmin">Admin (Superadmin)</option>
-            </select>
-          </div>
-          <div className="actions">
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Wird angelegt ...' : 'Lehrkraft anlegen'}
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={onCancel}>Abbrechen</button>
-          </div>
-        </form>
+        ) : (
+          <>
+            <div className="box-info" style={{ marginBottom: 'var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
+              Die Person erhält eine <strong>Einladungsmail</strong> und kann direkt ein Passwort setzen – kein Umweg über Supabase nötig.
+            </div>
+            <form onSubmit={handleInvite} noValidate>
+              <div style={{ marginBottom: 'var(--sp-md)' }}>
+                <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>E-Mail-Adresse</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  placeholder="lehrkraft@schule.de" autoComplete="email" style={inputStyle} />
+              </div>
+              <div style={{ marginBottom: 'var(--sp-md)' }}>
+                <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Anzeigename</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)}
+                  placeholder="z. B. Frau Musterfrau" style={inputStyle} />
+              </div>
+              <div style={{ marginBottom: 'var(--sp-md)' }}>
+                <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Rolle</label>
+                <select value={role} onChange={e => setRole(e.target.value)} style={inputStyle}>
+                  <option value="teacher">👩‍🏫 Lehrkraft</option>
+                  <option value="superadmin">🛡️ Admin (Superadmin)</option>
+                </select>
+              </div>
+              <div className="actions">
+                <button type="submit" className="btn btn-primary" disabled={loading || !email.trim() || !name.trim()}>
+                  {loading ? 'Einladung wird gesendet …' : '✉️ Einladung senden'}
+                </button>
+                <button type="button" className="btn btn-ghost" onClick={onCancel}>Abbrechen</button>
+              </div>
+            </form>
+          </>
+        )}
       </div>
     </div>
   )
