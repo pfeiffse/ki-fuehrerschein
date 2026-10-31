@@ -44,7 +44,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
     setLoading(true)
     const [cl, te, st, pr] = await Promise.all([
       supabase.from('classes').select('*, users(display_name)').order('grade').order('name'),
-      supabase.from('users').select('*').order('display_name'),
+      supabase.from('teachers').select('*').order('display_name'),
       supabase.from('students').select('*, classes(name, grade, join_code)').order('display_name'),
       supabase.from('student_module_progress').select('*'),
     ])
@@ -87,7 +87,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
         await supabase.from('classes').delete().eq('id', id)
         showMsg('ok', 'Klasse "' + name + '" geloescht.')
       } else if (type === 'teacher') {
-        await supabase.from('users').delete().eq('id', id)
+        await supabase.from('teachers').delete().eq('id', id)
         showMsg('ok', '"' + name + '" geloescht.')
       }
       await loadAll()
