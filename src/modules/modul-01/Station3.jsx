@@ -103,14 +103,14 @@ export default function Station3({ done, onComplete }) {
   if (phase === 'merksatz' || done) return (
     <div className="card" style={{ textAlign: 'center' }}>
       <div className="station-counter">Station 3 von 4 · Kontext · Merksatz</div>
-      <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>💡</div>
+      <div style={{ fontSize: '3rem', marginBottom: 'var(--sp-md)' }}>💡</div>
       <h2 style={{ color: MOD_COLOR }}>Merksatz</h2>
       <MemoryBox>Der Kontext beeinflusst, welche Wörter wahrscheinlich als nächstes kommen. Dasselbe Wort kann in verschiedenen Sätzen sehr unterschiedliche Wahrscheinlichkeiten haben.</MemoryBox>
       <InfoBox title="Was bedeutet das für Sprach-KI?">
         Echte Sprachmodelle wie ChatGPT oder Gemini berechnen für jedes mögliche nächste Wort eine Wahrscheinlichkeit – basierend auf allem, was bisher im Text steht. Je mehr Kontext, desto präziser die Vorhersage.
       </InfoBox>
       {!done && (
-        <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--space-lg)' }}>
+        <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--sp-lg)' }}>
           <button className="btn btn-success" onClick={onComplete}>Station 3 abschließen · Achievement freischalten 💬</button>
         </div>
       )}
@@ -183,7 +183,7 @@ export default function Station3({ done, onComplete }) {
       <WarningBox title="Hinweis:">Die Prozentwerte sind <strong>erfundene Anschauungswerte</strong> – keine echten Messungen eines KI-Modells.</WarningBox>
 
       {/* Kontext-Umschalter */}
-      <div style={{ display: 'flex', gap: '10px', margin: 'var(--space-lg) 0 var(--space-md)', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '10px', margin: 'var(--sp-lg) 0 var(--sp-md)', flexWrap: 'wrap' }}>
         {Object.entries(CONTEXTS).map(([key, val]) => (
           <button key={key} className={`nav-btn ${context === key ? 'active' : ''}`}
             onClick={() => switchContext(key)}
@@ -193,7 +193,7 @@ export default function Station3({ done, onComplete }) {
         ))}
         <button
           onClick={() => { setStarOn(!starOn); setPicked('') }}
-          style={{ border: `2px solid ${starOn ? '#f2b705' : 'var(--color-border)'}`, borderRadius: 'var(--radius-md)', padding: '10px 16px', background: starOn ? '#fff7d9' : 'white', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '0.9rem', transition: 'all 0.2s' }}>
+          style={{ border: `2px solid ${starOn ? '#f2b705' : 'var(--c-border)'}`, borderRadius: 'var(--r-md)', padding: '10px 16px', background: starOn ? '#fff7d9' : 'white', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '0.9rem', transition: 'all 0.2s' }}>
           ⭐ {starOn ? 'Zusatzwort aktiv' : 'Zusatzwort hinzufügen'}
         </button>
       </div>
@@ -205,12 +205,12 @@ export default function Station3({ done, onComplete }) {
       )}
 
       {/* Satz */}
-      <div style={{ background: 'white', border: `2px solid ${MOD_COLOR}`, borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)', fontSize: 'clamp(1.1rem,3vw,1.4rem)', fontWeight: 800, color: 'var(--color-platform)', marginBottom: 'var(--space-lg)', textAlign: 'center' }}>
+      <div style={{ background: 'white', border: `2px solid ${MOD_COLOR}`, borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', fontSize: 'clamp(1.1rem,3vw,1.4rem)', fontWeight: 800, color: 'var(--color-platform)', marginBottom: 'var(--sp-lg)', textAlign: 'center' }}>
         {ctx.sentence}
       </div>
 
       {/* Wahrscheinlichkeitsbalken */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: 'var(--space-lg)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: 'var(--sp-lg)' }}>
         {ctx.options.map((opt, i) => (
           <div key={i}>
             <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr 55px', alignItems: 'center', gap: '10px' }}>
@@ -218,8 +218,8 @@ export default function Station3({ done, onComplete }) {
                 <span style={{ fontSize: '1.4rem' }}>{opt.emoji}</span>
                 <span style={{ fontSize: '0.82rem' }}>{opt.label}</span>
               </div>
-              <div style={{ background: '#dbe4f5', borderRadius: 'var(--radius-pill)', height: '26px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${opt.prob}%`, background: opt.prob >= 45 ? MOD_COLOR : opt.prob >= 20 ? '#5880eb' : '#b0bfea', borderRadius: 'var(--radius-pill)', transition: 'width 0.4s ease', display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
+              <div style={{ background: '#dbe4f5', borderRadius: 'var(--r-pill)', height: '26px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${opt.prob}%`, background: opt.prob >= 45 ? MOD_COLOR : opt.prob >= 20 ? '#5880eb' : '#b0bfea', borderRadius: 'var(--r-pill)', transition: 'width 0.4s ease', display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
                   {opt.prob >= 20 && <span style={{ color: 'white', fontSize: '0.75rem', fontWeight: 800 }}>{opt.prob} %</span>}
                 </div>
               </div>
@@ -237,11 +237,11 @@ export default function Station3({ done, onComplete }) {
       </div>
 
       {/* Wort auswählen */}
-      <p style={{ fontWeight: 800, marginTop: 'var(--space-md)' }}>Klicke auf eine Fortsetzung:</p>
-      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: 'var(--space-md)' }}>
+      <p style={{ fontWeight: 800, marginTop: 'var(--sp-md)' }}>Klicke auf eine Fortsetzung:</p>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: 'var(--sp-md)' }}>
         {ctx.options.map((opt, i) => (
           <button key={i} onClick={() => handlePick(opt.label)}
-            style={{ border: `2px solid ${picked === opt.label ? MOD_COLOR : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', padding: '12px 18px', background: picked === opt.label ? '#e7eeff' : 'white', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+            style={{ border: `2px solid ${picked === opt.label ? MOD_COLOR : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: '12px 18px', background: picked === opt.label ? '#e7eeff' : 'white', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', fontFamily: 'inherit', transition: 'all 0.2s' }}>
             {opt.emoji} {opt.label}
           </button>
         ))}
@@ -255,7 +255,7 @@ export default function Station3({ done, onComplete }) {
       )}
 
       {explored.size >= 1 && picked && (
-        <div className="actions" style={{ marginTop: 'var(--space-lg)' }}>
+        <div className="actions" style={{ marginTop: 'var(--sp-lg)' }}>
           <button className="btn btn-primary" onClick={() => setPhase('reflexion')} style={{ background: MOD_COLOR }}>
             Zur Reflexion →
           </button>

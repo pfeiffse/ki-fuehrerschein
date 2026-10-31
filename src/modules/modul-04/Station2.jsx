@@ -45,7 +45,7 @@ export default function Station2({ done, onComplete, onSkip }) {
           </button>
         </div>
       )}
-      {done && <div className="done-badge" style={{ marginTop: 'var(--space-md)' }}>✓ Achievement: KI-Durchblicker 🎬</div>}
+      {done && <div className="done-badge" style={{ marginTop: 'var(--sp-md)' }}>✓ Achievement: KI-Durchblicker 🎬</div>}
     </div>
   )
 
@@ -59,9 +59,9 @@ export default function Station2({ done, onComplete, onSkip }) {
 
       {FILM_FRAGEN.map((f, i) => (
         <div key={f.id} style={{
-          border: `2px solid ${checked ? (answers[f.id] === f.richtig ? 'var(--color-success)' : 'var(--color-error)') : 'var(--color-border)'}`,
-          borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', marginBottom: 'var(--space-sm)',
-          background: checked ? (answers[f.id] === f.richtig ? 'var(--color-success-light)' : 'var(--color-error-light)') : 'white',
+          border: `2px solid ${checked ? (answers[f.id] === f.richtig ? 'var(--c-success)' : 'var(--c-error)') : 'var(--c-border)'}`,
+          borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-sm)',
+          background: checked ? (answers[f.id] === f.richtig ? 'var(--c-success-bg)' : 'var(--c-error-bg)') : 'white',
         }}>
           <p style={{ margin: '0 0 10px', fontWeight: 700 }}>{i + 1}. {f.aussage}</p>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -76,8 +76,8 @@ export default function Station2({ done, onComplete, onSkip }) {
             ))}
           </div>
           {checked && (
-            <p style={{ margin: '8px 0 0', fontSize: 'var(--font-size-sm)', fontWeight: 700,
-              color: answers[f.id] === f.richtig ? 'var(--color-success)' : 'var(--color-error)' }}>
+            <p style={{ margin: '8px 0 0', fontSize: 'var(--fs-sm)', fontWeight: 700,
+              color: answers[f.id] === f.richtig ? 'var(--c-success)' : 'var(--c-error)' }}>
               {answers[f.id] === f.richtig ? '✓ ' : '✗ '}{f.erklaerung}
             </p>
           )}
@@ -113,14 +113,14 @@ export default function Station2({ done, onComplete, onSkip }) {
       <p className="lead">Was kostet eine KI-Anfrage unsere Umwelt?</p>
 
       {/* Film-Link */}
-      <div style={{ background: '#103d54', color: 'white', borderRadius: 'var(--radius-lg)', padding: 'var(--space-lg)', marginBottom: 'var(--space-md)' }}>
+      <div style={{ background: '#103d54', color: 'white', borderRadius: 'var(--r-lg)', padding: 'var(--sp-lg)', marginBottom: 'var(--sp-md)' }}>
         <p style={{ margin: '0 0 12px', fontWeight: 800 }}>
           Schau dir den kurzen ARD-Beitrag „Wie klimaschädlich ist Künstliche Intelligenz?" an.
           Achte besonders auf Rechenzentren, Kühlung und den Unterschied zwischen Texten und Videos.
         </p>
         <a href="https://www.ardmediathek.de/video/wissen-vor-acht-erde/wie-klimaschaedlich-ist-kuenstliche-intelligenz/ard/Y3JpZDovL2FyZC5kZS9wbGFuQVJEXzdkNjgzMDg3LTI0ZDktNGJiNi04ZWQ0LTNhZmE4MmI0NDJmZF9nYW56ZVNlbmR1bmc"
           target="_blank" rel="noopener"
-          style={{ color: '#103d54', background: '#bff5e5', padding: '12px 20px', borderRadius: 'var(--radius-md)', fontWeight: 800, textDecoration: 'none', display: 'inline-block' }}>
+          style={{ color: '#103d54', background: '#bff5e5', padding: '12px 20px', borderRadius: 'var(--r-md)', fontWeight: 800, textDecoration: 'none', display: 'inline-block' }}>
           ▶ Film in der ARD Mediathek ansehen ↗
         </a>
       </div>
@@ -135,7 +135,7 @@ export default function Station2({ done, onComplete, onSkip }) {
 
       {/* Textalternative */}
       {showAlt && (
-        <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-lg)', marginBottom: 'var(--space-md)', border: '1px solid var(--color-border)' }}>
+        <div style={{ background: '#f0fafb', borderRadius: 'var(--r-lg)', padding: 'var(--sp-lg)', marginBottom: 'var(--sp-md)', border: '1px solid var(--c-border)' }}>
           <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '12px' }}>📄 Textalternative zum Film</div>
           <p><strong>KI-Anfragen und Rechenzentren:</strong> Wenn du eine Frage an eine KI stellst, wird sie in einem großen Rechenzentrum verarbeitet. Dort arbeiten viele leistungsfähige Computerchips gleichzeitig.</p>
           <p><strong>Kühlung:</strong> Diese Chips werden sehr heiß. Die Kühlung kann laut Schätzungen bis zu 30 % der gesamten Energie eines Rechenzentrums verbrauchen.</p>

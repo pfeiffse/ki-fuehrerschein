@@ -78,12 +78,12 @@ const QUIZ_ORDER = [0,1,2,3].sort(() => Math.random() - 0.5)
 function WmPhoto({ url, label, hasR, size = '160px' }) {
   const [err, setErr] = useState(false)
   return (
-    <div style={{ position: 'relative', borderRadius: 'var(--radius-lg)', overflow: 'hidden', background: '#eaf5f6', border: '2px solid var(--color-border)', height: size }}>
+    <div style={{ position: 'relative', borderRadius: 'var(--r-lg)', overflow: 'hidden', background: '#eaf5f6', border: '2px solid var(--c-border)', height: size }}>
       {!err ? (
         <img src={url} alt={label} loading="lazy" onError={() => setErr(true)}
           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
       ) : (
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', color: 'var(--color-text-muted)' }}>
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', color: 'var(--c-muted)' }}>
           {label.includes('Auto') ? '🚗' : '🐎'}
           <div style={{ fontSize: '0.7rem', marginTop: '4px' }}>{label}</div>
         </div>
@@ -145,17 +145,17 @@ export default function Station2({ done, onComplete }) {
   if (phase === 'merksatz' || done) return (
     <div className="card" style={{ textAlign: 'center' }}>
       <div className="station-counter">Station 2 von 4 · Wasserzeichen · Merksatz</div>
-      <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>💡</div>
+      <div style={{ fontSize: '3rem', marginBottom: 'var(--sp-md)' }}>💡</div>
       <h2 style={{ color: MOD_COLOR }}>Merksatz</h2>
       <MemoryBox>KI lernt Muster aus Beispielen. Manchmal lernt sie dabei auch <strong>unwichtige Hinweise</strong> – wie ein Wasserzeichen. Das nennt man einen <em>Bias</em>.</MemoryBox>
       <InfoBox title="Was bedeutet das für echte KI-Systeme?">
         Auch echte KI-Systeme können unbeabsichtigt falsche Merkmale lernen – zum Beispiel wenn Trainingsdaten nicht vielfältig genug sind. Deshalb ist die sorgfältige Auswahl und Prüfung von Trainingsdaten so wichtig.
       </InfoBox>
-      <div style={{ marginTop: 'var(--space-md)', padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)', textAlign: 'left', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+      <div style={{ marginTop: 'var(--sp-md)', padding: 'var(--sp-md)', background: '#f0fafb', borderRadius: 'var(--r-lg)', textAlign: 'left', fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>
         Fotos: Wikimedia Commons (CC-Lizenzen) · Unsplash
       </div>
       {!done && (
-        <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--space-lg)' }}>
+        <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--sp-lg)' }}>
           <button className="btn btn-success" onClick={onComplete}>Station 2 abschließen · Achievement freischalten 🔍</button>
         </div>
       )}
@@ -199,16 +199,16 @@ export default function Station2({ done, onComplete }) {
       <div className="station-counter">Station 2 von 4 · Wasserzeichen · Ergebnisübersicht</div>
       <h2 style={{ color: MOD_COLOR }}>Ergebnisübersicht</h2>
       <p className="lead">So hat die Mini-KI die vier Testbilder bewertet:</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', margin: 'var(--space-md) 0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', margin: 'var(--sp-md) 0' }}>
         {WM_TESTS.map((test, i) => (
-          <div key={i} style={{ border: `2px solid ${test.kiSagt === test.correct ? 'var(--color-success)' : 'var(--color-error)'}`, borderRadius: 'var(--radius-lg)', overflow: 'hidden', background: test.kiSagt === test.correct ? 'var(--color-success-light)' : 'var(--color-error-light)' }}>
+          <div key={i} style={{ border: `2px solid ${test.kiSagt === test.correct ? 'var(--c-success)' : 'var(--c-error)'}`, borderRadius: 'var(--r-lg)', overflow: 'hidden', background: test.kiSagt === test.correct ? 'var(--c-success-bg)' : 'var(--c-error-bg)' }}>
             <WmPhoto url={test.url} label={test.label} hasR={test.hasR} size="120px" />
             <div style={{ padding: '8px 10px' }}>
               <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>KI sagt: <strong>{test.kiSagt === 'pferd' ? '🐎 Pferd' : '✗ Kein Pferd'}</strong></div>
-              <div style={{ fontSize: '0.75rem', marginTop: '4px', fontWeight: 800, color: test.kiSagt === test.correct ? 'var(--color-success)' : 'var(--color-error)' }}>
+              <div style={{ fontSize: '0.75rem', marginTop: '4px', fontWeight: 800, color: test.kiSagt === test.correct ? 'var(--c-success)' : 'var(--c-error)' }}>
                 {test.kiSagt === test.correct ? '✓ Richtig' : '✗ Falsch!'}
               </div>
-              <div style={{ fontSize: '0.72rem', marginTop: '4px', color: 'var(--color-text-muted)', lineHeight: 1.4 }}>{test.explain}</div>
+              <div style={{ fontSize: '0.72rem', marginTop: '4px', color: 'var(--c-muted)', lineHeight: 1.4 }}>{test.explain}</div>
             </div>
           </div>
         ))}
@@ -228,12 +228,12 @@ export default function Station2({ done, onComplete }) {
         <div className="station-counter">Station 2 von 4 · Wasserzeichen · Test {wmStep + 1} von {WM_TESTS.length}</div>
         <h2 style={{ color: MOD_COLOR }}>Was würde die Mini-KI sagen?</h2>
         <p className="lead">Schau dir das Bild genau an. Was glaubst du: Was sagt die Mini-KI?</p>
-        <div style={{ maxWidth: '320px', margin: '0 auto var(--space-lg)' }}>
+        <div style={{ maxWidth: '320px', margin: '0 auto var(--sp-lg)' }}>
           <WmPhoto url={test.url} label={test.label} hasR={test.hasR} size="200px" />
         </div>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', margin: 'var(--space-md) 0' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', margin: 'var(--sp-md) 0' }}>
           {['pferd','kein'].map(v => (
-            <label key={v} style={{ display: 'flex', alignItems: 'center', gap: '10px', border: `2px solid ${wmChoice === v ? MOD_COLOR : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', padding: '14px 20px', cursor: wmChecked ? 'default' : 'pointer', background: wmChoice === v ? '#e7eeff' : 'white', fontWeight: 700, fontSize: '1rem', transition: 'all 0.2s' }}>
+            <label key={v} style={{ display: 'flex', alignItems: 'center', gap: '10px', border: `2px solid ${wmChoice === v ? MOD_COLOR : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: '14px 20px', cursor: wmChecked ? 'default' : 'pointer', background: wmChoice === v ? '#e7eeff' : 'white', fontWeight: 700, fontSize: '1rem', transition: 'all 0.2s' }}>
               <input type="radio" name="wmtest" value={v} checked={wmChoice === v} onChange={() => !wmChecked && setWmChoice(v)} disabled={wmChecked} style={{ accentColor: MOD_COLOR, width: '18px', height: '18px' }} />
               {v === 'pferd' ? '🐎 KI sagt: Pferd' : '✗ KI sagt: Kein Pferd'}
             </label>
@@ -247,7 +247,7 @@ export default function Station2({ done, onComplete }) {
                 : `❌ Die Mini-KI sagt tatsächlich: ${test.kiSagt === 'pferd' ? '🐎 Pferd' : 'Kein Pferd'}`}
             </div>
             {wmChoice !== test.correct && (
-              <div style={{ marginTop: '8px', padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+              <div style={{ marginTop: '8px', padding: 'var(--sp-md)', background: '#f0fafb', borderRadius: 'var(--r-lg)', fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>
                 💡 {test.explain}
               </div>
             )}
@@ -268,16 +268,16 @@ export default function Station2({ done, onComplete }) {
       <p className="lead">Die Mini-KI wurde mit diesen sechs Pferdefotos trainiert. <strong>Schau genau hin:</strong> Was fällt dir auf?</p>
 
       {/* Trainingsfotos mit Wasserzeichen */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--sp-md) 0' }}>
         {TRAINING_PHOTOS.map((h, i) => <WmPhoto key={i} url={commons(h.file)} label={h.label} hasR={true} size="140px" />)}
       </div>
-      <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>Fotos: Wikimedia Commons (CC-Lizenzen)</p>
+      <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>Fotos: Wikimedia Commons (CC-Lizenzen)</p>
 
-      <p style={{ fontWeight: 700, color: MOD_COLOR, marginTop: 'var(--space-md)' }}>🔍 Bewege die Lupe über die Fotos, um das gemeinsame Merkmal zu entdecken:</p>
+      <p style={{ fontWeight: 700, color: MOD_COLOR, marginTop: 'var(--sp-md)' }}>🔍 Bewege die Lupe über die Fotos, um das gemeinsame Merkmal zu entdecken:</p>
       <div ref={photoRef}
         onMouseMove={e => handleMove(e.clientX, e.clientY)}
         onTouchMove={e => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY) }}
-        style={{ position: 'relative', background: '#eaf5f6', borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)', cursor: 'crosshair', userSelect: 'none', touchAction: 'none', minHeight: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 'var(--space-md)' }}>
+        style={{ position: 'relative', background: '#eaf5f6', borderRadius: 'var(--r-xl)', padding: 'var(--sp-xl)', cursor: 'crosshair', userSelect: 'none', touchAction: 'none', minHeight: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 'var(--sp-md)' }}>
         <div style={{ fontSize: '2.5rem', opacity: 0.25, letterSpacing: '8px' }}>🐎 🐴 🐎 🐴 🐎 🐴</div>
         <div style={{ position: 'absolute', left: `${lupeX}%`, top: `${lupeY}%`, transform: 'translate(-50%,-50%)', width: '64px', height: '64px', borderRadius: '50%', border: '3px solid #087f83', background: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}>
           {lupeX > 60 && lupeY > 60

@@ -64,7 +64,7 @@ export default function Station3({ done, onComplete }) {
           </button>
         </div>
       )}
-      {done && <div className="done-badge" style={{ marginTop: 'var(--space-md)' }}>✓ Achievement: Wasser-Detektiv 💧</div>}
+      {done && <div className="done-badge" style={{ marginTop: 'var(--sp-md)' }}>✓ Achievement: Wasser-Detektiv 💧</div>}
     </div>
   )
 
@@ -78,7 +78,7 @@ export default function Station3({ done, onComplete }) {
       <div className="compare-box">
         <div className="eyebrow">Ergebnis aus Experiment 1</div>
         <div className="big">💧 {liter.toFixed(1)} Liter</div>
-        <p style={{ margin: '8px 0 0', fontSize: 'var(--font-size-sm)' }}>
+        <p style={{ margin: '8px 0 0', fontSize: 'var(--fs-sm)' }}>
           {personen} Personen × {tage} Tag(e) × 10 Anfragen = <strong>{gesamtAnfragen.toLocaleString('de-DE')} Anfragen</strong><br />
           Modellwert: {MODELL.wasserPro1000Anfragen} Liter pro 1.000 Anfragen
         </p>
@@ -93,14 +93,14 @@ export default function Station3({ done, onComplete }) {
         <strong>Zwischenschritt:</strong> {gesamtAnfragen.toLocaleString('de-DE')} Anfragen → Modellwert {liter.toFixed(1)} Liter → Vergleich mit {MODELL.toilettenLiter}-Liter-Spülungen
       </InfoBox>
 
-      <p style={{ fontWeight: 800, marginTop: 'var(--space-lg)' }}>
+      <p style={{ fontWeight: 800, marginTop: 'var(--sp-lg)' }}>
         Wie viele Toilettenspülungen entsprechen {liter.toFixed(1)} Litern? Schätze zuerst!
       </p>
 
       {/* Virtuelle Spülkette */}
       {!revealed && (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', flexWrap: 'wrap', margin: 'var(--space-md) 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-md)', flexWrap: 'wrap', margin: 'var(--sp-md) 0' }}>
             <button className="btn btn-primary" onClick={spuelen} style={{ background: MOD_COLOR, fontSize: '1.2rem', padding: '14px 24px' }}>
               🚽 Spülen!
             </button>
@@ -108,7 +108,7 @@ export default function Station3({ done, onComplete }) {
               {gespuelt} × {MODELL.toilettenLiter} L = {(gespuelt * MODELL.toilettenLiter).toFixed(1)} L
             </div>
           </div>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>
+          <p style={{ color: 'var(--c-muted)', fontSize: 'var(--fs-sm)' }}>
             Klicke auf „Spülen", bis du denkst, dass du {liter.toFixed(1)} Liter erreicht hast.
           </p>
           {gespuelt > 0 && (
@@ -127,11 +127,11 @@ export default function Station3({ done, onComplete }) {
           <div className="compare-box">
             <div className="eyebrow">Modellwert</div>
             <div className="big">🚽 ca. {Math.round(modellSpuelungen)} Spülungen</div>
-            <p style={{ margin: '8px 0 0', fontSize: 'var(--font-size-sm)' }}>
+            <p style={{ margin: '8px 0 0', fontSize: 'var(--fs-sm)' }}>
               {liter.toFixed(1)} Liter ÷ {MODELL.toilettenLiter} Liter pro Spülung ≈ {modellSpuelungen.toFixed(1)} Spülungen
             </p>
             {gespuelt > 0 && (
-              <p style={{ margin: '8px 0 0', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+              <p style={{ margin: '8px 0 0', fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>
                 Deine Schätzung: {gespuelt} Spülungen –{' '}
                 {Math.abs(gespuelt - Math.round(modellSpuelungen)) <= 2 ? '✓ Sehr nah dran!' : 'Interessant, oder?'}
               </p>
@@ -141,7 +141,7 @@ export default function Station3({ done, onComplete }) {
           {/* Reflexionsfrage */}
           {!quizDone && (
             <>
-              <p style={{ fontWeight: 800, marginTop: 'var(--space-lg)' }}>
+              <p style={{ fontWeight: 800, marginTop: 'var(--sp-lg)' }}>
                 Was zeigt dieses Experiment?
               </p>
               {[
@@ -174,7 +174,7 @@ export default function Station3({ done, onComplete }) {
               <div className="feedback correct" style={{ display: 'block' }}>
                 ✅ Richtig! Einzelne Verbräuche summieren sich bei großer Nutzung.
               </div>
-              <div className="actions" style={{ marginTop: 'var(--space-lg)' }}>
+              <div className="actions" style={{ marginTop: 'var(--sp-lg)' }}>
                 <button className="btn btn-success" onClick={() => setPhase('abschluss')}>
                   Weiter zur Zusammenfassung →
                 </button>
@@ -199,7 +199,7 @@ export default function Station3({ done, onComplete }) {
         Das ist kein exakter Messwert für eine bestimmte KI.
       </WarningBox>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)', margin: 'var(--space-lg) 0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-md)', margin: 'var(--sp-lg) 0' }}>
         <div>
           <label style={{ fontWeight: 800, display: 'block', marginBottom: '8px' }}>
             Personen in eurer Klasse: <strong style={{ color: MOD_COLOR }}>{personen}</strong>
@@ -207,7 +207,7 @@ export default function Station3({ done, onComplete }) {
           <input type="range" min="5" max="30" value={personen}
             onChange={e => setPersonen(Number(e.target.value))}
             style={{ width: '100%', accentColor: MOD_COLOR }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>
             <span>5</span><span>30</span>
           </div>
         </div>
@@ -218,7 +218,7 @@ export default function Station3({ done, onComplete }) {
           <input type="range" min="1" max="7" value={tage}
             onChange={e => setTage(Number(e.target.value))}
             style={{ width: '100%', accentColor: MOD_COLOR }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>
             <span>1</span><span>7</span>
           </div>
         </div>
@@ -227,7 +227,7 @@ export default function Station3({ done, onComplete }) {
       <div className="compare-box">
         <div className="eyebrow">Modellrechnung (Zielgröße: mindestens 1.000 Anfragen)</div>
         <div className="big">📊 {gesamtAnfragen.toLocaleString('de-DE')} Anfragen</div>
-        <p style={{ margin: '8px 0 0', fontSize: 'var(--font-size-sm)' }}>
+        <p style={{ margin: '8px 0 0', fontSize: 'var(--fs-sm)' }}>
           {personen} Personen × {tage} Tag(e) × 10 Anfragen pro Person und Tag
         </p>
       </div>

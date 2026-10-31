@@ -44,10 +44,10 @@ export default function TextTask({
         style={{
           width:        '100%',
           padding:      '12px',
-          border:       `2px solid ${locked ? 'var(--color-border)' : sufficient ? 'var(--color-platform-teal)' : 'var(--color-border)'}`,
-          borderRadius: 'var(--radius-lg)',
+          border:       `2px solid ${locked ? 'var(--c-border)' : sufficient ? 'var(--c-teal)' : 'var(--c-border)'}`,
+          borderRadius: 'var(--r-lg)',
           font:         'inherit',
-          fontSize:     'var(--font-size-base)',
+          fontSize:     'var(--fs-md)',
           resize:       'vertical',
           background:   locked ? '#f7fbfc' : 'white',
           transition:   'border-color var(--transition)',
@@ -59,8 +59,8 @@ export default function TextTask({
       {/* Zeichenzähler */}
       {!locked && (
         <div style={{
-          fontSize:  'var(--font-size-xs)',
-          color:     sufficient ? 'var(--color-success)' : 'var(--color-text-muted)',
+          fontSize:  'var(--fs-xs)',
+          color:     sufficient ? 'var(--c-success)' : 'var(--c-muted)',
           marginTop: '4px',
           textAlign: 'right',
           fontWeight: sufficient ? 800 : 400,
@@ -85,7 +85,7 @@ export default function TextTask({
 
       {/* Hinweis */}
       {!locked && (
-        <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+        <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', marginTop: '4px' }}>
           ℹ️ Diese Aufgabe wird für die Bearbeitung bewertet, nicht für den Inhalt.
         </p>
       )}
@@ -100,7 +100,7 @@ export default function TextTask({
       )}
 
       {locked && (
-        <div style={{ marginTop: 'var(--space-sm)', color: 'var(--color-success)', fontWeight: 800, fontSize: 'var(--font-size-sm)' }}>
+        <div style={{ marginTop: 'var(--sp-sm)', color: 'var(--c-success)', fontWeight: 800, fontSize: 'var(--fs-sm)' }}>
           ✓ Erledigt
         </div>
       )}

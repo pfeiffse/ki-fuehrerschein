@@ -11,9 +11,9 @@ export default function Badge({ icon, title, description, unlocked = false }) {
       role="img"
       aria-label={`${title}: ${unlocked ? 'freigeschaltet' : 'noch nicht freigeschaltet'}`}
       style={{
-        border:       `2px solid ${unlocked ? 'var(--color-gold-dark)' : 'var(--color-border)'}`,
+        border:       `2px solid ${unlocked ? 'var(--color-gold-dark)' : 'var(--c-border)'}`,
         borderRadius: 'var(--radius-xl)',
-        padding:      'var(--space-md)',
+        padding:      'var(--sp-md)',
         textAlign:    'center',
         background:   unlocked ? '#fff8db' : '#f5f9fc',
         filter:       unlocked ? 'none' : 'grayscale(1)',
@@ -26,14 +26,14 @@ export default function Badge({ icon, title, description, unlocked = false }) {
       <div style={{ fontSize: '2.2rem', lineHeight: 1.4 }} aria-hidden="true">
         {icon}
       </div>
-      <h3 style={{ margin: '6px 0 4px', fontSize: '1rem', color: unlocked ? 'var(--color-platform)' : 'var(--color-text-muted)' }}>
+      <h3 style={{ margin: '6px 0 4px', fontSize: '1rem', color: unlocked ? 'var(--c-dark)' : 'var(--c-muted)' }}>
         {title}
       </h3>
-      <p style={{ margin: 0, fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+      <p style={{ margin: 0, fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>
         {description}
       </p>
       {unlocked && (
-        <div style={{ marginTop: '8px', fontSize: 'var(--font-size-xs)', color: '#825300', fontWeight: 800 }}>
+        <div style={{ marginTop: '8px', fontSize: 'var(--fs-xs)', color: '#825300', fontWeight: 800 }}>
           ✓ Freigeschaltet
         </div>
       )}

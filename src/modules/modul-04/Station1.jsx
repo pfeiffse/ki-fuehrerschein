@@ -78,7 +78,7 @@ export default function Station1({ done, onComplete }) {
       <WarningBox title="Hinweis zu den Zahlen:">
         Die folgenden Werte haben unterschiedliche Bezugsgrößen. Man darf sie nicht als Verbrauch einer einzelnen KI-Anfrage verstehen.
       </WarningBox>
-      <div style={{ overflowX: 'auto', marginBottom: 'var(--space-lg)' }}>
+      <div style={{ overflowX: 'auto', marginBottom: 'var(--sp-lg)' }}>
         <table>
           <thead>
             <tr>
@@ -101,7 +101,7 @@ export default function Station1({ done, onComplete }) {
               <tr key={r}>
                 <td style={{ fontWeight: 700 }}>{r}</td>
                 <td>{v}</td>
-                <td style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>{h}</td>
+                <td style={{ fontSize: 'var(--fs-sm)', color: 'var(--color-text-muted)' }}>{h}</td>
               </tr>
             ))}
           </tbody>
@@ -131,18 +131,18 @@ export default function Station1({ done, onComplete }) {
       </h2>
 
       {/* Fortschrittsbalken Karten */}
-      <div className="progress-shell dark" style={{ marginBottom: 'var(--space-lg)' }}>
+      <div className="progress-shell dark" style={{ marginBottom: 'var(--sp-lg)' }}>
         <div className="progress-bar green" style={{ width: `${(richtig.size / INFO_KARTEN.length) * 100}%` }} />
       </div>
 
-      <div className="grid-2" style={{ marginBottom: 'var(--space-md)' }}>
-        <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)' }}>
+      <div className="grid-2" style={{ marginBottom: 'var(--sp-md)' }}>
+        <div style={{ background: '#f0fafb', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)' }}>
           <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '6px' }}>🔍 Wofür wird sie benötigt?</div>
-          <p style={{ margin: 0, fontSize: 'var(--font-size-sm)' }}>{karte.was}</p>
+          <p style={{ margin: 0, fontSize: 'var(--fs-sm)' }}>{karte.was}</p>
         </div>
-        <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)' }}>
+        <div style={{ background: '#f0fafb', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)' }}>
           <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '6px' }}>🌍 Welche Umweltfolgen gibt es?</div>
-          <p style={{ margin: 0, fontSize: 'var(--font-size-sm)' }}>{karte.wirkung}</p>
+          <p style={{ margin: 0, fontSize: 'var(--fs-sm)' }}>{karte.wirkung}</p>
         </div>
       </div>
 
@@ -150,19 +150,19 @@ export default function Station1({ done, onComplete }) {
       <div className="compare-box">
         <div className="eyebrow">Der Alltagsvergleich</div>
         <div className="big">{karte.vergleich}</div>
-        <p style={{ margin: '8px 0 0', fontSize: 'var(--font-size-sm)' }}>{karte.vergleichText}</p>
+        <p style={{ margin: '8px 0 0', fontSize: 'var(--fs-sm)' }}>{karte.vergleichText}</p>
       </div>
 
       {/* Quelle */}
-      <p className="source" style={{ marginBottom: 'var(--space-md)' }}>
+      <p className="source" style={{ marginBottom: 'var(--sp-md)' }}>
         Quelle: {karte.quellUrl
           ? <a href={karte.quellUrl} target="_blank" rel="noopener">{karte.quelle} ↗</a>
           : karte.quelle}
       </p>
 
       {/* Quiz */}
-      <div style={{ background: richtig.has(karte.id) ? 'var(--color-success-light)' : '#fff3d8', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', border: `1px solid ${richtig.has(karte.id) ? 'var(--color-success)' : 'var(--color-warning)'}` }}>
-        <div style={{ fontWeight: 800, marginBottom: 'var(--space-sm)', color: richtig.has(karte.id) ? 'var(--color-success)' : '#825300' }}>
+      <div style={{ background: richtig.has(karte.id) ? 'var(--c-success-bg)' : '#fff3d8', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', border: `1px solid ${richtig.has(karte.id) ? 'var(--c-success)' : 'var(--c-warn)'}` }}>
+        <div style={{ fontWeight: 800, marginBottom: 'var(--space-sm)', color: richtig.has(karte.id) ? 'var(--c-success)' : '#825300' }}>
           {richtig.has(karte.id) ? '✓ Verständnisfrage beantwortet' : '❓ Verständnisfrage'}
         </div>
         {!richtig.has(karte.id) && (
@@ -200,7 +200,7 @@ export default function Station1({ done, onComplete }) {
       </div>
 
       {/* Navigation */}
-      <div className="actions" style={{ marginTop: 'var(--space-lg)' }}>
+      <div className="actions" style={{ marginTop: 'var(--sp-lg)' }}>
         <button className="btn btn-ghost" onClick={vorherige} disabled={karteIdx === 0}>← Zurück</button>
         {richtig.has(karte.id) && (
           <button className="btn btn-primary" onClick={naechsteKarte} style={{ background: MOD_COLOR }}>
@@ -210,7 +210,7 @@ export default function Station1({ done, onComplete }) {
       </div>
 
       {alleRichtig && karteIdx === INFO_KARTEN.length - 1 && (
-        <div className="done-badge" style={{ marginTop: 'var(--space-md)' }}>
+        <div className="done-badge" style={{ marginTop: 'var(--sp-md)' }}>
           ✓ Alle {INFO_KARTEN.length} Informationskarten gelesen!
         </div>
       )}
@@ -231,16 +231,16 @@ export default function Station1({ done, onComplete }) {
         Alle Zahlen in diesem Modul sind Anschauungs- und Modellwerte – keine exakten Messungen für eine einzelne KI-Anfrage.
       </WarningBox>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px', margin: 'var(--space-lg) 0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px', margin: 'var(--sp-lg) 0' }}>
         {RESSOURCEN_KACHELN.map(r => {
           const sel = selected.has(r.id)
-          let border = sel ? `2px solid ${MOD_COLOR}` : '2px solid var(--color-border)'
+          let border = sel ? `2px solid ${MOD_COLOR}` : '2px solid var(--c-border)'
           let bg = sel ? '#dff5f1' : 'linear-gradient(155deg, #fff, #eaf8f5)'
           let opacity = 1
           if (checked) {
-            if (CORRECT_IDS.has(r.id) && sel)  { border = '2px solid var(--color-success)'; bg = 'var(--color-success-light)' }
-            if (CORRECT_IDS.has(r.id) && !sel) { border = '2px solid var(--color-warning)'; bg = 'var(--color-warning-light)' }
-            if (!CORRECT_IDS.has(r.id) && sel) { border = '2px solid var(--color-error)';   bg = 'var(--color-error-light)' }
+            if (CORRECT_IDS.has(r.id) && sel)  { border = '2px solid var(--c-success)'; bg = 'var(--c-success-bg)' }
+            if (CORRECT_IDS.has(r.id) && !sel) { border = '2px solid var(--c-warn)'; bg = 'var(--c-warn-bg)' }
+            if (!CORRECT_IDS.has(r.id) && sel) { border = '2px solid var(--c-error)';   bg = 'var(--c-error-bg)' }
             if (!CORRECT_IDS.has(r.id) && !sel){ opacity = 0.35 }
           }
           return (
@@ -248,7 +248,7 @@ export default function Station1({ done, onComplete }) {
               disabled={checked && [...CORRECT_IDS].every(id => selected.has(id)) && selected.size === CORRECT_IDS.size}
               aria-pressed={sel}
               aria-label={`${r.label}, ${sel ? 'ausgewählt' : 'nicht ausgewählt'}`}
-              style={{ border, borderRadius: 'var(--radius-lg)', padding: '12px 6px', textAlign: 'center', background: bg, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', opacity }}>
+              style={{ border, borderRadius: 'var(--r-lg)', padding: '12px 6px', textAlign: 'center', background: bg, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', opacity }}>
               <div style={{ fontSize: '1.8rem' }}>{r.emoji}</div>
               <div style={{ fontSize: '0.75rem', fontWeight: 700, marginTop: '6px', lineHeight: 1.3 }}>{r.label}</div>
               {sel && !checked && <div style={{ fontSize: '0.65rem', color: MOD_COLOR, marginTop: '4px' }}>✓</div>}

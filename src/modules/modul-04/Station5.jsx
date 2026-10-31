@@ -11,9 +11,9 @@ import { WarningBox, MemoryBox, InfoBox } from '../../components/ui/InfoBox.jsx'
 const MOD_COLOR = '#087f83'
 
 const KATEGORIEN = {
-  hilfreich:   { label: '💡 Wirklich hilfreich',  color: 'var(--color-success)', bg: 'var(--color-success-light)' },
-  ueberflüssig:{ label: '🚫 Überflüssig',          color: 'var(--color-error)',   bg: 'var(--color-error-light)'   },
-  nachdenken:  { label: '⚖️ Erst nachdenken!',     color: 'var(--color-warning)', bg: 'var(--color-warning-light)' },
+  hilfreich:   { label: '💡 Wirklich hilfreich',  color: 'var(--c-success)', bg: 'var(--c-success-bg)' },
+  ueberflüssig:{ label: '🚫 Überflüssig',          color: 'var(--c-error)',   bg: 'var(--c-error-bg)'   },
+  nachdenken:  { label: '⚖️ Erst nachdenken!',     color: 'var(--c-warn)', bg: 'var(--c-warn-bg)' },
 }
 
 export default function Station5({ done, onComplete, achieved, onDashboard }) {
@@ -59,7 +59,7 @@ export default function Station5({ done, onComplete, achieved, onDashboard }) {
 
       {/* Persönliche Regel */}
       {regel && (
-        <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)', marginBottom: 'var(--space-lg)', border: `2px solid ${MOD_COLOR}` }}>
+        <div style={{ background: '#f0fafb', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', marginBottom: 'var(--sp-lg)', border: `2px solid ${MOD_COLOR}` }}>
           <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px' }}>Deine persönliche Regel:</div>
           <p style={{ margin: 0, fontStyle: 'italic', fontSize: '1.05rem' }}>„Bevor ich KI nutze, frage ich mich … {regel}"</p>
         </div>
@@ -67,10 +67,10 @@ export default function Station5({ done, onComplete, achieved, onDashboard }) {
 
       {/* Modell-Umweltbilanz */}
       {verzichtetAnzahl > 0 && (
-        <div className="compare-box" style={{ marginBottom: 'var(--space-lg)' }}>
+        <div className="compare-box" style={{ marginBottom: 'var(--sp-lg)' }}>
           <div className="eyebrow">Modellvergleich deiner Entscheidungen</div>
           <div className="big">🌱 {verzichtetAnzahl} Anfragen vermieden</div>
-          <p style={{ margin: '8px 0 0', fontSize: 'var(--font-size-sm)' }}>
+          <p style={{ margin: '8px 0 0', fontSize: 'var(--fs-sm)' }}>
             Modellwert: {wasserMl.toFixed(1)} ml Wasser · {energieWh.toFixed(2)} Wh Strom
           </p>
           <WarningBox title="Wichtig:">
@@ -93,12 +93,12 @@ export default function Station5({ done, onComplete, achieved, onDashboard }) {
       )}
       {done && (
         <>
-          <div className="done-badge" style={{ marginTop: 'var(--space-md)' }}>✓ Achievement: KI-Zukunftsgestalter 🌱</div>
+          <div className="done-badge" style={{ marginTop: 'var(--sp-md)' }}>✓ Achievement: KI-Zukunftsgestalter 🌱</div>
           {achieved && (
-            <div style={{ marginTop: 'var(--space-lg)', padding: 'var(--space-lg)', background: '#fff8db', borderRadius: 'var(--radius-xl)', border: '2px solid var(--color-gold-dark)', textAlign: 'center' }}>
+            <div style={{ marginTop: 'var(--sp-lg)', padding: 'var(--sp-lg)', background: '#fff8db', borderRadius: 'var(--r-xl)', border: '2px solid var(--color-gold-dark)', textAlign: 'center' }}>
               <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>🌍</div>
               <h3 style={{ color: '#825300', margin: '0 0 8px' }}>Modul 4 vollständig abgeschlossen!</h3>
-              <p style={{ color: 'var(--color-text-muted)', margin: '0 0 var(--space-lg)' }}>
+              <p style={{ color: 'var(--c-muted)', margin: '0 0 var(--sp-lg)' }}>
                 Du hast alle 5 Stationen abgeschlossen und 5 Achievements erworben.
               </p>
               <button className="btn btn-primary" onClick={onDashboard} style={{ background: MOD_COLOR }}>
@@ -120,15 +120,15 @@ export default function Station5({ done, onComplete, achieved, onDashboard }) {
 
       <p className="lead">Formuliere eine persönliche Regel für deinen Umgang mit KI.</p>
 
-      <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)', marginBottom: 'var(--space-lg)', border: `2px solid ${MOD_COLOR}` }}>
+      <div style={{ background: '#f0fafb', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', marginBottom: 'var(--sp-lg)', border: `2px solid ${MOD_COLOR}` }}>
         <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '12px', fontSize: '1.1rem' }}>
           Bevor ich KI nutze, frage ich mich …
         </div>
         <textarea value={regel} onChange={e => setRegel(e.target.value)}
           placeholder="z. B. … ob ich das auch selbst herausfinden könnte und ob KI hier wirklich hilft."
           rows={4} maxLength={300}
-          style={{ width: '100%', padding: '12px', border: `2px solid ${regel.trim().length >= 10 ? MOD_COLOR : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', font: 'inherit', fontSize: '1rem', resize: 'vertical', lineHeight: 1.6 }} />
-        <div style={{ fontSize: 'var(--font-size-xs)', color: regel.trim().length >= 10 ? 'var(--color-success)' : 'var(--color-text-muted)', textAlign: 'right', marginTop: '4px', fontWeight: regel.trim().length >= 10 ? 800 : 400 }}>
+          style={{ width: '100%', padding: '12px', border: `2px solid ${regel.trim().length >= 10 ? MOD_COLOR : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', font: 'inherit', fontSize: '1rem', resize: 'vertical', lineHeight: 1.6 }} />
+        <div style={{ fontSize: 'var(--fs-xs)', color: regel.trim().length >= 10 ? 'var(--c-success)' : 'var(--c-muted)', textAlign: 'right', marginTop: '4px', fontWeight: regel.trim().length >= 10 ? 800 : 400 }}>
           {regel.trim().length} / 300 Zeichen {regel.trim().length >= 10 ? '✓' : '(mindestens 10)'}
         </div>
       </div>
@@ -165,30 +165,30 @@ export default function Station5({ done, onComplete, achieved, onDashboard }) {
       <InfoBox>
         <strong>Kategorien:</strong><br />
         💡 Wirklich hilfreich · 🚫 Überflüssig · ⚖️ Erst nachdenken!<br />
-        <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+        <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>
           Eine persönlich begründete Nutzung trotz Ressourcenverbrauch kann sinnvoll sein.
         </span>
       </InfoBox>
 
       {ALLTAG_SITUATIONEN.map((s, i) => (
         <div key={s.id} style={{
-          border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)',
-          padding: 'var(--space-md)', marginBottom: 'var(--space-sm)',
-          background: checked && fachlich[s.id] === s.kategorie ? 'var(--color-success-light)' : 'white',
+          border: '1px solid var(--c-border)', borderRadius: 'var(--r-lg)',
+          padding: 'var(--sp-md)', marginBottom: 'var(--sp-sm)',
+          background: checked && fachlich[s.id] === s.kategorie ? 'var(--c-success-bg)' : 'white',
         }}>
           <p style={{ margin: '0 0 10px', fontWeight: 700 }}>{i + 1}. {s.text}</p>
 
           {/* Fachliche Einschätzung */}
           <div style={{ marginBottom: '10px' }}>
-            <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '6px' }}>
+            <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 800, color: 'var(--c-muted)', marginBottom: '6px' }}>
               1. Fachliche Einschätzung:
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {Object.entries(KATEGORIEN).map(([key, val]) => (
                 <label key={key} style={{
                   display: 'flex', alignItems: 'center', gap: '6px',
-                  border: `2px solid ${fachlich[s.id] === key ? val.color : 'var(--color-border)'}`,
-                  borderRadius: 'var(--radius-md)', padding: '6px 10px',
+                  border: `2px solid ${fachlich[s.id] === key ? val.color : 'var(--c-border)'}`,
+                  borderRadius: 'var(--r-md)', padding: '6px 10px',
                   cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem',
                   background: fachlich[s.id] === key ? val.bg : 'white',
                   transition: 'all 0.2s',
@@ -206,7 +206,7 @@ export default function Station5({ done, onComplete, achieved, onDashboard }) {
           {/* Persönliche Entscheidung */}
           {fachlich[s.id] && (
             <div>
-              <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 800, color: 'var(--color-text-muted)', marginBottom: '6px' }}>
+              <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 800, color: 'var(--c-muted)', marginBottom: '6px' }}>
                 2. Meine persönliche Entscheidung:
               </div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -216,8 +216,8 @@ export default function Station5({ done, onComplete, achieved, onDashboard }) {
                 ].map(opt => (
                   <label key={opt.value} style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
-                    border: `2px solid ${persoenlich[s.id] === opt.value ? MOD_COLOR : 'var(--color-border)'}`,
-                    borderRadius: 'var(--radius-md)', padding: '6px 10px',
+                    border: `2px solid ${persoenlich[s.id] === opt.value ? MOD_COLOR : 'var(--c-border)'}`,
+                    borderRadius: 'var(--r-md)', padding: '6px 10px',
                     cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem',
                     background: persoenlich[s.id] === opt.value ? '#dff5f1' : 'white',
                   }}>
@@ -234,7 +234,7 @@ export default function Station5({ done, onComplete, achieved, onDashboard }) {
 
           {/* Feedback nach Auswertung */}
           {checked && fachlich[s.id] && (
-            <div style={{ marginTop: '8px', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+            <div style={{ marginTop: '8px', fontSize: 'var(--fs-sm)', color: 'var(--c-muted)', fontStyle: 'italic' }}>
               💬 {s.grund}
             </div>
           )}
@@ -255,11 +255,11 @@ export default function Station5({ done, onComplete, achieved, onDashboard }) {
 
       {checked && (
         <>
-          <div className="feedback correct" style={{ display: 'block', marginTop: 'var(--space-md)' }}>
+          <div className="feedback correct" style={{ display: 'block', marginTop: 'var(--sp-md)' }}>
             ✅ Gut gemacht! Du hast alle 13 Situationen bewertet.
             Es gibt bei manchen Situationen keine eindeutig richtige Antwort – wichtig ist, dass du bewusst entscheidest.
           </div>
-          <div className="actions" style={{ marginTop: 'var(--space-lg)' }}>
+          <div className="actions" style={{ marginTop: 'var(--sp-lg)' }}>
             <button className="btn btn-primary" onClick={weiterZuRegel} style={{ background: MOD_COLOR }}>
               Weiter zur persönlichen Regel →
             </button>

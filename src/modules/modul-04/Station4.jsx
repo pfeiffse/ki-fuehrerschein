@@ -37,7 +37,7 @@ export default function Station4({ done, onComplete }) {
       <div className="station-counter">Station 4 von 5 · Handy-Akku · Abgeschlossen</div>
       <div className="done-badge">✓ Energie-Experiment abgeschlossen!</div>
       <MemoryBox>50 Anfragen × 0,3 Wh = 15 Wh ≈ 1 Akkuladung (Modellrechnung)</MemoryBox>
-      <div className="done-badge" style={{ marginTop: 'var(--space-md)' }}>✓ Achievement: Energie-Checker 🔋</div>
+      <div className="done-badge" style={{ marginTop: 'var(--sp-md)' }}>✓ Achievement: Energie-Checker 🔋</div>
     </div>
   )
 
@@ -55,33 +55,33 @@ export default function Station4({ done, onComplete }) {
       </WarningBox>
 
       {/* Regler */}
-      <div style={{ margin: 'var(--space-lg) 0' }}>
+      <div style={{ margin: 'var(--sp-lg) 0' }}>
         <label style={{ fontWeight: 800, display: 'block', marginBottom: '8px' }}>
           Anzahl KI-Textanfragen: <strong style={{ color: MOD_COLOR, fontSize: '1.3rem' }}>{anfragen}</strong>
         </label>
         <input type="range" min="0" max="150" value={anfragen}
           onChange={e => setAnfragen(Number(e.target.value))}
           style={{ width: '100%', accentColor: MOD_COLOR, height: '8px' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', marginTop: '4px' }}>
           <span>0</span><span>50</span><span>100</span><span>150</span>
         </div>
       </div>
 
       {/* Formel sichtbar */}
-      <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', marginBottom: 'var(--space-md)', border: '1px solid var(--color-border)', fontFamily: 'monospace', fontSize: '1rem' }}>
-        <div style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-xs)', marginBottom: '4px' }}>Rechenweg:</div>
+      <div style={{ background: '#f0fafb', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)', border: '1px solid var(--c-border)', fontFamily: 'monospace', fontSize: '1rem' }}>
+        <div style={{ color: 'var(--c-muted)', fontSize: 'var(--fs-xs)', marginBottom: '4px' }}>Rechenweg:</div>
         <strong>{anfragen} Anfragen × 0,3 Wh = <span style={{ color: MOD_COLOR }}>{energie.toFixed(1)} Wh</span></strong>
       </div>
 
       {/* Batterie-Visualisierung */}
-      <div style={{ marginBottom: 'var(--space-lg)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', flexWrap: 'wrap' }}>
+      <div style={{ marginBottom: 'var(--sp-lg)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-md)', flexWrap: 'wrap' }}>
           {/* Batterie-Symbol */}
           <div style={{ position: 'relative', width: '200px', height: '60px', flexShrink: 0 }}>
             <div style={{ position: 'absolute', inset: 0, border: `3px solid ${MOD_COLOR}`, borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{
                 height: '100%', width: `${Math.min(100, anteil * 100)}%`,
-                background: anteil >= 1 ? 'var(--color-error)' : anteil >= 0.7 ? 'var(--color-warning)' : MOD_COLOR,
+                background: anteil >= 1 ? 'var(--c-error)' : anteil >= 0.7 ? 'var(--c-warn)' : MOD_COLOR,
                 transition: 'width 0.3s ease, background 0.3s ease',
               }} />
             </div>
@@ -90,10 +90,10 @@ export default function Station4({ done, onComplete }) {
           </div>
           <div>
             <div style={{ fontWeight: 900, fontSize: '1.3rem', color: MOD_COLOR }}>{energie.toFixed(1)} Wh</div>
-            <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+            <div style={{ fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>
               = {(anteil * 100).toFixed(0)} % eines {MODELL.akkuWh}-Wh-Akkus
             </div>
-            {anteil >= 1 && <div style={{ color: 'var(--color-error)', fontWeight: 800, fontSize: 'var(--font-size-sm)' }}>Mehr als 1 Akkuladung!</div>}
+            {anteil >= 1 && <div style={{ color: 'var(--c-error)', fontWeight: 800, fontSize: 'var(--fs-sm)' }}>Mehr als 1 Akkuladung!</div>}
           </div>
         </div>
       </div>
@@ -102,7 +102,7 @@ export default function Station4({ done, onComplete }) {
       <div className="compare-box">
         <div className="eyebrow">Energievergleich (Modellrechnung)</div>
         <div className="big">🔋 {ladungen.toFixed(2)} Akkuladungen</div>
-        <p style={{ margin: '8px 0 0', fontSize: 'var(--font-size-sm)' }}>
+        <p style={{ margin: '8px 0 0', fontSize: 'var(--fs-sm)' }}>
           {energie.toFixed(1)} Wh ÷ {MODELL.akkuWh} Wh = {ladungen.toFixed(2)} Akkuladungen (Modell)<br />
           {verbleibend > 0
             ? `Verbleibend im Vergleichsakku: ${verbleibend.toFixed(1)} Wh`
@@ -112,11 +112,11 @@ export default function Station4({ done, onComplete }) {
 
       {/* Quiz */}
       {!quizDone && (
-        <div style={{ marginTop: 'var(--space-lg)' }}>
+        <div style={{ marginTop: 'var(--sp-lg)' }}>
           <p style={{ fontWeight: 800 }}>
             Wie viele Anfragen entsprechen im Modell ungefähr einer vollständigen Akkuladung (15 Wh)?
           </p>
-          <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+          <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>
             Tipp: Stelle den Regler auf verschiedene Werte und beobachte die Formel.
           </p>
           {[
@@ -153,7 +153,7 @@ export default function Station4({ done, onComplete }) {
             Im Modell entsprechen 50 KI-Textanfragen einer Akkuladung von 15 Wh.
             Das ist ein Energievergleich – nicht der direkte Akkuverbrauch deines Smartphones.
           </MemoryBox>
-          <div className="actions" style={{ marginTop: 'var(--space-lg)' }}>
+          <div className="actions" style={{ marginTop: 'var(--sp-lg)' }}>
             <button className="btn btn-success" onClick={onComplete}>
               Station 4 abschließen · Achievement freischalten 🔋
             </button>

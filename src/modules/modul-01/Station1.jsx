@@ -71,17 +71,17 @@ function HorsePhoto({ photoKey, label, size = '140px', selected = false, onSelec
   const p = PHOTOS[photoKey]
   const url = p ? commons(p.file) : null
 
-  let border = '2px solid var(--color-border)'
+  let border = '2px solid var(--c-border)'
   let bg = 'white'
   if (selected && !showResult) { border = `3px solid ${MOD_COLOR}`; bg = '#e7eeff' }
   if (showResult) {
-    if (isCorrect && selected)  { border = '3px solid var(--color-success)'; bg = 'var(--color-success-light)' }
-    if (isCorrect && !selected) { border = '3px solid var(--color-warning)'; bg = 'var(--color-warning-light)' }
-    if (!isCorrect && selected) { border = '3px solid var(--color-error)';   bg = 'var(--color-error-light)'   }
+    if (isCorrect && selected)  { border = '3px solid var(--c-success)'; bg = 'var(--c-success-bg)' }
+    if (isCorrect && !selected) { border = '3px solid var(--c-warn)'; bg = 'var(--c-warn-bg)' }
+    if (!isCorrect && selected) { border = '3px solid var(--c-error)';   bg = 'var(--c-error-bg)'   }
   }
 
   return (
-    <div style={{ position: 'relative', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border, background: bg, cursor: onSelect && !disabled ? 'pointer' : 'default', transition: 'all 0.2s' }}
+    <div style={{ position: 'relative', borderRadius: 'var(--r-lg)', overflow: 'hidden', border, background: bg, cursor: onSelect && !disabled ? 'pointer' : 'default', transition: 'all 0.2s' }}
       onClick={() => onSelect && !disabled && onSelect(photoKey)}
       role={onSelect ? 'checkbox' : undefined}
       aria-checked={onSelect ? selected : undefined}
@@ -102,11 +102,11 @@ function HorsePhoto({ photoKey, label, size = '140px', selected = false, onSelec
       </div>
       <div style={{ padding: '6px 8px', fontWeight: 700, fontSize: '0.8rem', textAlign: 'center', background: 'rgba(255,255,255,0.9)' }}>
         {label}
-        {p && <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: 400 }}>{p.label}</div>}
+        {p && <div style={{ fontSize: '0.65rem', color: 'var(--c-muted)', fontWeight: 400 }}>{p.label}</div>}
       </div>
       {showResult && (
         <div style={{ padding: '4px 8px', fontSize: '0.7rem', fontWeight: 800, textAlign: 'center',
-          color: isCorrect && selected ? 'var(--color-success)' : isCorrect && !selected ? 'var(--color-warning)' : !isCorrect && selected ? 'var(--color-error)' : 'var(--color-text-muted)' }}>
+          color: isCorrect && selected ? 'var(--c-success)' : isCorrect && !selected ? 'var(--c-warn)' : !isCorrect && selected ? 'var(--c-error)' : 'var(--c-muted)' }}>
           {isCorrect && selected  ? '✓ Richtig erkannt' : ''}
           {isCorrect && !selected ? '○ Vergessen' : ''}
           {!isCorrect && selected ? '✗ Falsch' : ''}
@@ -212,23 +212,23 @@ export default function Station1({ done, onComplete }) {
   if (phase === 'merksatz' || done) return (
     <div className="card" style={{ textAlign: 'center' }}>
       <div className="station-counter">Station 1 von 4 · Trainingsdaten · Merksatz</div>
-      <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>💡</div>
+      <div style={{ fontSize: '3rem', marginBottom: 'var(--sp-md)' }}>💡</div>
       <h2 style={{ color: MOD_COLOR }}>Das hast du herausgefunden</h2>
       <MemoryBox>
         KI lernt Muster aus Beispielen.<br />
         Wichtig sind <strong>viele und vielfältige Trainingsbilder.</strong>
       </MemoryBox>
-      <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', textAlign: 'left', marginTop: 'var(--space-md)' }}>
-        <p style={{ margin: 0, fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+      <div style={{ background: '#f0fafb', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', textAlign: 'left', marginTop: 'var(--sp-md)' }}>
+        <p style={{ margin: 0, fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>
           Eine Million ähnliche Pferdebilder zeigen der Mini-KI nicht unbedingt alle Arten von Pferden. Unterschiedliche Beispiele helfen ihr, mehr Pferdearten zu erkennen.
         </p>
-        <p style={{ margin: '8px 0 0', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+        <p style={{ margin: '8px 0 0', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>
           ⚠️ Unser Pferdetraining ist ein vereinfachtes Lernspiel – keine echte KI.<br />
           Fotos: Wikimedia Commons (CC-Lizenzen) · Unsplash
         </p>
       </div>
       {!done && (
-        <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--space-lg)' }}>
+        <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--sp-lg)' }}>
           <button className="btn btn-success" onClick={onComplete}>Station 1 abschließen · Achievement freischalten 🐴</button>
         </div>
       )}
@@ -301,39 +301,39 @@ export default function Station1({ done, onComplete }) {
         <WarningBox title="Hinweis:">Die „Mini-KI" ist eine <strong>didaktische Simulation</strong> – kein echtes KI-Modell. Das Pferdetraining ist ein vereinfachtes Lernspiel.</WarningBox>
 
         {/* Stufe 1: Trainingsbilder zeigen */}
-        <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', marginBottom: 'var(--space-md)' }}>
+        <div style={{ background: '#f0fafb', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
           <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             1 · Trainingsbilder
           </div>
-          <p style={{ margin: '0 0 var(--space-md)', fontSize: 'var(--font-size-sm)' }}>
+          <p style={{ margin: '0 0 var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
             Die Mini-KI bekommt diese drei Bilder zum Lernen. Was fällt dir auf?
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
             {INITIAL.map(key => <HorsePhoto key={key} photoKey={key} label={PHOTOS[key].label} size="130px" />)}
           </div>
-          <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '8px' }}>Fotos: Wikimedia Commons (CC-Lizenzen)</p>
+          <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', marginTop: '8px' }}>Fotos: Wikimedia Commons (CC-Lizenzen)</p>
         </div>
 
         {/* Stufe 2: Training starten */}
-        <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', marginBottom: 'var(--space-md)' }}>
+        <div style={{ background: '#f0fafb', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
           <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             2 · Training starten
           </div>
-          <p style={{ margin: '0 0 var(--space-md)', fontSize: 'var(--font-size-sm)' }}>
+          <p style={{ margin: '0 0 var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
             Eine echte KI sieht nicht nur 3 Bilder – sie sieht Millionen! Starte das Training und schau, wie viele Bilder die Mini-KI verarbeitet.
           </p>
 
           {/* Trainings-Fortschritt */}
           {trained > 0 && (
-            <div style={{ marginBottom: 'var(--space-md)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: 'var(--font-size-sm)', fontWeight: 700 }}>
+            <div style={{ marginBottom: 'var(--sp-md)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: 'var(--fs-sm)', fontWeight: 700 }}>
                 <span>Trainingsbilder gesehen:</span>
                 <span style={{ color: MOD_COLOR }}>{(animating ? animCount : TRAIN_GOALS[trained]).toLocaleString('de-DE')}</span>
               </div>
               <div className="progress-shell dark">
                 <div className="progress-bar green" style={{ width: `${(trained / 3) * 100}%`, transition: 'width 0.3s' }} />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', marginTop: '4px' }}>
                 <span>100</span><span>10.000</span><span>1.000.000</span>
               </div>
             </div>
@@ -356,15 +356,15 @@ export default function Station1({ done, onComplete }) {
 
         {/* Stufe 3: Test */}
         {trained >= 1 && (
-          <div style={{ background: '#f0fafb', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)' }}>
+          <div style={{ background: '#f0fafb', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)' }}>
             <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               3 · Test: Was erkennt die Mini-KI?
             </div>
-            <p style={{ margin: '0 0 var(--space-md)', fontSize: 'var(--font-size-sm)' }}>
+            <p style={{ margin: '0 0 var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
               Hier sind drei neue Bilder. Welche davon würde die Mini-KI als Pferd erkennen?
               Klicke alle Bilder an, die sie erkennen würde.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: 'var(--space-md)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: 'var(--sp-md)' }}>
               {TEST1.map(({ key, label }) => (
                 <HorsePhoto key={key} photoKey={key} label={label}
                   size="130px"
@@ -394,10 +394,10 @@ export default function Station1({ done, onComplete }) {
           <h2 style={{ color: MOD_COLOR }}>Mehr Vielfalt beim Training</h2>
           <p className="lead">Jetzt bekommt die KI <strong>weitere Trainingsbilder</strong>: auch Schimmel, Ponys und kräftige Kaltblüter.</p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--sp-md) 0' }}>
             {EXPANDED.map(key => <HorsePhoto key={key} photoKey={key} label={PHOTOS[key].label} size="120px" />)}
           </div>
-          <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+          <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>
             Viele Bilder sind hilfreich. <strong>Unterschiedliche</strong> Bilder sind ebenfalls wichtig!
           </p>
 
@@ -405,8 +405,8 @@ export default function Station1({ done, onComplete }) {
           {!expanded && (
             <>
               {expandAnim && (
-                <div style={{ marginBottom: 'var(--space-md)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: 'var(--font-size-sm)', fontWeight: 700 }}>
+                <div style={{ marginBottom: 'var(--sp-md)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: 'var(--fs-sm)', fontWeight: 700 }}>
                     <span>Vielfältige Bilder werden gelernt …</span>
                     <span style={{ color: MOD_COLOR }}>{expandCount.toLocaleString('de-DE')}</span>
                   </div>
@@ -429,7 +429,7 @@ export default function Station1({ done, onComplete }) {
               <TaskBox title="Aufgabe: Was erkennt die Mini-KI jetzt?">
                 Wähle alle Bilder aus, die die Mini-KI nach dem erweiterten Training als Pferd erkennen würde. Achtung: Ein Bild ist kein Pferd!
               </TaskBox>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', margin: 'var(--space-md) 0' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', margin: 'var(--sp-md) 0' }}>
                 {TEST2.map(({ key, label, isAuto }) => (
                   <HorsePhoto key={key}
                     photoKey={isAuto ? 'auto' : key}

@@ -142,7 +142,7 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
   if (phase === 'merksatz' || done) return (
     <div className="card" style={{ textAlign: 'center' }}>
       <div className="station-counter">Station 4 von 4 · Satzwerkstatt · Merksatz</div>
-      <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>💡</div>
+      <div style={{ fontSize: '3rem', marginBottom: 'var(--sp-md)' }}>💡</div>
       <h2 style={{ color: MOD_COLOR }}>Merksatz</h2>
       <MemoryBox>Eine Sprach-KI erzeugt Texte Schritt für Schritt. Was schon dasteht, beeinflusst, welche Wörter als nächstes wahrscheinlich sind.</MemoryBox>
       <InfoBox title="Was bedeutet das in der Praxis?">
@@ -154,11 +154,11 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
 
       {/* Abgeschlossene Sätze */}
       {completedSentences.length > 0 && (
-        <div style={{ textAlign: 'left', marginTop: 'var(--space-lg)', padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)' }}>
+        <div style={{ textAlign: 'left', marginTop: 'var(--sp-lg)', padding: 'var(--sp-md)', background: '#f0fafb', borderRadius: 'var(--r-lg)' }}>
           <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px' }}>Deine Sätze:</div>
           {completedSentences.map((s, i) => (
-            <div key={i} style={{ padding: '6px 0', borderBottom: i < completedSentences.length - 1 ? '1px solid var(--color-border)' : 'none', fontSize: 'var(--font-size-sm)' }}>
-              <span style={{ color: 'var(--color-text-muted)', marginRight: '8px' }}>[{s.vorlage}]</span>
+            <div key={i} style={{ padding: '6px 0', borderBottom: i < completedSentences.length - 1 ? '1px solid var(--c-border)' : 'none', fontSize: 'var(--fs-sm)' }}>
+              <span style={{ color: 'var(--c-muted)', marginRight: '8px' }}>[{s.vorlage}]</span>
               <strong>„{s.sentence}"</strong>
             </div>
           ))}
@@ -166,10 +166,10 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
       )}
 
       {!done && (
-        <div className="card" style={{ border: `2px solid ${achieved ? 'var(--color-gold-dark)' : 'var(--color-border)'}`, background: achieved ? '#fff8db' : 'white', marginTop: 'var(--space-lg)' }}>
+        <div className="card" style={{ border: `2px solid ${achieved ? 'var(--color-gold-dark)' : 'var(--c-border)'}`, background: achieved ? '#fff8db' : 'white', marginTop: 'var(--sp-lg)' }}>
           <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>🔍</div>
           <h3 style={{ color: achieved ? '#825300' : MOD_COLOR, margin: '0 0 8px' }}>KI-Versteher:in</h3>
-          <p style={{ color: 'var(--color-text-muted)', margin: '0 0 var(--space-md)' }}>Du weißt, wie KI aus Daten lernt und Muster erkennt.</p>
+          <p style={{ color: 'var(--c-muted)', margin: '0 0 var(--sp-md)' }}>Du weißt, wie KI aus Daten lernt und Muster erkennt.</p>
           <button className="btn btn-success" onClick={onComplete} style={{ width: '100%', justifyContent: 'center' }}>
             Modul 1 abschließen · Achievement freischalten 🏅
           </button>
@@ -179,7 +179,7 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
       {done && (
         <>
           <div className="done-badge">✓ Modul 1 vollständig abgeschlossen!</div>
-          <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--space-lg)' }}>
+          <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--sp-lg)' }}>
             <button className="btn btn-primary" onClick={onDashboard} style={{ background: MOD_COLOR }}>Zur Modulübersicht →</button>
           </div>
         </>
@@ -195,7 +195,7 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
 
       {/* Abgeschlossene Sätze als Kontext */}
       {completedSentences.length > 0 && (
-        <div style={{ padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-md)', fontSize: 'var(--font-size-sm)' }}>
+        <div style={{ padding: 'var(--sp-md)', background: '#f0fafb', borderRadius: 'var(--r-lg)', marginBottom: 'var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
           <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '6px' }}>Deine Sätze aus der Werkstatt:</div>
           {completedSentences.map((s, i) => <div key={i}>„{s.sentence}"</div>)}
         </div>
@@ -233,11 +233,11 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
       <div className="station-counter">Station 4 von 4 · Satzwerkstatt · Reflexion</div>
       <h2 style={{ color: MOD_COLOR }}>Was hast du beobachtet?</h2>
 
-      <div style={{ padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-lg)' }}>
+      <div style={{ padding: 'var(--sp-md)', background: '#f0fafb', borderRadius: 'var(--r-lg)', marginBottom: 'var(--sp-lg)' }}>
         <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px' }}>Deine Sätze:</div>
         {completedSentences.map((s, i) => (
-          <div key={i} style={{ padding: '6px 0', borderBottom: i < completedSentences.length - 1 ? '1px solid var(--color-border)' : 'none' }}>
-            <span style={{ color: 'var(--color-text-muted)', marginRight: '8px', fontSize: 'var(--font-size-sm)' }}>[{s.vorlage}]</span>
+          <div key={i} style={{ padding: '6px 0', borderBottom: i < completedSentences.length - 1 ? '1px solid var(--c-border)' : 'none' }}>
+            <span style={{ color: 'var(--c-muted)', marginRight: '8px', fontSize: 'var(--fs-sm)' }}>[{s.vorlage}]</span>
             <strong>„{s.sentence}"</strong>
           </div>
         ))}
@@ -270,7 +270,7 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
       <p className="lead">Baue Sätze Schritt für Schritt auf – genau wie eine Sprach-KI. Frühere Entscheidungen beeinflussen, welche Wörter als nächstes passen.</p>
 
       {/* Vorlage-Auswahl */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: 'var(--space-md)', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: 'var(--sp-md)', flexWrap: 'wrap' }}>
         {SATZ_VORLAGEN.map((v, i) => (
           <button key={v.id} className={`nav-btn ${vorlageIdx === i ? 'active' : ''}`}
             onClick={() => switchVorlage(i)}>
@@ -281,30 +281,30 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
 
       {/* Abgeschlossene Sätze */}
       {completedSentences.length > 0 && (
-        <div style={{ padding: 'var(--space-sm) var(--space-md)', background: 'var(--color-success-light)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-md)', fontSize: 'var(--font-size-sm)' }}>
+        <div style={{ padding: 'var(--sp-sm) var(--sp-md)', background: 'var(--c-success-bg)', borderRadius: 'var(--r-md)', marginBottom: 'var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
           {completedSentences.map((s, i) => <div key={i}>✓ „{s.sentence}"</div>)}
         </div>
       )}
 
       {/* Aktueller Satz */}
-      <div style={{ background: 'white', border: `2px solid ${MOD_COLOR}`, borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)', fontSize: 'clamp(1.1rem,3vw,1.5rem)', fontWeight: 800, color: 'var(--color-platform)', minHeight: '70px', marginBottom: 'var(--space-lg)', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+      <div style={{ background: 'white', border: `2px solid ${MOD_COLOR}`, borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', fontSize: 'clamp(1.1rem,3vw,1.5rem)', fontWeight: 800, color: 'var(--color-platform)', minHeight: '70px', marginBottom: 'var(--sp-lg)', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
         {built.length === 0
-          ? <span style={{ color: 'var(--color-text-muted)', fontWeight: 400, fontSize: '1rem' }}>Dein Satz erscheint hier …</span>
+          ? <span style={{ color: 'var(--c-muted)', fontWeight: 400, fontSize: '1rem' }}>Dein Satz erscheint hier …</span>
           : built.map((w, i) => (
-            <span key={i} style={{ background: i === built.length - 1 ? MOD_COLOR : '#dce8ff', color: i === built.length - 1 ? 'white' : 'var(--color-platform)', borderRadius: 'var(--radius-md)', padding: '4px 10px', fontSize: 'clamp(0.9rem,2vw,1.1rem)', transition: 'all 0.2s' }}>{w.text}</span>
+            <span key={i} style={{ background: i === built.length - 1 ? MOD_COLOR : '#dce8ff', color: i === built.length - 1 ? 'white' : 'var(--color-platform)', borderRadius: 'var(--r-md)', padding: '4px 10px', fontSize: 'clamp(0.9rem,2vw,1.1rem)', transition: 'all 0.2s' }}>{w.text}</span>
           ))}
       </div>
 
       {/* Optionen */}
       {!finished && currentStep && (
         <>
-          <p style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: 'var(--space-sm)' }}>
+          <p style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: 'var(--sp-sm)' }}>
             Schritt {step + 1} von {vorlage.steps.length}: {currentStep.prompt}
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: 'var(--space-md)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: 'var(--sp-md)' }}>
             {currentOptions.map(opt => (
               <button key={opt.id} onClick={() => pick(opt)} disabled={opt.disabled}
-                style={{ border: `2px solid ${opt.disabled ? '#e0e0e0' : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', padding: '12px 18px', background: opt.disabled ? '#f5f5f5' : 'linear-gradient(155deg,#fff,#eaf8f5)', cursor: opt.disabled ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: '1rem', fontFamily: 'inherit', color: opt.disabled ? '#bbb' : 'var(--color-text)', textAlign: 'left', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                style={{ border: `2px solid ${opt.disabled ? '#e0e0e0' : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: '12px 18px', background: opt.disabled ? '#f5f5f5' : 'linear-gradient(155deg,#fff,#eaf8f5)', cursor: opt.disabled ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: '1rem', fontFamily: 'inherit', color: opt.disabled ? '#bbb' : 'var(--c-text)', textAlign: 'left', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 {opt.disabled
                   ? <span style={{ fontSize: '0.8rem', color: '#bbb' }}>⬜ Passt grammatikalisch nicht</span>
                   : <span style={{ color: MOD_COLOR }}>▶</span>}

@@ -38,7 +38,7 @@ export default function Quiz({
 
   return (
     <div aria-live="polite">
-      <p style={{ fontWeight: 800, marginBottom: 'var(--space-sm)', color: 'var(--color-text)' }}>
+      <p style={{ fontWeight: 800, marginBottom: 'var(--sp-sm)', color: 'var(--color-text)' }}>
         {question}
       </p>
 
@@ -95,7 +95,7 @@ export default function Quiz({
       )}
 
       {locked && feedback === 'correct' && (
-        <div style={{ marginTop: 'var(--space-sm)', color: 'var(--color-success)', fontWeight: 800, fontSize: 'var(--font-size-sm)' }}>
+        <div style={{ marginTop: 'var(--sp-sm)', color: 'var(--c-success)', fontWeight: 800, fontSize: 'var(--fs-sm)' }}>
           ✓ Erledigt
         </div>
       )}
