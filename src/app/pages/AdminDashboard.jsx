@@ -392,7 +392,48 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
   const [success,  setSuccess]  = useState('')
   const [showPw,   setShowPw]   = useState(false)
 
-  
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!name.trim()) { onError('Bitte einen Namen eingeben.'); return }
+    if (mode === 'username' && (!username.trim() || password.length < 8)) {
+      onError('Bitte Benutzername und Passwort (mind. 8 Zeichen) eingeben.'); return
+    }
+    if (mode === 'email' && !email.trim()) { onError('Bitte E-Mail eingeben.'); return }
+    setLoading(true)
+    try {
+      if (mode === 'username') {
+        const fakeEmail = username.trim().toLowerCase() + '@ki-fuehrerschein.intern'
+        const { data, error } = await supabase.auth.signUp({
+          email: fakeEmail,
+          password: password,
+          options: { data: { display_name: name.trim(), role } }
+        })
+        if (error) { setLoading(false); onError('Fehler: ' + error.message); return }
+        const uid = data?.user?.id
+        if (uid) {
+          await Promise.resolve(
+            supabase.from('users').upsert({
+              id: uid,
+              display_name: name.trim(),
+              role,
+              school_id: '00000000-0000-0000-0000-000000000001'
+            })
+          )
+        }
+        setSuccess('✅ ' + name.trim() + ' angelegt! Login: ' + username.trim())
+        setTimeout(() => { onCreated() }, 2000)
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password: Math.random().toString(36).slice(2) + 'Aa1!',
+          options: { data: { display_name: name.trim(), role } }
+        })
+        if (error) { setLoading(false); onError('Fehler: ' + error.message); return }
+        setSuccess('✅ Einladung an ' + email.trim() + ' gesendet!')
+        setTimeout(() => { onCreated() }, 2000)
+      }
+    } catch (err) { setLoading(false); onError('Fehler: ' + err.message) }
+  }
 
   const inp = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }
 
@@ -402,7 +443,7 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
         <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>Lehrkraft / Admin anlegen</h2>
         {success ? (
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>OK</div>
+            <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>✅</div>
             <p style={{ fontWeight: 800, color: 'var(--c-success)' }}>{success}</p>
             <p style={{ color: 'var(--c-muted)', fontSize: 'var(--fs-sm)' }}>Fenster schliesst sich...</p>
           </div>
@@ -436,7 +477,7 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
                       <input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Mindestens 8 Zeichen" autoComplete="new-password" style={{ ...inp, paddingRight: '3rem' }} />
                       <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem' }}>{showPw ? 'hide' : 'show'}</button>
                     </div>
-                    <p style={{ margin: '3px 0 0', fontSize: 'var(--fs-xs)', color: password.length >= 8 ? 'var(--c-success)' : 'var(--c-muted)' }}>{password.length}/8 {password.length >= 8 ? 'OK' : ''}</p>
+                    <p style={{ margin: '3px 0 0', fontSize: 'var(--fs-xs)', color: password.length >= 8 ? 'var(--c-success)' : 'var(--c-muted)' }}>{password.length}/8 {password.length >= 8 ? 'OK ✓' : ''}</p>
                   </div>
                 </React.Fragment>
               )}
