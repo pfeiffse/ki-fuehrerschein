@@ -126,10 +126,7 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
 
   
 
-  function switchVorlage(idx) {
-    setVorlageIdx(idx)
-    setBuilt([])
-  }
+  
 
   function checkQuiz() {
     if (!quizAnswer) { setQuizFeedback('empty'); return }
