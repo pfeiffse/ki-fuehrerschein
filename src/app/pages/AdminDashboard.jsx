@@ -424,11 +424,7 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
   const [role,     setRole]     = useState('teacher')
   const [loading,  setLoading]  = useState(false)
   const [success,  setSuccess]  = useState('')
-  const [showPw,   setShowPw]   = useState(false)
-
   
-
-  const inp = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1.5rem', overflowY: 'auto' }}>
