@@ -403,29 +403,7 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { onError('Nicht angemeldet.'); setLoading(false); return }
-      let done = false
-      try {
-        const res = await fetch(EDGE_FN, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-          body: JSON.stringify({ mode, displayName: name.trim(), role, schoolId: SCHOOL_ID,
-            ...(mode === 'username' ? { username: username.trim(), password } : { email: email.trim() }) }),
-        })
-        if (res.ok) {
-          const data = await res.json()
-          if (!data.error) { setLoading(false); setSuccess(data.message); setTimeout(() => onCreated(), 2500); done = true; return }
-        }
-      } catch {}
-      if (!done) {
-        if (mode === 'email') { setLoading(false); onError('E-Mail-Einladung benoetigt die Edge Function.'); return }
-        const { error: uErr } = await supabase.from('users').insert({
-          id: crypto.randomUUID(), school_id: SCHOOL_ID, role, display_name: name.trim()
-        })
-        setLoading(false)
-        if (uErr) { onError('Edge Function nicht erreichbar. Bitte GitHub Actions Secrets einrichten.'); return }
-        setSuccess('Profil fuer "' + name.trim() + '" angelegt.')
-        setTimeout(() => onCreated(), 2500)
-      }
+      
     } catch (err) { setLoading(false); onError('Fehler: ' + err.message) }
   }
 
