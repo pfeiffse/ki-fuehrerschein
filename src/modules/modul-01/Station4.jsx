@@ -124,12 +124,7 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
     setQuizFeedback(null)
   }
 
-  function completeSentence() {
-    setCompletedSentences(prev => [...prev, { vorlage: vorlage.label, sentence }])
-    setBuilt([])
-    // Nach 2 Sätzen → Quiz
-    if (completedSentences.length >= 1) setPhase('reflexion')
-  }
+  
 
   function switchVorlage(idx) {
     setVorlageIdx(idx)
