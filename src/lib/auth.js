@@ -152,7 +152,9 @@ export async function getTeacherProfile() {
 export async function createTeacherAccount({ name, username, password, role }) {
   try {
     const hash = await sha256(password)
+    const id = crypto.randomUUID()
     const { data, error } = await supabase.from('users').insert({
+      id,
       display_name: name.trim(),
       username: username.trim().toLowerCase(),
       pw_hash: hash,
