@@ -5,27 +5,25 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="KI-Führerschein Klasse 7 – Schulische KI-Kompetenzplattform" name="description"/>
-<meta content="#103d54" name="theme-color"/>
+<meta content="#0f2a3d" name="theme-color"/>
 <title>KI-Führerschein</title>
 <script>
-    // Alle Service Worker deregistrieren (verhindert Caching-Probleme)
+    // Alle alten Service Worker entfernen
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for (var r of registrations) { r.unregister() }
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(r) { r.unregister() })
       })
     }
     // GitHub Pages SPA-Redirect
     (function() {
-      var redirect = sessionStorage.redirect
+      var r = sessionStorage.redirect
       delete sessionStorage.redirect
-      if (redirect && redirect !== location.href) {
-        history.replaceState(null, null, redirect)
-      }
+      if (r && r !== location.href) history.replaceState(null, null, r)
     })()
   </script>
 </head>
 <body>
-<a class="skip-link" href="#main-content">Zum Hauptinhalt springen</a>
+<a href="#main-content" onblur="this.style.top='-100%'" onfocus="this.style.top='0'" style="position:absolute;top:-100%;left:0;background:#0f2a3d;color:white;padding:0.5rem 1rem;font-weight:800;z-index:9999;border-radius:0 0 0.5rem 0;text-decoration:none">Zum Hauptinhalt springen</a>
 <div id="root"></div>
 <script src="/app/main.jsx" type="module"></script>
 </body>

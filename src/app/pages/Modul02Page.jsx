@@ -1,475 +1,687 @@
-// ============================================================
-// KI-Führerschein · Modul 02 – KI sinnvoll nutzen
-// Modul-4-Stil: Abschnitte werden schrittweise freigeschaltet
-// ============================================================
+// Modul 02 - Mission KI-Check (9 Missionen, Gamification)
+// Basiert auf: Modul_2_Mission_KI_Check.md
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
-import { startModule, updateModuleProgress, passModule } from '../../lib/progress.js'
-import { TaskBox, InfoBox, WarningBox, MemoryBox } from '../../components/ui/InfoBox.jsx'
-import Badge from '../../components/ui/Badge.jsx'
+import { startModuleLocal, passModule } from '../../lib/progress.js'
 
-const MOD       = getModule('modul-02')
+const MOD = getModule('modul-02')
 const MOD_COLOR = '#087f83'
-const MAX_PTS   = 100
-const PASS_PTS  = 80
-const STORAGE_KEY = 'ki_m02_v2'
+const STORAGE_KEY = 'ki_m02_v3'
 
 function loadState() {
   try { const r = localStorage.getItem(STORAGE_KEY); if (r) return JSON.parse(r) } catch {}
-  return { points: 0, done: {}, correct: 0 }
+  return { mission: 1, done: {}, vertrauen1: 50, vertrauen2: 50, fallakte: {}, ownRule: '', werkzeuge: [] }
 }
-function saveState(s) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ points: s.points, done: s.done, correct: s.correct })) } catch {}
-}
+function saveState(s) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)) } catch {} }
 
-// ── Kleine Hilfskomponenten ───────────────────────────────────
-
-function QuizBlock({ id, question, options, answer, points, done, allowRetry = true, correctFeedback, wrongFeedback, onCorrect, onWrong }) {
-  const [sel, setSel] = useState('')
-  const [fb,  setFb]  = useState(null)
-  const [locked, setLocked] = useState(done)
-
-  function check() {
-    if (!sel) { setFb('empty'); return }
-    if (sel === answer) { setLocked(true); setFb('correct'); onCorrect?.(points) }
-    else { setFb('wrong'); if (!allowRetry) { setLocked(true); onWrong?.() } }
-  }
-
+// Achievement-Overlay
+function AchievementPopup({ ach, onClose }) {
+  if (!ach) return null
   return (
-    <div>
-      <p style={{ fontWeight: 800, marginBottom: 'var(--space-sm)' }}>{question}</p>
-      {options.map(opt => (
-        <label key={opt.value} className="option" style={{ cursor: locked ? 'default' : 'pointer' }}>
-          <input type="radio" name={id} value={opt.value} checked={sel === opt.value}
-            onChange={() => !locked && setSel(opt.value)} disabled={locked} />
-          {opt.label}
-        </label>
-      ))}
-      {fb === 'empty'   && <div className="feedback wrong" style={{ display: 'block' }}>Bitte wähle eine Antwort aus.</div>}
-      {fb === 'correct' && <div className="feedback correct" style={{ display: 'block' }}>✅ {correctFeedback}</div>}
-      {fb === 'wrong'   && (
-        <div className="feedback wrong" style={{ display: 'block' }}>
-          ❌ {wrongFeedback}
-          {allowRetry && <div style={{ marginTop: '8px' }}><button className="nav-btn" onClick={() => { setSel(''); setFb(null) }}>↺ Erneut versuchen</button></div>}
-        </div>
-      )}
-      {!locked && fb !== 'correct' && (
-        <div className="actions">
-          <button className="btn btn-primary" onClick={check} disabled={!sel} style={{ background: MOD_COLOR }}>Prüfen · {points} Punkte</button>
-        </div>
-      )}
-      {locked && <div style={{ color: 'var(--color-success)', fontWeight: 800, fontSize: 'var(--font-size-sm)', marginTop: '8px' }}>✓ Erledigt</div>}
+    <div className="achievement-overlay" onClick={onClose}>
+      <div className="achievement-popup" onClick={e => e.stopPropagation()}>
+        <div style={{ fontSize: '4rem', marginBottom: '0.75rem' }}>{ach.icon}</div>
+        <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Achievement freigeschaltet!</div>
+        <h2 style={{ margin: '0 0 0.5rem', color: '#fbbf24' }}>{ach.title}</h2>
+        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '1.25rem' }}>{ach.desc}</p>
+        <button className="btn btn-xp" onClick={onClose} style={{ width: '100%', justifyContent: 'center' }} autoFocus>Weiter →</button>
+      </div>
     </div>
   )
 }
 
-function TextBlock({ id, label, placeholder, minLength = 20, points, done, onSave }) {
-  const [val, setVal] = useState('')
-  const [fb,  setFb]  = useState(null)
-  const [locked, setLocked] = useState(done)
-  const ok = val.trim().length >= minLength
-
-  function save() {
-    if (!ok) { setFb('short'); return }
-    setLocked(true); setFb('saved'); onSave?.(points)
-  }
-
+// Missions-Header
+function MissionHeader({ number, total, title, icon, sozial, time, isBoss }) {
   return (
-    <div>
-      <label htmlFor={id} style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>{label}</label>
-      <textarea id={id} value={val} onChange={e => setVal(e.target.value)} placeholder={placeholder}
-        disabled={locked} rows={4}
-        style={{ width: '100%', padding: '12px', border: `2px solid ${ok ? 'var(--color-platform-teal)' : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', font: 'inherit', resize: 'vertical', lineHeight: 1.6 }} />
-      {!locked && <div style={{ fontSize: 'var(--font-size-xs)', color: ok ? 'var(--color-success)' : 'var(--color-text-muted)', textAlign: 'right', marginTop: '4px', fontWeight: ok ? 800 : 400 }}>{val.trim().length} / {minLength} Zeichen {ok ? '✓' : ''}</div>}
-      {fb === 'short' && <div className="feedback wrong" style={{ display: 'block' }}>Bitte formuliere eine ausführlichere Antwort (mindestens {minLength} Zeichen).</div>}
-      {fb === 'saved' && <div className="feedback correct" style={{ display: 'block' }}>✅ Gespeichert. Punkte wurden gutgeschrieben.</div>}
-      {!locked && <div className="actions"><button className="btn btn-success" onClick={save} disabled={!ok}>Antwort speichern · {points} Punkte</button></div>}
-      {locked && <div style={{ color: 'var(--color-success)', fontWeight: 800, fontSize: 'var(--font-size-sm)', marginTop: '8px' }}>✓ Erledigt</div>}
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: 'var(--sp-lg)', flexWrap: 'wrap' }}>
+      <div className="mission-number">{number}</div>
+      <div style={{ flex: 1 }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.375rem', alignItems: 'center' }}>
+          {isBoss && <span className="boss-indicator">👾 Boss-Level</span>}
+          <span style={{ background: 'var(--c-pale2)', borderRadius: '99px', padding: '0.125rem 0.625rem', fontSize: 'var(--fs-xs)', fontWeight: 700, color: 'var(--c-muted)' }}>{sozial} · ca. {time} Min.</span>
+          <span style={{ background: 'var(--c-pale2)', borderRadius: '99px', padding: '0.125rem 0.625rem', fontSize: 'var(--fs-xs)', fontWeight: 700, color: 'var(--c-muted)' }}>Mission {number}/{total}</span>
+        </div>
+        <h2 style={{ margin: 0, color: MOD_COLOR }}>{icon} {title}</h2>
+      </div>
     </div>
   )
 }
-
-// ── Hauptkomponente ───────────────────────────────────────────
 
 export default function Modul02Page() {
   const navigate = useNavigate()
-  const [state,    setState]    = useState(null)
-  const [achieved, setAchieved] = useState(false)
+  const [state,    setState]    = useState(loadState)
+  const [achieved, setAchieved] = useState(() => hasAchievement(MOD.id))
+  const [showAch,  setShowAch]  = useState(null)
 
-  
+  useEffect(() => { startModuleLocal(MOD.id) }, [])
 
-  
-
-  function award(id, pts)          { update(id, pts, false) }
-  function quizCorrect(id, pts)    { update(id, pts, true)  }
-  function quizWrong(id)           { setState(prev => { const next = { ...prev, done: { ...prev.done, [id]: true } }; saveState(next); return next }) }
-
-  function resetModule() {
-    if (!confirm('Modul wirklich neu starten?')) return
-    localStorage.removeItem(STORAGE_KEY)
-    setState({ points: 0, done: {}, correct: 0 })
-    setAchieved(false)
+  function update(updates) {
+    setState(prev => {
+      const next = { ...prev, ...updates }
+      saveState(next)
+      return next
+    })
   }
 
-  if (!state) return (
-    <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }}>
-      <div className="wrap"><p style={{ color: 'var(--color-text-muted)' }}>Wird geladen …</p></div>
-    </div>
-  )
-
-  const { points, done, correct } = state
-  const progressPct = Math.min(100, Math.round(points / MAX_PTS * 100))
-  const passed      = points >= PASS_PTS
-
-  // Freischaltlogik: Abschnitt N sichtbar wenn Abschnitt N-1 erledigt
-  const visible = {
-    s1:  true,
-    s2:  !!done['intro'],
-    s3:  !!done['start'],
-    s4:  !!done['experiment'],
-    s5:  !!done['q1'],
-    s6:  !!done['principles'],
-    s7:  !!done['q2'] && !!done['prompt'],
-    
+  function markDone(id, extra = {}) {
+    update({ done: { ...state.done, [id]: true }, ...extra })
   }
 
-  const badges = [
-    { icon: '🕵️', title: 'Fehlerdetektiv',  description: 'Fehlerexperiment dokumentiert',    unlocked: !!done['experiment'] },
-    { icon: '💬', title: 'Prompt-Profi',    description: 'Guten Lernprompt formuliert',       unlocked: !!done['prompt'] },
-    { icon: '✅', title: 'Faktenprüfer',    description: 'Mindestens 3 Quizfragen richtig',   unlocked: correct >= 3 },
-    { icon: '🏆', title: 'KI-Profi',        description: 'Mindestens 80 Punkte erreicht',     unlocked: points >= PASS_PTS },
-  ]
+  function goMission(n) {
+    update({ mission: n })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function unlockAchievement(ach) {
+    setShowAch(ach)
+    if (ach.moduleId) {
+      saveAchievementLocal(ach.moduleId)
+      setAchieved(true)
+      passModule(MOD.id, 100, 100)
+    }
+  }
+
+  const { mission, done, vertrauen1, vertrauen2, fallakte, ownRule, werkzeuge } = state
+  const totalMissions = 9
+  const completedCount = Object.keys(done).filter(k => k.startsWith('m')).length
+  const progress = Math.round((completedCount / totalMissions) * 100)
 
   return (
-    <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', minHeight: '100vh' }}>
+      <AchievementPopup ach={showAch} onClose={() => setShowAch(null)} />
+
       <div className="wrap">
-
-        {/* Modulkopf */}
-        <header className="hero" style={{ background: 'linear-gradient(120deg, #095c6b, #167e8a)' }}>
-          <div className="eyebrow" style={{ marginBottom: '8px' }}>KI-Führerschein Klasse 7 · Modul 2</div>
-          <h1 style={{ margin: '8px 0 6px' }}>🧠 KI sinnvoll nutzen</h1>
-          <p className="lead" style={{ margin: '4px 0 2px', opacity: 0.9 }}>
-            <strong>Leitfrage:</strong> Wie kann KI mir helfen, ohne mein eigenes Denken zu ersetzen?
-          </p>
-          <p style={{ margin: '4px 0 16px', opacity: 0.75, fontSize: 'var(--font-size-sm)' }}>ca. 45 Minuten · Einzel-, Partner- und Gruppenarbeit</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-            <div className="hero-progress" style={{ flex: 1, minWidth: '160px' }}>
-              <div className="hero-progress-bar" style={{ width: `${progressPct}%` }}
-                role="progressbar" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100} />
+        {/* Modul-Header */}
+        <div className="mission-header" style={{ marginBottom: 'var(--sp-lg)' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div className="eyebrow" style={{ marginBottom: '0.5rem' }}>KI-Führerschein · Modul 2</div>
+              <h1 style={{ margin: '0 0 0.375rem', color: 'white' }}>🕵️ Mission KI-Check</h1>
+              <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)' }}>Fehler erkennen · Prompts · Verantwortung</p>
             </div>
-            <div style={{ fontWeight: 800, color: 'var(--color-gold)', whiteSpace: 'nowrap', fontSize: '0.9rem' }}>
-              ⭐ {points} / {MAX_PTS} Punkte
+            <div className="xp-badge">⭐ +{MOD.xp} XP</div>
+          </div>
+          <div style={{ marginTop: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem', fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.6)' }}>
+              <span>Missionen abgeschlossen</span><span>{completedCount}/{totalMissions}</span>
             </div>
+            <div className="progress-track"><div className="progress-fill" style={{ width: `${progress}%` }} /></div>
           </div>
-        </header>
+        </div>
 
-        {/* ── 1: Dein Auftrag ── */}
-        <section className="card" id="s02-1">
-          <div className="station-counter">Abschnitt 1 von 10</div>
-          <h2 style={{ color: MOD_COLOR }}>1. Dein Auftrag</h2>
-          <div className="grid-2">
-            <InfoBox title="Du lernst:">
-              <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
-                <li>KI als Werkzeug zu nutzen,</li>
-                <li>Fehler zu erkennen,</li>
-                <li>Antworten zu prüfen,</li>
-                <li>sinnvolle Nutzung zu beurteilen,</li>
-                <li>Verantwortung zu übernehmen.</li>
-              </ul>
-            </InfoBox>
-            <MemoryBox>Kernbotschaft:<br />KI kann mich unterstützen. Denken, Prüfen und Entscheiden muss ich selbst.</MemoryBox>
-          </div>
-          <div className="actions">
-            <button className="btn btn-success" disabled={!!done['intro']} onClick={() => award('intro', 5)}>
-              {done['intro'] ? '✓ Erledigt' : 'Ziele gelesen ✓ · 5 Punkte'}
+        {/* Missions-Navigation */}
+        <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', marginBottom: 'var(--sp-lg)' }}>
+          {Array.from({ length: totalMissions }, (_, i) => i + 1).map(n => (
+            <button key={n} className={`nav-btn ${mission === n ? 'active' : ''}`}
+              onClick={() => goMission(n)}
+              style={{ fontSize: '0.7rem', padding: '0.375rem 0.625rem', minHeight: '2rem',
+                background: done['m' + n] ? 'rgba(22,163,74,0.2)' : mission === n ? 'var(--c-xp)' : 'rgba(255,255,255,0.08)',
+                border: done['m' + n] ? '1px solid rgba(22,163,74,0.5)' : '1px solid rgba(255,255,255,0.15)',
+                color: done['m' + n] ? '#4ade80' : 'white' }}>
+              {done['m' + n] ? '✓' : n}
             </button>
-          </div>
-        </section>
+          ))}
+        </div>
 
-        {/* ── 2: Einstieg ── */}
-        {visible.s2 && (
-          <section className="card" id="s02-2">
-            <div className="station-counter">Abschnitt 2 von 10</div>
-            <h2 style={{ color: MOD_COLOR }}>2. Einstieg: Ist KI schlauer als du?</h2>
-            <TaskBox title="Partnergespräch, 3 Minuten:">Entscheidet euch für „Ja", „Nein" oder „Kommt darauf an". Begründet eure Wahl mit einem Beispiel.</TaskBox>
-            <TextBlock id="startReflection" label="Unsere Begründung:" placeholder="Wir denken ..., weil ..."
-              minLength={20} points={5} done={!!done['start']} onSave={() => award('start', 5)} />
-          </section>
-        )}
-
-        {/* ── 3: Experiment ── */}
-        {visible.s3 && (
-          <section className="card" id="s02-3">
-            <div className="station-counter">Abschnitt 3 von 10</div>
-            <h2 style={{ color: MOD_COLOR }}>3. Experiment: Die KI als Fehlerquelle</h2>
-            <p className="lead">Nutzt die von der Lehrkraft freigegebene KI, zum Beispiel AIS.chat.</p>
-            <div style={{ background: '#103d54', color: '#bff5e5', padding: '16px 20px', borderRadius: 'var(--radius-lg)', fontFamily: 'monospace', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: 'var(--space-md)' }}>
-              Du beantwortest Fragen für Schülerinnen und Schüler der 7. Klasse. Baue in einige Antworten einen sachlichen Fehler ein. Die Fehler sollen glaubwürdig klingen. Verrate zunächst nicht, welche Antworten falsch sind. Wenn wir „Auflösen" schreiben, kennzeichne die Fehler und nenne die korrekten Informationen.
-            </div>
-            <TaskBox title="Auftrag, 10 Minuten:">
-              <ol style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
-                <li>Mindestens vier Fragen aus unterschiedlichen Schulfächern stellen.</li>
-                <li>Verdächtige Aussagen markieren.</li>
-                <li>Mit Schulbuch oder verlässlicher Quelle prüfen.</li>
-                <li>Anschließend „Auflösen" schreiben.</li>
+        {/* ── Mission 1: Lagecheck ── */}
+        {mission === 1 && (
+          <div className="card">
+            <MissionHeader number={1} total={9} title="Lagecheck: Was kann KI?" icon="🔎" sozial="👥 Partnerarbeit" time="4" />
+            <div className="box-task">
+              <strong>Partnerarbeit, ca. 4 Min.:</strong>
+              <ol style={{ margin: '0.5rem 0 0', paddingLeft: '1.25rem' }}>
+                <li>Entscheidet: Ist KI schlauer als du?</li>
+                <li>Begründet eure Einschätzung mit einem Beispiel.</li>
               </ol>
-            </TaskBox>
-            <WarningBox>Gebt keine persönlichen Daten über euch oder andere Menschen ein.</WarningBox>
-            <TextBlock id="foundError" label="Beschreibt einen gefundenen Fehler und eure Prüfung:"
-              placeholder="Die KI behauptete ... Wir haben geprüft mit ... Richtig ist ..."
-              minLength={20} points={15} done={!!done['experiment']} onSave={() => award('experiment', 15)} />
-          </section>
-        )}
-
-        {/* ── 4: Zwischenquiz ── */}
-        {visible.s4 && (
-          <section className="card" id="s02-4">
-            <div className="station-counter">Abschnitt 4 von 10</div>
-            <h2 style={{ color: MOD_COLOR }}>4. Zwischenquiz: Fehlerdetektiv</h2>
-            <QuizBlock id="q1" question="Warum können falsche KI-Antworten gefährlich sein?"
-              options={[
-                { value: '0', label: 'Weil falsche Antworten immer sehr kurz sind.' },
-                { value: '1', label: 'Weil sie überzeugend klingen können und deshalb leicht ungeprüft übernommen werden.' },
-                { value: '2', label: 'Weil eine KI überhaupt keine richtigen Antworten geben kann.' },
-              ]}
-              answer="1" points={5} done={!!done['q1']} allowRetry={true}
-              correctFeedback="Richtig! Du hast den Grundsatz richtig angewendet."
-              wrongFeedback="Noch nicht ganz. KI-Antworten können sehr überzeugend klingen, auch wenn sie falsch sind."
-              onCorrect={() => quizCorrect('q1', 5)} onWrong={() => quizWrong('q1')} />
-          </section>
-        )}
-
-        {/* ── 5: Fünf Grundsätze ── */}
-        {visible.s5 && (
-          <section className="card" id="s02-5">
-            <div className="station-counter">Abschnitt 5 von 10</div>
-            <h2 style={{ color: MOD_COLOR }}>5. Fünf Grundsätze</h2>
-            <div className="grid-2">
-              {[
-                { title: '1. Werkzeug',         text: 'KI unterstützt dich. Sie übernimmt weder dein Denken noch deine Verantwortung.' },
-                { title: '2. Prüfen',           text: 'Klingt richtig bedeutet nicht automatisch: ist richtig.' },
-                { title: '3. Lernen',           text: 'Nutze KI zum Erklären, Üben und Verbessern, nicht zum bloßen Abschreiben.' },
-                { title: '4. Genau fragen',     text: 'Nenne Thema, Ziel, Klassenstufe und gewünschte Form.' },
-                { title: '5. Kritisch bleiben', text: 'KI-Ergebnisse können einseitig, unfair oder unvollständig sein.' },
-              ].map(g => <InfoBox key={g.title} title={g.title}>{g.text}</InfoBox>)}
             </div>
-            <div className="actions">
-              <button className="btn btn-success" disabled={!!done['principles']} onClick={() => award('principles', 5)}>
-                {done['principles'] ? '✓ Erledigt' : 'Grundsätze gelesen ✓ · 5 Punkte'}
-              </button>
-            </div>
-          </section>
-        )}
-
-        {/* ── 6: Prompt-Challenge ── */}
-        {visible.s6 && (
-          <section className="card" id="s02-6">
-            <div className="station-counter">Abschnitt 6 von 10</div>
-            <h2 style={{ color: MOD_COLOR }}>6. Prompt-Challenge</h2>
-            <p className="lead">Welche Anfrage hilft wahrscheinlich besser beim Lernen?</p>
-            <QuizBlock id="q2" question="Wähle den besseren Lernprompt:"
-              options={[
-                { value: '0', label: '„Erkläre Brüche."' },
-                { value: '1', label: '„Erkläre das Addieren von Brüchen für Klasse 7 in einfachen Schritten. Nutze ein Beispiel und stelle mir danach zwei Aufgaben ohne Lösung."' },
-                { value: '2', label: '„Mach Mathe."' },
-              ]}
-              answer="1" points={5} done={!!done['q2']} allowRetry={true}
-              correctFeedback="Richtig! Die Anfrage nennt Thema, Zielgruppe und gewünschte Form."
-              wrongFeedback="Noch nicht ganz. Ein guter Prompt nennt Thema, Ziel, Klassenstufe und gewünschte Form."
-              onCorrect={() => quizCorrect('q2', 5)} onWrong={() => quizWrong('q2')} />
-            {visible.s6 && (
-              <div style={{ marginTop: 'var(--space-md)' }}>
-                <TextBlock id="ownPrompt" label="Formuliere nun selbst einen guten Lernprompt:"
-                  placeholder="Erkläre ... für Klasse 7 ... Nutze ... Stelle mir danach ..."
-                  minLength={20} points={10} done={!!done['prompt']} onSave={() => award('prompt', 10)} />
+            <div className="box-hint">💡 Deine Antwort wird gespeichert und im Finale (Mission 9) wieder aufgegriffen!</div>
+            <label style={{ fontWeight: 800, display: 'block', marginBottom: '0.375rem' }}>Unsere Einschätzung und Begründung:</label>
+            <textarea value={fallakte.m1 || ''} onChange={e => update({ fallakte: { ...fallakte, m1: e.target.value } })}
+              placeholder="Wir denken, KI ist ... weil ..."
+              rows={4} disabled={!!done['m1']}
+              style={{ width: '100%', padding: '0.75rem', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', font: 'inherit', resize: 'vertical' }} />
+            {!done['m1'] ? (
+              <div className="actions">
+                <button className="btn btn-xp" disabled={(fallakte.m1 || '').trim().length < 15}
+                  onClick={() => { markDone('m1'); goMission(2) }}>
+                  Antwort speichern · Weiter zu Mission 2 →
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'var(--sp-md)', flexWrap: 'wrap' }}>
+                <div className="done-badge">✓ Mission 1 abgeschlossen</div>
+                <button className="btn btn-primary" onClick={() => goMission(2)} style={{ background: MOD_COLOR }}>Weiter →</button>
               </div>
             )}
-          </section>
-        )}
-
-        {/* ── 7: Situationen ── */}
-        {visible.s7 && (
-          <section className="card" id="s02-7">
-            <div className="station-counter">Abschnitt 7 von 10</div>
-            <h2 style={{ color: MOD_COLOR }}>7. Situationen beurteilen</h2>
-            <ScenarioTask done={!!done['scenarios']} onComplete={pts => award('scenarios', pts)} />
-          </section>
-        )}
-
-        {/* ── 8: Abschlusstest ── */}
-        {visible.s8 && (
-          <section className="card" id="s02-8">
-            <div className="station-counter">Abschnitt 8 von 10</div>
-            <h2 style={{ color: MOD_COLOR }}>8. Abschlusstest</h2>
-            <p className="lead">Vier Fragen – beantworte jede sorgfältig. Falsche Antworten können nicht erneut bewertet werden.</p>
-            {[
-              { id: 'q3', pts: 5, q: '1. Wer trägt die Verantwortung für eine übernommene KI-Antwort?',
-                opts: [{ value: '0', label: 'Die KI' }, { value: '1', label: 'Die Person, die das Ergebnis nutzt' }, { value: '2', label: 'Niemand' }],
-                ans: '1', ok: 'Richtig! Wer KI-Ergebnisse nutzt, trägt die Verantwortung.', nok: 'Noch nicht ganz. Wer entscheidet, ob ein KI-Ergebnis verwendet wird?' },
-              { id: 'q4', pts: 5, q: '2. Warum können KI-Ergebnisse Vorurteile enthalten?',
-                opts: [{ value: '0', label: 'Weil die verarbeiteten Inhalte Fehler und Vorurteile von Menschen enthalten können.' }, { value: '1', label: 'Weil KI grundsätzlich gegen Menschen ist.' }, { value: '2', label: 'Weil jede KI nur eine einzige Antwort kennt.' }],
-                ans: '0', ok: 'Richtig! KI lernt aus menschlichen Daten – inklusive deren Fehler.', nok: 'Noch nicht ganz. Denke daran, womit KI trainiert wird.' },
-              { id: 'q5', pts: 5, q: '3. Was ist der beste erste Schritt bei einer überraschenden Behauptung?',
-                opts: [{ value: '0', label: 'Sofort weiterleiten' }, { value: '1', label: 'Den Text schöner formulieren' }, { value: '2', label: 'Die Behauptung mit einer geeigneten Quelle prüfen' }],
-                ans: '2', ok: 'Richtig! Prüfen ist immer der erste Schritt.', nok: 'Noch nicht ganz. Was sollte man tun, bevor man etwas weitergibt?' },
-              { id: 'q6', pts: 5, q: '4. Welche Nutzung fördert eigenes Lernen?',
-                opts: [{ value: '0', label: 'Lösungen kopieren' }, { value: '1', label: 'Hinweise erhalten, selbst weiterarbeiten und das Ergebnis erklären können' }, { value: '2', label: 'Alle Aufgaben automatisch bearbeiten lassen' }],
-                ans: '1', ok: 'Richtig! KI als Lernhilfe, nicht als Ersatz.', nok: 'Noch nicht ganz. Welche Option fördert dein eigenes Denken?' },
-            ].map((q, i) => (
-              <div key={q.id}>
-                {i > 0 && <hr style={{ border: 0, borderTop: '1px solid var(--color-border)', margin: 'var(--space-md) 0' }} />}
-                <QuizBlock id={q.id} question={q.q} options={q.opts} answer={q.ans}
-                  points={q.pts} done={!!done[q.id]} allowRetry={false}
-                  correctFeedback={q.ok} wrongFeedback={q.nok}
-                  onCorrect={() => quizCorrect(q.id, q.pts)} onWrong={() => quizWrong(q.id)} />
-              </div>
-            ))}
-          </section>
-        )}
-
-        {/* ── 9: KI-Regeln ── */}
-        {visible.s9 && (
-          <section className="card" id="s02-9">
-            <div className="station-counter">Abschnitt 9 von 10</div>
-            <h2 style={{ color: MOD_COLOR }}>9. Meine KI-Regeln</h2>
-            <RulesTask done={!!done['rules']} onComplete={() => award('rules', 10)} />
-          </section>
-        )}
-
-        {/* ── 10: Badges & Ergebnis ── */}
-        {visible.s10 && (
-          <section className="card" id="s02-10">
-            <div className="station-counter">Abschnitt 10 von 10</div>
-            <h2 style={{ color: MOD_COLOR }}>10. Deine Badges</h2>
-            <div className="grid-3" style={{ marginBottom: 'var(--space-lg)' }}>
-              {badges.map(b => <Badge key={b.title} {...b} />)}
-            </div>
-            <div style={{ padding: 'var(--space-lg)', borderRadius: 'var(--radius-xl)', background: passed ? 'var(--color-success-light)' : points >= 60 ? 'var(--color-warning-light)' : 'var(--color-error-light)', border: `2px solid ${passed ? 'var(--color-success)' : points >= 60 ? 'var(--color-warning)' : 'var(--color-error)'}` }}>
-              {passed ? (
-                <>
-                  <h3 style={{ margin: '0 0 8px', color: 'var(--color-success)' }}>🏆 Modul erfolgreich abgeschlossen!</h3>
-                  <p style={{ margin: 0 }}>Du hast <strong>{points} von {MAX_PTS} Punkten</strong> erreicht.</p>
-                  <MemoryBox>KI unterstützt mich. Prüfen, Entscheiden und Verantwortung bleiben bei mir.</MemoryBox>
-                </>
-              ) : points >= 60 ? (
-                <><h3 style={{ margin: '0 0 8px' }}>🟡 Fast geschafft</h3><p style={{ margin: 0 }}>Du hast <strong>{points} von {MAX_PTS} Punkten</strong>. Bearbeite noch offene Aufgaben.</p></>
-              ) : (
-                <><h3 style={{ margin: '0 0 8px' }}>🔴 Weiterarbeiten</h3><p style={{ margin: 0 }}>Du hast <strong>{points} von {MAX_PTS} Punkten</strong>. Bearbeite die noch offenen Abschnitte.</p></>
-              )}
-            </div>
-            <div className="actions" style={{ marginTop: 'var(--space-md)' }}>
-              <button className="btn btn-ghost" onClick={() => navigate('/dashboard')}>← Zur Modulübersicht</button>
-              <button className="btn btn-ghost" onClick={resetModule} style={{ fontSize: '0.85rem' }}>↺ Neu starten</button>
-            </div>
-          </section>
-        )}
-
-        {/* Hinweis wenn nächster Abschnitt noch gesperrt */}
-        {!visible.s10 && (
-          <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: 'var(--space-lg)', fontSize: 'var(--font-size-sm)' }}>
-            ↑ Schließe den aktuellen Abschnitt ab, um weiterzukommen.
           </div>
         )}
+
+        {/* ── Mission 2: Vertrauensmesser ── */}
+        {mission === 2 && (
+          <div className="card">
+            <MissionHeader number={2} total={9} title="Vertrauensmesser" icon="🤔" sozial="👤 Einzelarbeit" time="3" />
+            <p className="lead">Wie stark würdest du einer flüssig formulierten KI-Antwort mit konkreten Zahlen zunächst vertrauen?</p>
+            <div className="box-hint">💡 Du wirst am Ende (Mission 9) sehen, ob sich deine Einschätzung verändert hat!</div>
+            <div style={{ margin: 'var(--sp-lg) 0', textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', fontWeight: 900, color: MOD_COLOR, marginBottom: '0.5rem' }}>{vertrauen1}%</div>
+              <div style={{ fontSize: 'var(--fs-sm)', color: 'var(--c-muted)', marginBottom: '1rem' }}>
+                {vertrauen1 < 30 ? '😤 Sehr skeptisch' : vertrauen1 < 50 ? '🤨 Eher skeptisch' : vertrauen1 < 70 ? '🤔 Neutral' : vertrauen1 < 85 ? '😊 Eher vertrauend' : '😍 Sehr vertrauend'}
+              </div>
+              <input type="range" min="0" max="100" value={vertrauen1}
+                onChange={e => update({ vertrauen1: Number(e.target.value) })}
+                disabled={!!done['m2']}
+                style={{ width: '100%', accentColor: MOD_COLOR }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', marginTop: '0.25rem' }}>
+                <span>0% – Kein Vertrauen</span><span>100% – Volles Vertrauen</span>
+              </div>
+            </div>
+            {!done['m2'] ? (
+              <div className="actions">
+                <button className="btn btn-xp" onClick={() => { markDone('m2'); goMission(3) }}>Einschätzung speichern · Weiter →</button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'var(--sp-md)', flexWrap: 'wrap' }}>
+                <div className="done-badge">✓ Gespeichert: {vertrauen1}%</div>
+                <button className="btn btn-primary" onClick={() => goMission(3)} style={{ background: MOD_COLOR }}>Weiter →</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Mission 3: Fehlerjagd ── */}
+        {mission === 3 && (
+          <div className="card">
+            <MissionHeader number={3} total={9} title="Fehlerjagd mit AIS.chat" icon="🕵️" sozial="👥 Partnerarbeit" time="10" />
+            <div className="box-task">
+              <strong>Ablauf:</strong>
+              <ol style={{ margin: '0.5rem 0 0', paddingLeft: '1.25rem', lineHeight: 2 }}>
+                <li><a href="https://app.ais-chat.schule/ua/learning-scenarios/af365a43-8c6a-4910-b625-fea355c3f094/dialog?inviteCode=94CFXBF2" target="_blank" rel="noopener" style={{ color: MOD_COLOR, fontWeight: 700 }}>AIS.chat-Lernszenario öffnen ↗</a></li>
+                <li>Vier Fragen aus unterschiedlichen Schulfächern stellen.</li>
+                <li>Einen Verdacht festlegen.</li>
+                <li>Aussage mit Schulbuch oder verlässlicher Quelle prüfen.</li>
+                <li>„Auflösen" schreiben.</li>
+              </ol>
+            </div>
+            <div className="box-warning"><strong>Datenschutz:</strong> Keine persönlichen Daten über sich selbst oder andere eingeben.</div>
+
+            <h3 style={{ color: MOD_COLOR }}>📋 Fallakte #001</h3>
+            {[
+              { key: 'aussage', label: 'Welche Aussage macht euch misstrauisch?', placeholder: 'Die KI behauptete ...' },
+              { key: 'pruefung', label: 'Womit habt ihr sie geprüft?', placeholder: 'Wir haben geprüft mit ...' },
+              { key: 'ergebnis', label: 'Was ist nach der Prüfung richtig?', placeholder: 'Richtig ist ...' },
+            ].map(f => (
+              <div key={f.key} style={{ marginBottom: '0.75rem' }}>
+                <label style={{ fontWeight: 700, display: 'block', marginBottom: '0.25rem', fontSize: 'var(--fs-sm)' }}>{f.label}</label>
+                <textarea value={fallakte[f.key] || ''} onChange={e => update({ fallakte: { ...fallakte, [f.key]: e.target.value } })}
+                  placeholder={f.placeholder} rows={2} disabled={!!done['m3']}
+                  style={{ width: '100%', padding: '0.625rem', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', font: 'inherit', resize: 'vertical' }} />
+              </div>
+            ))}
+            <div style={{ marginBottom: '0.75rem' }}>
+              <label style={{ fontWeight: 700, display: 'block', marginBottom: '0.25rem', fontSize: 'var(--fs-sm)' }}>Ergebnis:</label>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                {['KI hatte recht', 'KI lag falsch'].map(v => (
+                  <label key={v} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: done['m3'] ? 'default' : 'pointer', fontWeight: 700 }}>
+                    <input type="radio" name="m3result" value={v} checked={fallakte.result === v}
+                      onChange={() => update({ fallakte: { ...fallakte, result: v } })} disabled={!!done['m3']}
+                      style={{ accentColor: MOD_COLOR, width: '1.125rem', height: '1.125rem' }} />
+                    {v}
+                  </label>
+                ))}
+              </div>
+            </div>
+            {!done['m3'] ? (
+              <div className="actions">
+                <button className="btn btn-xp"
+                  disabled={!(fallakte.aussage?.trim().length > 10 && fallakte.pruefung?.trim().length > 10 && fallakte.ergebnis?.trim().length > 10 && fallakte.result)}
+                  onClick={() => { markDone('m3'); unlockAchievement({ icon: '🕵️', title: 'Fehlerdetektiv', desc: 'Du hast eine KI-Antwort kritisch geprüft!' }); goMission(4) }}>
+                  Fallakte abschließen · Achievement freischalten 🕵️
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'var(--sp-md)', flexWrap: 'wrap' }}>
+                <div className="done-badge">✓ Fallakte #001 abgeschlossen</div>
+                <button className="btn btn-primary" onClick={() => goMission(4)} style={{ background: MOD_COLOR }}>Weiter →</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Mission 4: Wahr oder überzeugend? ── */}
+        {mission === 4 && (
+          <div className="card">
+            <MissionHeader number={4} total={9} title="Wahr oder nur überzeugend?" icon="🧠" sozial="👤 Einzelarbeit" time="4" />
+            <p className="lead">Unterscheide überzeugende Formulierungen von überprüfbaren Aussagen.</p>
+            <M4Quiz done={!!done['m4']} onComplete={() => { markDone('m4'); goMission(5) }} />
+          </div>
+        )}
+
+        {/* ── Mission 5: KI-Werkzeugkasten ── */}
+        {mission === 5 && (
+          <div className="card">
+            <MissionHeader number={5} total={9} title="KI-Werkzeugkasten" icon="🧰" sozial="👤 Einzelarbeit" time="4" />
+            <p className="lead">Fünf Werkzeuge für den verantwortungsvollen Umgang mit KI. Lies jedes Werkzeug und schalte es frei!</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: 'var(--sp-lg)' }}>
+              {[
+                { id: 'w1', icon: '🧠', title: 'Selbst denken',    text: 'KI unterstützt dich. Sie übernimmt weder dein Denken noch deine Verantwortung.' },
+                { id: 'w2', icon: '🔎', title: 'Prüfen',           text: 'Klingt richtig bedeutet nicht automatisch: ist richtig.' },
+                { id: 'w3', icon: '🎓', title: 'Lernen',           text: 'Nutze KI zum Erklären, Üben und Verbessern, nicht zum bloßen Abschreiben.' },
+                { id: 'w4', icon: '💬', title: 'Genau fragen',     text: 'Nenne Thema, Ziel, Klassenstufe und gewünschte Form.' },
+                { id: 'w5', icon: '🛡️', title: 'Kritisch bleiben', text: 'KI-Ergebnisse können einseitig, unfair oder unvollständig sein.' },
+              ].map(w => {
+                const unlocked = werkzeuge.includes(w.id)
+                return (
+                  <div key={w.id} style={{ background: unlocked ? 'var(--c-success-bg)' : 'var(--c-pale2)', border: `2px solid ${unlocked ? 'var(--c-success)' : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', display: 'flex', alignItems: 'center', gap: '0.875rem', transition: 'all 0.2s' }}>
+                    <div style={{ fontSize: '1.75rem', flexShrink: 0 }}>{w.icon}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 800, color: unlocked ? 'var(--c-success)' : 'var(--c-dark)' }}>{w.title}</div>
+                      <div style={{ fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>{w.text}</div>
+                    </div>
+                    {!unlocked && !done['m5'] && (
+                      <button className="btn btn-primary" onClick={() => update({ werkzeuge: [...werkzeuge, w.id] })} style={{ background: MOD_COLOR, fontSize: 'var(--fs-xs)', padding: '0.375rem 0.75rem', minHeight: '2rem' }}>
+                        Freischalten
+                      </button>
+                    )}
+                    {unlocked && <span style={{ color: 'var(--c-success)', fontWeight: 900, fontSize: '1.25rem' }}>✓</span>}
+                  </div>
+                )
+              })}
+            </div>
+            {!done['m5'] ? (
+              <div className="actions">
+                <button className="btn btn-xp" disabled={werkzeuge.length < 5}
+                  onClick={() => { markDone('m5'); goMission(6) }}>
+                  Alle Werkzeuge freigeschaltet · Weiter →
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <div className="done-badge">✓ Werkzeugkasten komplett</div>
+                <button className="btn btn-primary" onClick={() => goMission(6)} style={{ background: MOD_COLOR }}>Weiter →</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Mission 6: Prompt-Labor ── */}
+        {mission === 6 && (
+          <div className="card">
+            <MissionHeader number={6} total={9} title="Prompt-Labor" icon="💬" sozial="👤 Einzelarbeit" time="5" />
+            <p className="lead">Aus dem schwachen Prompt „Erkläre Brüche." wird über Bausteine ein starker Lernprompt.</p>
+            <M6PromptLab done={!!done['m6']} savedPrompt={fallakte.prompt || ''}
+              onComplete={(prompt) => { markDone('m6'); update({ fallakte: { ...fallakte, prompt } }); unlockAchievement({ icon: '💬', title: 'Prompt-Profi', desc: 'Du hast einen starken Lernprompt formuliert!' }); goMission(7) }} />
+          </div>
+        )}
+
+        {/* ── Mission 7: KI oder selber machen? ── */}
+        {mission === 7 && (
+          <div className="card">
+            <MissionHeader number={7} total={9} title="KI oder selber machen?" icon="⚖️" sozial="👥👥 Gruppenarbeit" time="7" />
+            <p className="lead">Vier schulische Situationen gemeinsam beurteilen. Nicht „KI gut oder schlecht", sondern: Unterstützt KI das Lernen oder ersetzt sie eigenes Denken?</p>
+            <M7Scenarios done={!!done['m7']} onComplete={() => { markDone('m7'); goMission(8) }} />
+          </div>
+        )}
+
+        {/* ── Mission 8: Boss-Level ── */}
+        {mission === 8 && (
+          <div className="card">
+            <MissionHeader number={8} total={9} title="Boss-Level: Die perfekte KI-Antwort?" icon="👾" sozial="👥 Partnerarbeit" time="7" isBoss />
+            <p className="lead">Eine überzeugend formulierte KI-Antwort enthält korrekte Aussagen, eine problematische Schlussfolgerung und eine Behauptung, die zum ungeprüften Übernehmen auffordert.</p>
+            <M8BossLevel done={!!done['m8']}
+              onComplete={() => { markDone('m8'); unlockAchievement({ icon: '✅', title: 'Faktenprüfer', desc: 'Du hast den Boss-Level gemeistert!' }); goMission(9) }} />
+          </div>
+        )}
+
+        {/* ── Mission 9: Finale ── */}
+        {mission === 9 && (
+          <div className="card">
+            <MissionHeader number={9} total={9} title="Finale: Dein KI-Kompass" icon="🏁" sozial="👤 Einzelarbeit" time="4" />
+            <M9Finale done={!!done['m9']} vertrauen1={vertrauen1} vertrauen2={vertrauen2} ownRule={ownRule} fallakteM1={fallakte.m1 || ''}
+              onVertrauen2Change={v => update({ vertrauen2: v })}
+              onRuleChange={r => update({ ownRule: r })}
+              onComplete={() => {
+                markDone('m9')
+                unlockAchievement({ icon: '🏆', title: 'KI-Profi', desc: 'Du hast alle 9 Missionen abgeschlossen!', moduleId: MOD.id })
+              }}
+              onDashboard={() => navigate('/dashboard')}
+              achieved={achieved} />
+          </div>
+        )}
+
+        <div className="actions no-print" style={{ marginTop: 'var(--sp-lg)' }}>
+          {mission > 1 && <button className="btn btn-ghost" onClick={() => goMission(mission - 1)}>← Zurück</button>}
+          <button className="btn btn-ghost" onClick={() => navigate('/dashboard')}>Zur Übersicht</button>
+        </div>
       </div>
     </div>
   )
 }
 
-// ── Szenarien ─────────────────────────────────────────────────
+// ── Mission 4: Quiz ───────────────────────────────────────────
 
-const SCENARIOS = [
-  { id: 's1', text: 'A: Du lässt dir den ersten Rechenschritt erklären und rechnest danach selbst weiter.', correct: 'sinnvoll' },
-  { id: 's2', text: 'B: Du reichst eine vollständig von KI erstellte Hausaufgabe unverändert als eigene Arbeit ein.', correct: 'nicht-sinnvoll' },
-  { id: 's3', text: 'C: Du sammelst Ideen für ein Referat, prüfst die Informationen und formulierst selbst.', correct: 'sinnvoll' },
-  { id: 's4', text: 'D: Du übernimmst eine Antwort, nur weil sie professionell klingt.', correct: 'nicht-sinnvoll' },
-]
+function M4Quiz({ done, onComplete }) {
+  const ITEMS = [
+    { id: 'a', text: 'Studien zeigen, dass KI-Nutzung die Kreativität um 34% steigert.', type: 'ueberzeugend', explain: 'Klingt präzise, aber: Welche Studie? Wann? Unter welchen Bedingungen? Ohne Quelle ist das nicht überprüfbar.' },
+    { id: 'b', text: 'KI-Systeme können Fehler machen, weil sie aus menschlichen Daten lernen.', type: 'pruefbar', explain: 'Das ist eine überprüfbare Aussage – sie beschreibt, wie KI funktioniert.' },
+    { id: 'c', text: 'Diese KI-Antwort ist zu 98% korrekt.', type: 'ueberzeugend', explain: 'Woher kommt diese Zahl? KI-Systeme können keine eigene Korrektheit messen.' },
+    { id: 'd', text: 'KI-Sprachmodelle erzeugen Text, indem sie das wahrscheinlichste nächste Wort vorhersagen.', type: 'pruefbar', explain: 'Das ist eine überprüfbare technische Beschreibung.' },
+  ]
+  const [answers, setAnswers] = useState({})
+  const [checked,  setChecked]  = useState(false)
+  const allAnswered = ITEMS.every(i => answers[i.id])
+  const correct = ITEMS.filter(i => answers[i.id] === i.type).length
 
-function ScenarioTask({ done, onComplete }) {
-  const [values,   setValues]   = useState({})
-  const [feedback, setFeedback] = useState(null)
-  const [locked,   setLocked]   = useState(done)
-  const allFilled = SCENARIOS.every(s => values[s.id])
-
-  function check() {
-    if (!allFilled) { setFeedback('incomplete'); return }
-    const correct = SCENARIOS.filter(s => values[s.id] === s.correct).length
-    setFeedback({ correct }); setLocked(true)
-    onComplete(Math.round(correct * 2.5))
-  }
+  if (done) return <div className="done-badge">✓ Mission 4 abgeschlossen</div>
 
   return (
     <div>
-      <p className="lead">Wähle jeweils die passendste Einschätzung. Alle vier Situationen müssen bewertet werden.</p>
-      {SCENARIOS.map(s => (
-        <div key={s.id} style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', marginBottom: 'var(--space-sm)' }}>
-          <p style={{ margin: '0 0 8px', fontWeight: 700 }}>{s.text}</p>
-          <select value={values[s.id] ?? ''} onChange={e => setValues(v => ({ ...v, [s.id]: e.target.value }))}
-            disabled={locked}
-            style={{ width: '100%', padding: '10px', border: '2px solid var(--color-border)', borderRadius: 'var(--radius-md)', font: 'inherit', background: 'white' }}>
-            <option value="">Bitte wählen</option>
-            <option value="sinnvoll">Sinnvoll</option>
-            <option value="teilweise">Teilweise sinnvoll</option>
-            <option value="nicht-sinnvoll">Nicht sinnvoll</option>
-          </select>
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: 'var(--sp-md)', flexWrap: 'wrap' }}>
+        <span style={{ background: 'var(--c-info-bg)', color: 'var(--c-info)', borderRadius: '99px', padding: '0.25rem 0.75rem', fontSize: 'var(--fs-xs)', fontWeight: 800 }}>🔵 Überprüfbar</span>
+        <span style={{ background: 'var(--c-warn-bg)', color: 'var(--c-warn)', borderRadius: '99px', padding: '0.25rem 0.75rem', fontSize: 'var(--fs-xs)', fontWeight: 800 }}>🟡 Nur überzeugend</span>
+      </div>
+      {ITEMS.map(item => (
+        <div key={item.id} style={{ border: `2px solid ${checked ? (answers[item.id] === item.type ? 'var(--c-success)' : 'var(--c-error)') : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: '0.75rem', background: checked ? (answers[item.id] === item.type ? 'var(--c-success-bg)' : 'var(--c-error-bg)') : 'white' }}>
+          <p style={{ margin: '0 0 0.625rem', fontWeight: 600 }}>„{item.text}"</p>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {[{ v: 'pruefbar', label: '🔵 Überprüfbar' }, { v: 'ueberzeugend', label: '🟡 Nur überzeugend' }].map(opt => (
+              <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: checked ? 'default' : 'pointer', fontWeight: 700, fontSize: 'var(--fs-sm)' }}>
+                <input type="radio" name={item.id} value={opt.v} checked={answers[item.id] === opt.v}
+                  onChange={() => !checked && setAnswers(a => ({ ...a, [item.id]: opt.v }))} disabled={checked}
+                  style={{ accentColor: 'var(--c-teal)', width: '1rem', height: '1rem' }} />
+                {opt.label}
+              </label>
+            ))}
+          </div>
+          {checked && <p style={{ margin: '0.5rem 0 0', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', fontStyle: 'italic' }}>{item.explain}</p>}
         </div>
       ))}
-      {feedback === 'incomplete' && <div className="feedback wrong" style={{ display: 'block' }}>Bitte beurteile alle vier Situationen.</div>}
-      {feedback && feedback !== 'incomplete' && (
-        <div className={`feedback ${feedback.correct >= 3 ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>
-          {feedback.correct} von 4 Situationen richtig beurteilt. {feedback.correct === 4 ? 'Sehr sicher!' : 'Besprecht unklare Fälle noch einmal.'}
+      {!checked ? (
+        <div className="actions">
+          <button className="btn btn-primary" disabled={!allAnswered} onClick={() => setChecked(true)} style={{ background: 'var(--c-teal)' }}>Auswerten</button>
+        </div>
+      ) : (
+        <div>
+          <div className={`feedback ${correct >= 3 ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>
+            {correct} von {ITEMS.length} richtig. {correct >= 3 ? 'Gut erkannt!' : 'Lies die Erklärungen und versuche es erneut.'}
+          </div>
+          {correct >= 3 && (
+            <div className="actions">
+              <button className="btn btn-xp" onClick={onComplete}>Weiter zu Mission 5 →</button>
+            </div>
+          )}
+          {correct < 3 && (
+            <div className="actions">
+              <button className="btn btn-ghost" onClick={() => { setAnswers({}); setChecked(false) }}>↺ Erneut versuchen</button>
+            </div>
+          )}
         </div>
       )}
-      {!locked && <div className="actions"><button className="btn btn-primary" onClick={check} disabled={!allFilled} style={{ background: MOD_COLOR }}>Situationen auswerten · bis 10 Punkte</button></div>}
-      {locked && <div style={{ color: 'var(--color-success)', fontWeight: 800, marginTop: '8px', fontSize: 'var(--font-size-sm)' }}>✓ Erledigt</div>}
     </div>
   )
 }
 
-// ── KI-Regeln ─────────────────────────────────────────────────
+// ── Mission 6: Prompt-Labor ───────────────────────────────────
 
-const RULES = [
-  'Ich prüfe wichtige Informationen.',
-  'Ich nutze KI als Hilfe und nicht als Ersatz für mein Denken.',
-  'Ich gebe keine persönlichen Daten ein.',
-  'Ich beachte die schulischen Regeln und kennzeichne KI-Nutzung, wenn es verlangt wird.',
-]
+function M6PromptLab({ done, savedPrompt, onComplete }) {
+  const BAUSTEINE = [
+    { id: 'thema',    label: 'Thema',       example: 'Addieren von Brüchen' },
+    { id: 'klasse',   label: 'Klassenstufe', example: 'für Klasse 7' },
+    { id: 'form',     label: 'Form',         example: 'in einfachen Schritten' },
+    { id: 'beispiel', label: 'Beispiel',     example: 'mit einem Beispiel' },
+    { id: 'aufgaben', label: 'Aufgaben',     example: 'danach zwei Aufgaben ohne Lösung' },
+  ]
+  const [selected, setSelected] = useState([])
+  const [ownPrompt, setOwnPrompt] = useState(savedPrompt)
+  const [phase, setPhase] = useState('bausteine')
 
-function RulesTask({ done, onComplete }) {
-  const [checked,  setChecked]  = useState({})
-  const [ownRule,  setOwnRule]  = useState('')
-  const [feedback, setFeedback] = useState(null)
-  const [locked,   setLocked]   = useState(done)
-  const allChecked = RULES.every((_, i) => checked[i])
-  const ownOk      = ownRule.trim().length >= 15
+  const strength = Math.round((selected.length / BAUSTEINE.length) * 100)
+  const preview = selected.length > 0
+    ? `Erkläre ${selected.find(s => s.id === 'thema')?.example || '[Thema]'} ${selected.find(s => s.id === 'klasse')?.example || ''} ${selected.find(s => s.id === 'form')?.example || ''}. ${selected.find(s => s.id === 'beispiel')?.example ? 'Nutze ' + selected.find(s => s.id === 'beispiel').example + '.' : ''} ${selected.find(s => s.id === 'aufgaben')?.example ? 'Stelle mir danach ' + selected.find(s => s.id === 'aufgaben').example + '.' : ''}`.trim()
+    : 'Erkläre Brüche.'
 
-  function complete() {
-    if (!allChecked || !ownOk) { setFeedback('incomplete'); return }
-    setLocked(true); setFeedback('done'); onComplete()
-  }
+  if (done) return <div className="done-badge">✓ Mission 6 abgeschlossen</div>
 
   return (
     <div>
-      <p className="lead">Bestätige alle vier Regeln und formuliere eine eigene persönliche Regel.</p>
-      <div style={{ marginBottom: 'var(--space-md)' }}>
-        {RULES.map((rule, i) => (
-          <label key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '10px 0', cursor: locked ? 'default' : 'pointer' }}>
-            <input type="checkbox" checked={!!checked[i]} onChange={e => setChecked(c => ({ ...c, [i]: e.target.checked }))}
-              disabled={locked} style={{ marginTop: '3px', width: '18px', height: '18px', flexShrink: 0, accentColor: MOD_COLOR }} />
-            <span>{rule}</span>
-          </label>
-        ))}
+      <div style={{ background: 'var(--c-pale2)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)', fontFamily: 'monospace', fontSize: 'var(--fs-sm)', lineHeight: 1.6, border: '2px solid var(--c-border)' }}>
+        <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 800, color: 'var(--c-muted)', marginBottom: '0.375rem' }}>VORSCHAU:</div>
+        {preview}
       </div>
-      <label htmlFor="ownRule" style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Meine zusätzliche persönliche Regel (mindestens 15 Zeichen):</label>
-      <textarea id="ownRule" value={ownRule} onChange={e => setOwnRule(e.target.value)}
-        placeholder="Meine zusätzliche persönliche Regel lautet ..." disabled={locked} rows={3}
-        style={{ width: '100%', padding: '10px', border: `2px solid ${ownOk ? MOD_COLOR : 'var(--color-border)'}`, borderRadius: 'var(--radius-md)', font: 'inherit', resize: 'vertical' }} />
-      {!locked && <div style={{ fontSize: 'var(--font-size-xs)', color: ownOk ? 'var(--color-success)' : 'var(--color-text-muted)', textAlign: 'right', marginTop: '4px', fontWeight: ownOk ? 800 : 400 }}>{ownRule.trim().length} / 15 Zeichen {ownOk ? '✓' : ''}</div>}
-      {feedback === 'incomplete' && <div className="feedback wrong" style={{ display: 'block' }}>Bestätige alle vier Regeln und ergänze eine eigene Regel (mindestens 15 Zeichen).</div>}
-      {feedback === 'done'       && <div className="feedback correct" style={{ display: 'block' }}>✅ Vereinbarung abgeschlossen.</div>}
-      {!locked && <div className="actions"><button className="btn btn-success" onClick={complete} disabled={!allChecked || !ownOk}>Vereinbarung abschließen · 10 Punkte</button></div>}
-      {locked && <div style={{ color: 'var(--color-success)', fontWeight: 800, marginTop: '8px', fontSize: 'var(--font-size-sm)' }}>✓ Erledigt</div>}
+
+      {/* Stärke-Anzeige */}
+      <div style={{ marginBottom: 'var(--sp-md)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem', fontSize: 'var(--fs-sm)', fontWeight: 700 }}>
+          <span>Prompt-Stärke</span>
+          <span style={{ color: strength >= 80 ? 'var(--c-success)' : strength >= 40 ? 'var(--c-warn)' : 'var(--c-error)' }}>
+            {strength < 20 ? '😴 Sehr schwach' : strength < 40 ? '😐 Schwach' : strength < 60 ? '🙂 Mittel' : strength < 80 ? '😊 Gut' : '🚀 Stark!'}
+          </span>
+        </div>
+        <div className="progress-track" style={{ background: 'var(--c-border)' }}>
+          <div className="progress-fill" style={{ width: `${strength}%`, background: strength >= 80 ? 'var(--c-success)' : strength >= 40 ? 'var(--c-warn)' : 'var(--c-error)' }} />
+        </div>
+      </div>
+
+      {/* Bausteine */}
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: 'var(--sp-md)' }}>
+        {BAUSTEINE.map(b => {
+          const active = selected.find(s => s.id === b.id)
+          return (
+            <button key={b.id} onClick={() => setSelected(prev => active ? prev.filter(s => s.id !== b.id) : [...prev, b])}
+              style={{ border: `2px solid ${active ? 'var(--c-teal)' : 'var(--c-border)'}`, borderRadius: 'var(--r-md)', padding: '0.5rem 0.875rem', background: active ? 'var(--c-m02-bg)' : 'white', cursor: 'pointer', fontWeight: 700, fontSize: 'var(--fs-sm)', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+              {active ? '✓ ' : '+ '}{b.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {strength >= 80 && (
+        <div>
+          <div className="box-memory">🚀 Starker Prompt! Jetzt formuliere deinen eigenen:</div>
+          <label style={{ fontWeight: 800, display: 'block', marginBottom: '0.375rem' }}>Mein eigener Lernprompt:</label>
+          <textarea value={ownPrompt} onChange={e => setOwnPrompt(e.target.value)}
+            placeholder="Erkläre ... für Klasse 7 ... Nutze ... Stelle mir danach ..."
+            rows={3} style={{ width: '100%', padding: '0.75rem', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', font: 'inherit', resize: 'vertical' }} />
+          <div className="actions">
+            <button className="btn btn-xp" disabled={ownPrompt.trim().length < 20}
+              onClick={() => onComplete(ownPrompt)}>
+              Prompt speichern · Achievement freischalten 💬
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Mission 7: Szenarien ──────────────────────────────────────
+
+function M7Scenarios({ done, onComplete }) {
+  const SCENARIOS = [
+    { id: 's1', text: 'Du lässt dir den ersten Rechenschritt erklären und rechnest danach selbst weiter.', correct: 'unterstuetzt', label: 'Unterstützt Lernen' },
+    { id: 's2', text: 'Du reichst eine vollständig von KI erstellte Hausaufgabe unverändert als eigene Arbeit ein.', correct: 'ersetzt', label: 'Ersetzt eigenes Denken' },
+    { id: 's3', text: 'Du sammelst Ideen für ein Referat, prüfst die Informationen und formulierst selbst.', correct: 'unterstuetzt', label: 'Unterstützt Lernen' },
+    { id: 's4', text: 'Du übernimmst eine Antwort, nur weil sie professionell klingt.', correct: 'ersetzt', label: 'Ersetzt eigenes Denken' },
+  ]
+  const [answers, setAnswers] = useState({})
+  const [checked,  setChecked]  = useState(false)
+  const allAnswered = SCENARIOS.every(s => answers[s.id])
+  const correct = SCENARIOS.filter(s => answers[s.id] === s.correct).length
+
+  if (done) return <div className="done-badge">✓ Mission 7 abgeschlossen</div>
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: 'var(--sp-md)', flexWrap: 'wrap' }}>
+        <span style={{ background: 'var(--c-success-bg)', color: 'var(--c-success)', borderRadius: '99px', padding: '0.25rem 0.75rem', fontSize: 'var(--fs-xs)', fontWeight: 800 }}>✅ Unterstützt Lernen</span>
+        <span style={{ background: 'var(--c-error-bg)', color: 'var(--c-error)', borderRadius: '99px', padding: '0.25rem 0.75rem', fontSize: 'var(--fs-xs)', fontWeight: 800 }}>❌ Ersetzt eigenes Denken</span>
+      </div>
+      {SCENARIOS.map(s => (
+        <div key={s.id} style={{ border: `2px solid ${checked ? (answers[s.id] === s.correct ? 'var(--c-success)' : 'var(--c-error)') : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: '0.75rem', background: checked ? (answers[s.id] === s.correct ? 'var(--c-success-bg)' : 'var(--c-error-bg)') : 'white' }}>
+          <p style={{ margin: '0 0 0.625rem', fontWeight: 600 }}>{s.text}</p>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {[{ v: 'unterstuetzt', label: '✅ Unterstützt Lernen' }, { v: 'ersetzt', label: '❌ Ersetzt eigenes Denken' }].map(opt => (
+              <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: checked ? 'default' : 'pointer', fontWeight: 700, fontSize: 'var(--fs-sm)' }}>
+                <input type="radio" name={s.id} value={opt.v} checked={answers[s.id] === opt.v}
+                  onChange={() => !checked && setAnswers(a => ({ ...a, [s.id]: opt.v }))} disabled={checked}
+                  style={{ accentColor: 'var(--c-teal)', width: '1rem', height: '1rem' }} />
+                {opt.label}
+              </label>
+            ))}
+          </div>
+        </div>
+      ))}
+      {!checked ? (
+        <div className="actions">
+          <button className="btn btn-primary" disabled={!allAnswered} onClick={() => setChecked(true)} style={{ background: 'var(--c-teal)' }}>Auswerten</button>
+        </div>
+      ) : (
+        <div>
+          <div className={`feedback ${correct >= 3 ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>
+            {correct} von {SCENARIOS.length} richtig. {correct >= 3 ? 'Gut beurteilt!' : 'Besprecht unklare Fälle noch einmal.'}
+          </div>
+          {correct >= 3 ? (
+            <div className="actions"><button className="btn btn-xp" onClick={onComplete}>Weiter zu Mission 8 →</button></div>
+          ) : (
+            <div className="actions"><button className="btn btn-ghost" onClick={() => { setAnswers({}); setChecked(false) }}>↺ Erneut versuchen</button></div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Mission 8: Boss-Level ─────────────────────────────────────
+
+function M8BossLevel({ done, onComplete }) {
+  const AUSSAGEN = [
+    { id: 'a', text: 'KI-Sprachmodelle erzeugen Text, indem sie das wahrscheinlichste nächste Wort vorhersagen.', type: 'korrekt', explain: 'Korrekt – das ist eine überprüfbare technische Beschreibung.' },
+    { id: 'b', text: 'Da KI immer die wahrscheinlichste Antwort gibt, ist sie automatisch auch die richtige.', type: 'problematisch', explain: 'Problematisch! Wahrscheinlich ≠ richtig. KI kann überzeugend falsch liegen.' },
+    { id: 'c', text: 'Studien belegen eindeutig, dass KI-Nutzung das Lernen um 40% verbessert.', type: 'pruefbeduerftig', explain: 'Prüfbedürftig! Welche Studie? Unter welchen Bedingungen? Ohne Quelle nicht übernehmbar.' },
+    { id: 'd', text: 'KI kann Vorurteile aus den Trainingsdaten übernehmen.', type: 'korrekt', explain: 'Korrekt – das ist ein bekanntes Problem bei KI-Systemen.' },
+  ]
+  const [answers, setAnswers] = useState({})
+  const [checked,  setChecked]  = useState(false)
+  const allAnswered = AUSSAGEN.every(a => answers[a.id])
+  const correct = AUSSAGEN.filter(a => answers[a.id] === a.type).length
+
+  if (done) return <div className="done-badge">✓ Boss-Level besiegt!</div>
+
+  return (
+    <div>
+      <div style={{ background: 'var(--c-error-bg)', border: '2px solid var(--c-boss)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)', fontStyle: 'italic', lineHeight: 1.7 }}>
+        „KI-Sprachmodelle erzeugen Text, indem sie das wahrscheinlichste nächste Wort vorhersagen. Da KI immer die wahrscheinlichste Antwort gibt, ist sie automatisch auch die richtige. Studien belegen eindeutig, dass KI-Nutzung das Lernen um 40% verbessert. KI kann Vorurteile aus den Trainingsdaten übernehmen."
+      </div>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--sp-md)', flexWrap: 'wrap' }}>
+        <span style={{ background: 'var(--c-success-bg)', color: 'var(--c-success)', borderRadius: '99px', padding: '0.25rem 0.75rem', fontSize: 'var(--fs-xs)', fontWeight: 800 }}>✅ Korrekt</span>
+        <span style={{ background: 'var(--c-error-bg)', color: 'var(--c-error)', borderRadius: '99px', padding: '0.25rem 0.75rem', fontSize: 'var(--fs-xs)', fontWeight: 800 }}>⚠️ Problematisch</span>
+        <span style={{ background: 'var(--c-warn-bg)', color: 'var(--c-warn)', borderRadius: '99px', padding: '0.25rem 0.75rem', fontSize: 'var(--fs-xs)', fontWeight: 800 }}>🔍 Prüfbedürftig</span>
+      </div>
+      {AUSSAGEN.map(a => (
+        <div key={a.id} style={{ border: `2px solid ${checked ? (answers[a.id] === a.type ? 'var(--c-success)' : 'var(--c-error)') : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: '0.75rem', background: checked ? (answers[a.id] === a.type ? 'var(--c-success-bg)' : 'var(--c-error-bg)') : 'white' }}>
+          <p style={{ margin: '0 0 0.625rem', fontWeight: 600, fontStyle: 'italic' }}>„{a.text}"</p>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            {[{ v: 'korrekt', label: '✅ Korrekt' }, { v: 'problematisch', label: '⚠️ Problematisch' }, { v: 'pruefbeduerftig', label: '🔍 Prüfbedürftig' }].map(opt => (
+              <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: checked ? 'default' : 'pointer', fontWeight: 700, fontSize: 'var(--fs-xs)' }}>
+                <input type="radio" name={a.id} value={opt.v} checked={answers[a.id] === opt.v}
+                  onChange={() => !checked && setAnswers(prev => ({ ...prev, [a.id]: opt.v }))} disabled={checked}
+                  style={{ accentColor: 'var(--c-teal)', width: '1rem', height: '1rem' }} />
+                {opt.label}
+              </label>
+            ))}
+          </div>
+          {checked && <p style={{ margin: '0.5rem 0 0', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', fontStyle: 'italic' }}>{a.explain}</p>}
+        </div>
+      ))}
+      {!checked ? (
+        <div className="actions">
+          <button className="btn btn-danger" disabled={!allAnswered} onClick={() => setChecked(true)}>👾 Boss besiegen!</button>
+        </div>
+      ) : (
+        <div>
+          <div className={`feedback ${correct >= 3 ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>
+            {correct} von {AUSSAGEN.length} richtig. {correct >= 3 ? '🎉 Boss besiegt!' : 'Noch nicht ganz – versuche es erneut!'}
+          </div>
+          {correct >= 3 ? (
+            <div className="actions"><button className="btn btn-xp" onClick={onComplete}>Achievement freischalten ✅</button></div>
+          ) : (
+            <div className="actions"><button className="btn btn-ghost" onClick={() => { setAnswers({}); setChecked(false) }}>↺ Erneut versuchen</button></div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Mission 9: Finale ─────────────────────────────────────────
+
+function M9Finale({ done, vertrauen1, vertrauen2, ownRule, fallakteM1, onVertrauen2Change, onRuleChange, onComplete, onDashboard, achieved }) {
+  const diff = vertrauen2 - vertrauen1
+  const diffText = diff > 5 ? `+${diff}% – du vertraust KI jetzt mehr` : diff < -5 ? `${diff}% – du bist jetzt skeptischer` : 'Kaum verändert – deine Einschätzung war schon gut!'
+
+  if (done) return (
+    <div>
+      <div className="done-badge">✓ Alle 9 Missionen abgeschlossen!</div>
+      {achieved && (
+        <div className="achievement-card" style={{ marginTop: 'var(--sp-lg)' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🏆</div>
+          <h3 style={{ color: '#92400e', margin: '0 0 0.5rem' }}>KI-Profi</h3>
+          <p style={{ color: 'var(--c-muted)', margin: '0 0 var(--sp-md)' }}>Du hast alle 9 Missionen des KI-Checks abgeschlossen!</p>
+          <button className="btn btn-primary" onClick={onDashboard} style={{ background: 'var(--c-teal)' }}>Zur Modulübersicht →</button>
+        </div>
+      )}
+    </div>
+  )
+
+  return (
+    <div>
+      {/* Vorher-Nachher */}
+      <div style={{ background: 'var(--c-pale2)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-lg)', marginBottom: 'var(--sp-lg)' }}>
+        <h3 style={{ marginTop: 0, color: 'var(--c-teal)' }}>📊 Vorher-Nachher-Vergleich</h3>
+        <p style={{ color: 'var(--c-muted)', fontSize: 'var(--fs-sm)' }}>Zu Beginn (Mission 2) hast du dein Vertrauen auf <strong>{vertrauen1}%</strong> eingestellt. Wie ist es jetzt?</p>
+        <div style={{ margin: 'var(--sp-md) 0', textAlign: 'center' }}>
+          <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--c-teal)', marginBottom: '0.5rem' }}>{vertrauen2}%</div>
+          <input type="range" min="0" max="100" value={vertrauen2} onChange={e => onVertrauen2Change(Number(e.target.value))}
+            style={{ width: '100%', accentColor: 'var(--c-teal)' }} />
+        </div>
+        <div style={{ background: 'white', borderRadius: 'var(--r-md)', padding: 'var(--sp-md)', border: '1px solid var(--c-border)', fontSize: 'var(--fs-sm)', fontWeight: 700, color: 'var(--c-teal)' }}>
+          📈 {diffText}
+        </div>
+      </div>
+
+      {/* Anfangs-Antwort */}
+      {fallakteM1 && (
+        <div style={{ background: 'var(--c-pale2)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-lg)' }}>
+          <h3 style={{ marginTop: 0, color: 'var(--c-teal)' }}>🔎 Deine Antwort aus Mission 1</h3>
+          <p style={{ margin: 0, fontStyle: 'italic', color: 'var(--c-muted)' }}>„{fallakteM1}"</p>
+          <p style={{ margin: '0.5rem 0 0', fontSize: 'var(--fs-sm)', color: 'var(--c-teal)', fontWeight: 700 }}>Hat sich deine Einschätzung verändert?</p>
+        </div>
+      )}
+
+      {/* Persönliche Regel */}
+      <div style={{ marginBottom: 'var(--sp-lg)' }}>
+        <h3 style={{ color: 'var(--c-teal)' }}>🧭 Dein KI-Kompass</h3>
+        <p style={{ color: 'var(--c-muted)' }}>Formuliere deine persönliche Regel:</p>
+        <div style={{ background: 'var(--c-pale2)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-lg)', border: `2px solid var(--c-teal)` }}>
+          <div style={{ fontWeight: 800, color: 'var(--c-teal)', marginBottom: '0.75rem', fontSize: 'var(--fs-lg)' }}>Bevor ich KI nutze, frage ich mich …</div>
+          <textarea value={ownRule} onChange={e => onRuleChange(e.target.value)}
+            placeholder="z. B. … ob ich das auch selbst herausfinden könnte und ob KI hier wirklich hilft."
+            rows={3} maxLength={300}
+            style={{ width: '100%', padding: '0.75rem', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', font: 'inherit', resize: 'vertical' }} />
+          <div style={{ fontSize: 'var(--fs-xs)', color: ownRule.trim().length >= 15 ? 'var(--c-success)' : 'var(--c-muted)', textAlign: 'right', marginTop: '0.25rem' }}>
+            {ownRule.trim().length}/300 {ownRule.trim().length >= 15 ? '✓' : '(mindestens 15 Zeichen)'}
+          </div>
+        </div>
+      </div>
+
+      <div className="box-memory">KI kann mich unterstützen. Denken, Prüfen und Entscheiden muss ich selbst.</div>
+
+      <div className="actions">
+        <button className="btn btn-xp" disabled={ownRule.trim().length < 15} onClick={onComplete}>
+          🏆 Modul abschließen · Achievement freischalten
+        </button>
+      </div>
     </div>
   )
 }

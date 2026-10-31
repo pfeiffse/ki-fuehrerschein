@@ -1,138 +1,89 @@
-/* ============================================================
-   KI-Fuehrerschein - Design Tokens
-   WCAG 2.1 AA konform, Offline-First, Klasse-7-tauglich
-   ============================================================ */
-
+/* KI-Fuehrerschein - Design Tokens (Gamification) */
 :root {
-  /* Plattformfarben */
-  --color-platform:        #103d54;
-  --color-platform-mid:    #095c6b;
-  --color-platform-teal:   #087f83;
-  --color-platform-light:  #eaf5f6;
-  --color-platform-pale:   #f0fafb;
+  /* Plattform */
+  --c-dark:    #0f2a3d;
+  --c-teal:    #087f83;
+  --c-teal2:   #0a9ea3;
+  --c-pale:    #eaf5f6;
+  --c-pale2:   #f0fafb;
 
-  /* Akzentfarbe */
-  --color-gold:            #ffda76;
-  --color-gold-dark:       #c8960a;   /* WCAG AA auf weiss: 4.6:1 */
+  /* Gamification */
+  --c-xp:      #f59e0b;   /* Gold/XP */
+  --c-xp-bg:   #fef3c7;
+  --c-level:   #7c3aed;   /* Lila/Level */
+  --c-level-bg:#ede9fe;
+  --c-mission: #0ea5e9;   /* Blau/Mission */
+  --c-boss:    #dc2626;   /* Rot/Boss */
+  --c-success: #16a34a;
+  --c-success-bg: #dcfce7;
+  --c-error:   #dc2626;
+  --c-error-bg:#fee2e2;
+  --c-warn:    #d97706;
+  --c-warn-bg: #fef3c7;
+  --c-info:    #2563eb;
+  --c-info-bg: #dbeafe;
 
-  /* Modulfarben */
-  --color-modul-01:        #2859d8;
-  --color-modul-01-light:  #e6f4ff;
-  --color-modul-02:        #167e8a;
-  --color-modul-02-light:  #dff5f1;
-  --color-modul-03:        #1a6b7a;
-  --color-modul-03-light:  #e0f4f6;
-  --color-modul-04:        #095c6b;
-  --color-modul-04-light:  #dff4ec;
-  --color-abschluss:       #b8860b;
-  --color-abschluss-light: #fff8db;
+  /* Module */
+  --c-m01: #2859d8; --c-m01-bg: #e6f4ff;
+  --c-m02: #087f83; --c-m02-bg: #dff5f1;
+  --c-m03: #1a6b7a; --c-m03-bg: #e0f4f6;
+  --c-m04: #087f83; --c-m04-bg: #dff5f1;
+  --c-cert:#b8860b; --c-cert-bg:#fff8db;
 
-  /* Semantische Farben - WCAG AA geprueft */
-  --color-success:         #1a6b3a;   /* 5.1:1 auf weiss */
-  --color-success-light:   #d8f4e5;
-  --color-warning:         #8b5e00;   /* 5.2:1 auf weiss */
-  --color-warning-light:   #fff3d8;
-  --color-error:           #b91c1c;   /* 5.9:1 auf weiss */
-  --color-error-light:     #fee2e2;
-  --color-info:            #1d5fa8;   /* 5.4:1 auf weiss */
-  --color-info-light:      #dbeafe;
+  /* Text */
+  --c-text:   #163348;
+  --c-muted:  #4a5568;
+  --c-border: #c9e3e8;
 
-  /* Neutrale Farben */
-  --color-text:            #163348;   /* 12.1:1 auf weiss */
-  --color-text-muted:      #4a5568;   /* 7.0:1 auf weiss - WCAG AA */
-  --color-bg:              #eaf5f6;
-  --color-bg-gradient:     linear-gradient(145deg, #dff5f1, #eaf2ff 55%, #fff7e8);
-  --color-card:            #ffffff;
-  --color-border:          #c9e3e8;
-  --color-border-focus:    #087f83;
+  /* Typografie */
+  --font: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --fs-xs:  0.75rem;
+  --fs-sm:  0.875rem;
+  --fs-md:  1rem;
+  --fs-lg:  1.125rem;
+  --fs-xl:  clamp(1.25rem, 3vw, 1.75rem);
+  --fs-2xl: clamp(1.5rem, 4vw, 2.5rem);
+  --lh:     1.6;
 
-  /* Gradienten */
-  --gradient-hero:         linear-gradient(120deg, #095c6b, #167e8a);
-  --gradient-hero-dark:    linear-gradient(120deg, #103d54, #095c6b);
-
-  /* Typografie - rem fuer Skalierbarkeit */
-  --font-family:           system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
-  --font-size-xs:          0.78rem;   /* ~12.5px */
-  --font-size-sm:          0.875rem;  /* ~14px */
-  --font-size-base:        1rem;      /* 16px Basis */
-  --font-size-lg:          1.125rem;  /* ~18px */
-  --font-size-xl:          clamp(1.4rem, 3vw, 2.1rem);
-  --font-size-2xl:         clamp(1.8rem, 4vw, 3rem);
-  --line-height:           1.6;
-  --line-height-tight:     1.3;
-
-  /* Abstände - rem */
-  --space-xs:   0.25rem;
-  --space-sm:   0.5rem;
-  --space-md:   1rem;
-  --space-lg:   1.5rem;
-  --space-xl:   2rem;
-  --space-2xl:  3rem;
+  /* Abstände */
+  --sp-xs: 0.25rem;
+  --sp-sm: 0.5rem;
+  --sp-md: 1rem;
+  --sp-lg: 1.5rem;
+  --sp-xl: 2rem;
+  --sp-2xl:3rem;
 
   /* Radien */
-  --radius-sm:   0.5rem;
-  --radius-md:   0.75rem;
-  --radius-lg:   1.1875rem;
-  --radius-xl:   1.5625rem;
-  --radius-2xl:  1.75rem;
-  --radius-pill: 99px;
+  --r-sm:  0.5rem;
+  --r-md:  0.75rem;
+  --r-lg:  1rem;
+  --r-xl:  1.5rem;
+  --r-2xl: 2rem;
+  --r-pill:99px;
 
   /* Schatten */
-  --shadow-sm:  0 2px 8px rgba(22, 51, 72, 0.08);
-  --shadow-md:  0 6px 18px rgba(36, 81, 109, 0.08);
-  --shadow-lg:  0 12px 35px rgba(21, 84, 104, 0.15);
+  --sh-sm: 0 1px 4px rgba(15,42,61,0.08);
+  --sh-md: 0 4px 16px rgba(15,42,61,0.10);
+  --sh-lg: 0 8px 32px rgba(15,42,61,0.14);
+  --sh-glow-xp:    0 0 20px rgba(245,158,11,0.4);
+  --sh-glow-level: 0 0 20px rgba(124,58,237,0.4);
 
-  /* Touch-Ziele - mindestens 44x44px (WCAG 2.5.5) */
-  --touch-target: 2.75rem;  /* 44px */
-
-  /* Uebergaenge */
-  --transition: 0.3s ease;
-
-  /* Fokus-Ring */
-  --focus-ring: 3px solid var(--color-gold-dark);
-  --focus-ring-offset: 3px;
+  /* Touch */
+  --touch: 2.75rem; /* 44px */
+  --transition: 0.2s ease;
 }
 
-/* ── Reduzierte Animation ─────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
-/* ── Hoher Kontrast (WCAG 1.4.3) ─────────────────────────── */
 @media (prefers-contrast: high) {
   :root {
-    --color-text:         #000000;
-    --color-text-muted:   #1a1a1a;
-    --color-bg:           #ffffff;
-    --color-card:         #ffffff;
-    --color-border:       #000000;
-    --color-platform:     #003050;
-    --color-platform-teal:#005a5e;
-    --color-success:      #004d20;
-    --color-error:        #8b0000;
-    --color-warning:      #5c3d00;
-    --color-gold-dark:    #7a5800;
-    --shadow-sm:          none;
-    --shadow-md:          none;
-    --shadow-lg:          none;
+    --c-text: #000; --c-muted: #111;
+    --c-teal: #005a5e; --c-dark: #001a2e;
+    --c-border: #000;
   }
-
-  .card, .hero, .box-info, .box-task, .box-memory, .box-warning {
-    border: 2px solid currentColor !important;
-  }
-
-  .btn {
-    border: 2px solid currentColor !important;
-  }
-}
-
-/* ── Dunkelmodus (optional, Vorbereitung) ─────────────────── */
-@media (prefers-color-scheme: dark) {
-  /* Vorerst kein Dark Mode - Schulkontext bevorzugt helles Design */
-  /* Kann spaeter aktiviert werden */
 }

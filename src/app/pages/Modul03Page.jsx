@@ -1,359 +1,299 @@
-// ============================================================
-// KI-Führerschein · Modul 03 – Kennzeichnung & Datenschutz
-// Zwei Themen in einem Modul, mit echter Freischaltlogik
-// ============================================================
+// Modul 03 - Kennzeichnung & Datenschutz (Gamification)
 
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
-import { startModule, passModule } from '../../lib/progress.js'
-import { MemoryBox, InfoBox, TaskBox, WarningBox } from '../../components/ui/InfoBox.jsx'
+import { startModuleLocal, passModule } from '../../lib/progress.js'
 
-const MOD       = getModule('modul-03')
+const MOD = getModule('modul-03')
 const MOD_COLOR = '#1a6b7a'
-const STORAGE_KEY = 'ki_m03_state'
+const STORAGE_KEY = 'ki_m03_v3'
 
 function loadState() {
   try { const r = localStorage.getItem(STORAGE_KEY); if (r) return JSON.parse(r) } catch {}
-  return { done: {} }
+  return { done: {}, mission: 1 }
 }
-function saveState(s) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ done: s.done })) } catch {}
-}
+function saveState(s) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)) } catch {} }
 
-// ── Quiz-Komponente ───────────────────────────────────────────
-
-function QuizBlock({ id, question, options, answer, correctFeedback, wrongFeedback, done, onCorrect, allowRetry = true }) {
-  const [selected, setSelected] = useState('')
-  const [feedback, setFeedback] = useState(null)
-  const [locked,   setLocked]   = useState(done)
-
-  function check() {
-    if (!selected) { setFeedback('empty'); return }
-    if (selected === answer) { setLocked(true); setFeedback('correct'); onCorrect?.() }
-    else { setFeedback('wrong'); if (!allowRetry) setLocked(true) }
-  }
-
+function AchievementPopup({ ach, onClose }) {
+  if (!ach) return null
   return (
-    <div>
-      <p style={{ fontWeight: 800, marginBottom: 'var(--space-sm)' }}>{question}</p>
-      {options.map(opt => (
-        <label key={opt.value} className="option" style={{ cursor: locked ? 'default' : 'pointer' }}>
-          <input type="radio" name={id} value={opt.value}
-            checked={selected === opt.value}
-            onChange={() => !locked && setSelected(opt.value)} disabled={locked} />
-          {opt.label}
-        </label>
-      ))}
-      {feedback === 'empty'   && <div className="feedback wrong" style={{ display: 'block' }}>Bitte wähle zuerst eine Antwort aus.</div>}
-      {feedback === 'correct' && <div className="feedback correct" style={{ display: 'block' }}>✅ {correctFeedback}</div>}
-      {feedback === 'wrong'   && (
-        <div className="feedback wrong" style={{ display: 'block' }}>
-          ❌ {wrongFeedback}
-          {allowRetry && <div style={{ marginTop: '8px' }}><button className="nav-btn" onClick={() => { setSelected(''); setFeedback(null) }}>↺ Erneut versuchen</button></div>}
-        </div>
-      )}
-      {!locked && feedback !== 'correct' && (
-        <div className="actions">
-          <button className="btn btn-primary" onClick={check} disabled={!selected} style={{ background: MOD_COLOR }}>Prüfen</button>
-        </div>
-      )}
-      {locked && <div style={{ color: 'var(--color-success)', fontWeight: 800, fontSize: 'var(--font-size-sm)', marginTop: '8px' }}>✓ Erledigt</div>}
+    <div className="achievement-overlay" onClick={onClose}>
+      <div className="achievement-popup" onClick={e => e.stopPropagation()}>
+        <div style={{ fontSize: '4rem', marginBottom: '0.75rem' }}>{ach.icon}</div>
+        <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Achievement freigeschaltet!</div>
+        <h2 style={{ margin: '0 0 0.5rem', color: '#fbbf24' }}>{ach.title}</h2>
+        <button className="btn btn-xp" onClick={onClose} style={{ width: '100%', justifyContent: 'center' }} autoFocus>Weiter →</button>
+      </div>
     </div>
   )
 }
 
-// ── Datenschutz-Szenario ──────────────────────────────────────
-
-const DS_SCENARIOS = [
-  { id: 'a', text: 'Du gibst deinen vollen Namen und deine Adresse in eine KI ein, um einen Brief zu schreiben.', correct: 'nein', explanation: 'Persönliche Daten wie Name und Adresse solltest du nicht in KI-Systeme eingeben.' },
-  { id: 'b', text: 'Du fragst eine KI: „Erkläre mir, wie Photosynthese funktioniert."', correct: 'ja', explanation: 'Das ist unbedenklich – keine persönlichen Daten enthalten.' },
-  { id: 'c', text: 'Du gibst Informationen über eine Mitschülerin in eine KI ein, ohne sie zu fragen.', correct: 'nein', explanation: 'Daten anderer Personen dürfen nicht ohne deren Einwilligung weitergegeben werden.' },
-  { id: 'd', text: 'Du nutzt eine KI, um Vokabeln zu üben.', correct: 'ja', explanation: 'Kein Problem – keine persönlichen Daten beteiligt.' },
+const MISSIONS = [
+  { n: 1, title: 'Was ist Kennzeichnungspflicht?', icon: '🏷️' },
+  { n: 2, title: 'Wann muss ich kennzeichnen?', icon: '📋' },
+  { n: 3, title: 'Was sind persönliche Daten?', icon: '🔒' },
+  { n: 4, title: 'Datenschutz-Check', icon: '🛡️' },
+  { n: 5, title: 'Abschluss', icon: '🏆' },
 ]
 
-function DatenschutzCheck({ done, onComplete }) {
-  const [answers, setAnswers] = useState({})
-  const [checked, setChecked] = useState(false)
-  const [locked,  setLocked]  = useState(done)
-  const allAnswered = DS_SCENARIOS.every(s => answers[s.id])
+const KP_QUIZ = [
+  { id: 'kp1', q: 'Du schreibst ein Referat und nutzt KI für eine Zusammenfassung. Musst du das kennzeichnen?', opts: ['Ja, wenn die Schule es verlangt', 'Nein, das ist nicht nötig', 'Nur wenn der Text länger als eine Seite ist'], ans: 0, explain: 'Richtig! Wenn die Schule KI-Nutzung kennzeichnen lässt, ist das Pflicht.' },
+  { id: 'kp2', q: 'Du lässt eine KI dein Referat komplett schreiben und gibst es ohne Kennzeichnung ab. Ist das in Ordnung?', opts: ['Ja, das ist erlaubt', 'Nein, das ist nicht in Ordnung', 'Kommt auf die Lehrkraft an'], ans: 1, explain: 'Richtig! KI-generierte Inhalte als eigene Arbeit auszugeben ist unehrlich.' },
+  { id: 'kp3', q: 'Du nutzt KI, um Ideen zu sammeln, und formulierst dann selbst. Musst du kennzeichnen?', opts: ['Immer – auch wenn ich selbst formuliert habe', 'Das kommt auf die Schulregeln an', 'Nie – weil ich selbst geschrieben habe'], ans: 1, explain: 'Richtig! Es kommt auf die Schulregeln an. Im Zweifel: kennzeichnen.' },
+]
 
-  function check() {
-    if (!allAnswered) return
-    setChecked(true)
-    setLocked(true)
-    const correct = DS_SCENARIOS.filter(s => answers[s.id] === s.correct).length
-    onComplete(correct >= 3)
-  }
-
-  return (
-    <div>
-      <p className="lead">Beurteile jede Situation: Ist die KI-Nutzung aus Datenschutzsicht in Ordnung?</p>
-      {DS_SCENARIOS.map(s => (
-        <div key={s.id} style={{
-          border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)',
-          padding: 'var(--space-md)', marginBottom: 'var(--space-sm)',
-          background: checked ? (answers[s.id] === s.correct ? 'var(--color-success-light)' : 'var(--color-error-light)') : 'white',
-        }}>
-          <p style={{ margin: '0 0 10px', fontWeight: 700 }}>{s.text}</p>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            {['ja', 'nein'].map(v => (
-              <label key={v} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: locked ? 'default' : 'pointer', fontWeight: 700 }}>
-                <input type="radio" name={s.id} value={v}
-                  checked={answers[s.id] === v}
-                  onChange={() => !locked && setAnswers(a => ({ ...a, [s.id]: v }))}
-                  disabled={locked}
-                  style={{ accentColor: MOD_COLOR, width: '18px', height: '18px' }} />
-                {v === 'ja' ? '✓ Unbedenklich' : '✗ Bedenklich'}
-              </label>
-            ))}
-          </div>
-          {checked && (
-            <p style={{ margin: '8px 0 0', fontSize: 'var(--font-size-sm)', fontWeight: 700,
-              color: answers[s.id] === s.correct ? 'var(--color-success)' : 'var(--color-error)' }}>
-              {answers[s.id] === s.correct ? '✓ ' : '✗ '}{s.explanation}
-            </p>
-          )}
-        </div>
-      ))}
-      {!locked && (
-        <div className="actions">
-          <button className="btn btn-primary" onClick={check} disabled={!allAnswered} style={{ background: MOD_COLOR }}>
-            Antworten prüfen
-          </button>
-        </div>
-      )}
-      {locked && <div style={{ color: 'var(--color-success)', fontWeight: 800, marginTop: '8px', fontSize: 'var(--font-size-sm)' }}>✓ Erledigt</div>}
-    </div>
-  )
-}
-
-// ── Hauptkomponente ───────────────────────────────────────────
+const DS_SCENARIOS = [
+  { id: 'ds1', text: 'Du gibst deinen vollen Namen und deine Adresse in eine KI ein.', correct: 'nein', explain: 'Persönliche Daten wie Name und Adresse nicht in KI eingeben!' },
+  { id: 'ds2', text: 'Du fragst eine KI: „Erkläre mir, wie Photosynthese funktioniert."', correct: 'ja', explain: 'Unbedenklich – keine persönlichen Daten enthalten.' },
+  { id: 'ds3', text: 'Du gibst Informationen über eine Mitschülerin in eine KI ein.', correct: 'nein', explain: 'Daten anderer Personen nicht ohne Einwilligung weitergeben!' },
+  { id: 'ds4', text: 'Du nutzt eine KI, um Vokabeln zu üben.', correct: 'ja', explain: 'Kein Problem – keine persönlichen Daten beteiligt.' },
+]
 
 export default function Modul03Page() {
   const navigate = useNavigate()
-  const [done,     setDone]     = useState({})
-  const [achieved, setAchieved] = useState(false)
-  const [loaded,   setLoaded]   = useState(false)
+  const [state,    setState]    = useState(loadState)
+  const [achieved, setAchieved] = useState(() => hasAchievement(MOD.id))
+  const [showAch,  setShowAch]  = useState(null)
 
-  
+  useEffect(() => { startModuleLocal(MOD.id) }, [])
 
-  function markDone(id) {
-    const next = { ...done, [id]: true }
-    setDone(next)
-    saveState({ done: next })
+  function update(updates) {
+    setState(prev => { const next = { ...prev, ...updates }; saveState(next); return next })
   }
+  function markDone(id) { update({ done: { ...state.done, [id]: true } }) }
+  function goMission(n) { update({ mission: n }); window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
-  // Alle Pflichtaufgaben erledigt?
-  const allDone = ['kp-quiz1','kp-quiz2','kp-quiz3','ds-check','ds-quiz1','ds-quiz2','abschluss'].every(id => done[id])
-
-  
-
-  const progress = Math.round(Object.keys(done).length / 7 * 100)
-
-  if (!loaded) return (
-    <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }}>
-      <div className="wrap"><p style={{ color: 'var(--color-text-muted)' }}>Modul wird geladen …</p></div>
-    </div>
-  )
+  const { done, mission } = state
+  const completedCount = Object.keys(done).length
+  const progress = Math.round((completedCount / 5) * 100)
 
   return (
-    <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', minHeight: '100vh' }}>
+      <AchievementPopup ach={showAch} onClose={() => setShowAch(null)} />
       <div className="wrap">
 
-        {/* ── Modulkopf ── */}
-        <header className="hero" style={{ background: `linear-gradient(120deg, #0d4f5c, ${MOD_COLOR})` }}>
-          <div className="eyebrow" style={{ marginBottom: '8px' }}>KI-Führerschein Klasse 7 · Modul 3</div>
-          <h1 style={{ margin: '8px 0 6px' }}>{MOD.icon} Kennzeichnung & Datenschutz</h1>
-          <p className="lead" style={{ margin: '4px 0 16px', opacity: 0.9 }}>
-            Wann müssen KI-Inhalte gekennzeichnet werden – und welche Daten musst du schützen?
-          </p>
-          <div className="hero-progress">
-            <div className="hero-progress-bar" style={{ width: `${progress}%` }}
-              role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} />
+        {/* Header */}
+        <div className="mission-header" style={{ marginBottom: 'var(--sp-lg)' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div className="eyebrow" style={{ marginBottom: '0.5rem' }}>KI-Führerschein · Modul 3</div>
+              <h1 style={{ margin: '0 0 0.375rem', color: 'white' }}>🛡️ Kennzeichnung & Datenschutz</h1>
+              <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)' }}>Wann kennzeichnen · Daten schützen</p>
+            </div>
+            <div className="xp-badge">⭐ +{MOD.xp} XP</div>
           </div>
-        </header>
+          <div style={{ marginTop: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem', fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.6)' }}>
+              <span>Fortschritt</span><span>{progress}%</span>
+            </div>
+            <div className="progress-track"><div className="progress-fill" style={{ width: `${progress}%` }} /></div>
+          </div>
+        </div>
 
-        {/* ── Tab-Navigation ── */}
-        <div className="station-tabs no-print">
-          {['Teil A: Kennzeichnung','Teil B: Datenschutz','Abschluss'].map((label, i) => (
-            <button key={i} className="nav-btn"
-              onClick={() => document.getElementById(`s03-${i+1}`)?.scrollIntoView({ behavior: 'smooth' })}
-              style={{ fontSize: '0.85rem' }}>
-              {label}
+        {/* Missions-Navigation */}
+        <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', marginBottom: 'var(--sp-lg)' }}>
+          {MISSIONS.map(m => (
+            <button key={m.n} className={`nav-btn ${mission === m.n ? 'active' : ''}`} onClick={() => goMission(m.n)}
+              style={{ fontSize: '0.7rem', padding: '0.375rem 0.625rem', minHeight: '2rem',
+                background: done['m' + m.n] ? 'rgba(22,163,74,0.2)' : mission === m.n ? 'var(--c-xp)' : 'rgba(255,255,255,0.08)',
+                border: done['m' + m.n] ? '1px solid rgba(22,163,74,0.5)' : '1px solid rgba(255,255,255,0.15)',
+                color: done['m' + m.n] ? '#4ade80' : 'white' }}>
+              {done['m' + m.n] ? '✓' : m.n} {m.icon}
             </button>
           ))}
         </div>
 
-        {/* ══ TEIL A: KENNZEICHNUNGSPFLICHT ══ */}
-        <div id="s03-1" style={{ background: 'white', borderRadius: 'var(--radius-2xl)', padding: 'var(--space-lg)', marginBottom: 'var(--space-lg)', border: `3px solid ${MOD_COLOR}` }}>
-          <div className="station-counter">Teil A · Kennzeichnungspflicht</div>
-          <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>🏷️ Wann muss ich KI-Inhalte kennzeichnen?</h2>
-
-          <InfoBox title="Grundregel:">
-            Wenn du KI-generierte Inhalte verwendest – Texte, Bilder, Zusammenfassungen – musst du das in vielen Situationen kenntlich machen.
-          </InfoBox>
-          <InfoBox title="Warum ist das wichtig?">
-            Andere Menschen sollen wissen, ob ein Inhalt von einem Menschen oder einer KI erstellt wurde. Das ist eine Frage der <strong>Ehrlichkeit und Transparenz</strong>.
-          </InfoBox>
-          <InfoBox title="Wann muss ich kennzeichnen?">
-            <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
-              <li>Bei Hausaufgaben und Referaten, wenn die Schule es verlangt</li>
-              <li>Bei öffentlichen Texten oder Beiträgen</li>
-              <li>Wenn KI-Inhalte als eigene Arbeit eingereicht werden sollen</li>
-            </ul>
-          </InfoBox>
-          <WarningBox>
-            KI-generierte Inhalte als eigene Arbeit auszugeben, ohne sie zu kennzeichnen, ist unehrlich – und in der Schule nicht erlaubt.
-          </WarningBox>
-          <MemoryBox>Kennzeichne KI-Inhalte immer dann, wenn andere wissen müssen, dass eine KI beteiligt war.</MemoryBox>
-
-          <hr style={{ border: 0, borderTop: '1px solid var(--color-border)', margin: 'var(--space-lg) 0' }} />
-
-          {/* Quiz 1 */}
-          <QuizBlock id="kp-quiz1"
-            question="Du schreibst ein Referat und nutzt KI für eine Zusammenfassung. Musst du das kennzeichnen?"
-            options={[
-              { value: 'ja',   label: 'Ja, wenn die Schule es verlangt' },
-              { value: 'nein', label: 'Nein, das ist nicht nötig' },
-              { value: 'egal', label: 'Das ist egal, solange der Text gut ist' },
-            ]}
-            answer="ja" done={!!done['kp-quiz1']} allowRetry={true}
-            correctFeedback="Richtig! Wenn die Schule KI-Nutzung kennzeichnen lässt, ist das Pflicht."
-            wrongFeedback="Noch nicht ganz. Lies die Grundregel oben noch einmal."
-            onCorrect={() => markDone('kp-quiz1')}
-          />
-
-          <hr style={{ border: 0, borderTop: '1px solid var(--color-border)', margin: 'var(--space-lg) 0' }} />
-
-          {/* Quiz 2 */}
-          <QuizBlock id="kp-quiz2"
-            question="Du lässt eine KI dein Referat komplett schreiben und gibst es ohne Kennzeichnung als deine eigene Arbeit ab. Ist das in Ordnung?"
-            options={[
-              { value: 'ja',   label: 'Ja, das ist erlaubt' },
-              { value: 'nein', label: 'Nein, das ist nicht in Ordnung' },
-              { value: 'kommt', label: 'Kommt auf die Lehrkraft an' },
-            ]}
-            answer="nein" done={!!done['kp-quiz2']} allowRetry={true}
-            correctFeedback="Richtig! KI-generierte Inhalte als eigene Arbeit auszugeben ist unehrlich."
-            wrongFeedback="Noch nicht ganz. Überlege: Was bedeutet eigene Arbeit?"
-            onCorrect={() => markDone('kp-quiz2')}
-          />
-
-          <hr style={{ border: 0, borderTop: '1px solid var(--color-border)', margin: 'var(--space-lg) 0' }} />
-
-          {/* Quiz 3 – Situationen */}
-          <QuizBlock id="kp-quiz3"
-            question="Du nutzt KI, um Ideen für ein Referat zu sammeln, und formulierst dann selbst. Musst du das kennzeichnen?"
-            options={[
-              { value: 'immer',  label: 'Ja, immer – auch wenn ich selbst formuliert habe' },
-              { value: 'kommt',  label: 'Das kommt auf die Schulregeln an' },
-              { value: 'nie',    label: 'Nein, weil ich selbst geschrieben habe' },
-            ]}
-            answer="kommt" done={!!done['kp-quiz3']} allowRetry={true}
-            correctFeedback="Richtig! Es kommt auf die Schulregeln an. Im Zweifel: kennzeichnen."
-            wrongFeedback="Noch nicht ganz. Es gibt keine pauschale Antwort – die Schulregeln entscheiden."
-            onCorrect={() => markDone('kp-quiz3')}
-          />
-        </div>
-
-        {/* ══ TEIL B: DATENSCHUTZ ══ */}
-        <div id="s03-2" style={{ background: 'white', borderRadius: 'var(--radius-2xl)', padding: 'var(--space-lg)', marginBottom: 'var(--space-lg)', border: `3px solid ${MOD_COLOR}` }}>
-          <div className="station-counter">Teil B · Datenschutz</div>
-          <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>🔒 Welche Daten muss ich schützen?</h2>
-
-          <InfoBox title="Persönliche Daten sind z. B.:">
-            <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
-              <li>Name, Adresse, Geburtsdatum</li>
-              <li>Fotos und Videos von Personen</li>
-              <li>Gesundheitsdaten, Noten, persönliche Probleme</li>
-              <li>Daten über andere Personen (Mitschüler:innen, Familie)</li>
-            </ul>
-          </InfoBox>
-          <WarningBox title="Wichtige Regel:">
-            Gib <strong>keine persönlichen Daten</strong> in KI-Systeme ein – weder deine eigenen noch die anderer Personen.
-          </WarningBox>
-          <InfoBox title="Warum ist das wichtig?">
-            KI-Anbieter können Eingaben speichern, auswerten oder für das Training neuer Modelle verwenden. Persönliche Daten könnten so in falsche Hände geraten.
-          </InfoBox>
-          <MemoryBox>Keine persönlichen Daten in KI eingeben – weder eigene noch fremde.</MemoryBox>
-
-          <hr style={{ border: 0, borderTop: '1px solid var(--color-border)', margin: 'var(--space-lg) 0' }} />
-
-          {/* Datenschutz-Check */}
-          <DatenschutzCheck done={!!done['ds-check']}
-            onComplete={(passed) => markDone('ds-check')} />
-
-          <hr style={{ border: 0, borderTop: '1px solid var(--color-border)', margin: 'var(--space-lg) 0' }} />
-
-          {/* DS Quiz 1 */}
-          <QuizBlock id="ds-quiz1"
-            question="Darf eine KI Eingaben speichern und für ihr Training verwenden?"
-            options={[
-              { value: 'nein',  label: 'Nein, das ist grundsätzlich verboten' },
-              { value: 'ja',    label: 'Ja, das kann je nach Anbieter möglich sein' },
-              { value: 'egal',  label: 'Das spielt keine Rolle' },
-            ]}
-            answer="ja" done={!!done['ds-quiz1']} allowRetry={true}
-            correctFeedback="Richtig! Deshalb solltest du keine persönlichen Daten eingeben."
-            wrongFeedback="Noch nicht ganz. Lies den Abschnitt 'Warum ist das wichtig?' noch einmal."
-            onCorrect={() => markDone('ds-quiz1')}
-          />
-
-          <hr style={{ border: 0, borderTop: '1px solid var(--color-border)', margin: 'var(--space-lg) 0' }} />
-
-          {/* DS Quiz 2 */}
-          <QuizBlock id="ds-quiz2"
-            question="Du möchtest einer KI helfen, einen Text über deine Mitschülerin Lena zu schreiben. Was solltest du tun?"
-            options={[
-              { value: 'ok',    label: 'Einfach eingeben – das ist harmlos' },
-              { value: 'fragen', label: 'Lena zuerst fragen und keine persönlichen Details eingeben' },
-              { value: 'anonym', label: 'Ihren Namen weglassen und keine persönlichen Details eingeben' },
-            ]}
-            answer="anonym" done={!!done['ds-quiz2']} allowRetry={true}
-            correctFeedback="Richtig! Keine persönlichen Daten anderer Personen eingeben."
-            wrongFeedback="Noch nicht ganz. Denke daran: Daten anderer Personen gehören nicht in KI-Systeme."
-            onCorrect={() => markDone('ds-quiz2')}
-          />
-        </div>
-
-        {/* ══ ABSCHLUSS ══ */}
-        <div id="s03-3" className="card">
-          <div className="station-counter">Abschluss</div>
-          <h2 style={{ color: MOD_COLOR }}>Zusammenfassung</h2>
-          <MemoryBox>Kennzeichne KI-Inhalte immer dann, wenn andere wissen müssen, dass eine KI beteiligt war.</MemoryBox>
-          <MemoryBox>Keine persönlichen Daten in KI eingeben – weder eigene noch fremde.</MemoryBox>
-
-          {!done['abschluss'] ? (
-            <div className="actions">
-              <button className="btn btn-success"
-                onClick={() => markDone('abschluss')}
-                disabled={!['kp-quiz1','kp-quiz2','kp-quiz3','ds-check','ds-quiz1','ds-quiz2'].every(id => done[id])}>
-                {['kp-quiz1','kp-quiz2','kp-quiz3','ds-check','ds-quiz1','ds-quiz2'].every(id => done[id])
-                  ? 'Modul abschließen ✓'
-                  : 'Bitte alle Aufgaben oben erledigen'}
-              </button>
+        {/* Mission 1: Info Kennzeichnung */}
+        {mission === 1 && (
+          <div className="card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: 'var(--sp-md)' }}>
+              <div className="mission-number">1</div>
+              <h2 style={{ margin: 0, color: MOD_COLOR }}>🏷️ Was ist Kennzeichnungspflicht?</h2>
             </div>
-          ) : (
-            <>
-              <div className="card" style={{
-                border: `2px solid ${achieved ? 'var(--color-gold-dark)' : 'var(--color-border)'}`,
-                background: achieved ? '#fff8db' : 'white', textAlign: 'center', marginTop: 'var(--space-lg)',
-              }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{MOD.achievement.icon}</div>
-                <h3 style={{ color: achieved ? '#825300' : MOD_COLOR, margin: '0 0 8px' }}>{MOD.achievement.title}</h3>
-                <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>{MOD.achievement.description}</p>
-                {achieved && <div style={{ color: 'var(--color-success)', fontWeight: 800, marginTop: '12px' }}>✓ Achievement erworben!</div>}
+            <div className="box-info"><strong>Grundregel:</strong> Wenn du KI-generierte Inhalte verwendest, musst du das in vielen Situationen kenntlich machen.</div>
+            <div className="box-info"><strong>Warum?</strong> Andere sollen wissen, ob ein Inhalt von einem Menschen oder einer KI erstellt wurde. Das ist eine Frage der <strong>Ehrlichkeit und Transparenz</strong>.</div>
+            <div className="box-warning">KI-generierte Inhalte als eigene Arbeit auszugeben, ohne sie zu kennzeichnen, ist unehrlich – und in der Schule nicht erlaubt.</div>
+            <div className="box-memory">Kennzeichne KI-Inhalte immer dann, wenn andere wissen müssen, dass eine KI beteiligt war.</div>
+            {!done['m1'] ? (
+              <div className="actions"><button className="btn btn-xp" onClick={() => { markDone('m1'); goMission(2) }}>Verstanden · Weiter →</button></div>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <div className="done-badge">✓ Mission 1 abgeschlossen</div>
+                <button className="btn btn-primary" onClick={() => goMission(2)} style={{ background: MOD_COLOR }}>Weiter →</button>
               </div>
-              <div className="actions" style={{ marginTop: 'var(--space-lg)' }}>
-                <button className="btn btn-primary" onClick={() => navigate('/dashboard')} style={{ background: MOD_COLOR }}>
-                  Weiter zur Modulübersicht →
+            )}
+          </div>
+        )}
+
+        {/* Mission 2: Quiz Kennzeichnung */}
+        {mission === 2 && (
+          <div className="card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: 'var(--sp-md)' }}>
+              <div className="mission-number">2</div>
+              <h2 style={{ margin: 0, color: MOD_COLOR }}>📋 Wann muss ich kennzeichnen?</h2>
+            </div>
+            <M3Quiz questions={KP_QUIZ} done={!!done['m2']} onComplete={() => { markDone('m2'); goMission(3) }} color={MOD_COLOR} />
+          </div>
+        )}
+
+        {/* Mission 3: Info Datenschutz */}
+        {mission === 3 && (
+          <div className="card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: 'var(--sp-md)' }}>
+              <div className="mission-number">3</div>
+              <h2 style={{ margin: 0, color: MOD_COLOR }}>🔒 Was sind persönliche Daten?</h2>
+            </div>
+            <div className="box-info"><strong>Persönliche Daten sind z. B.:</strong><ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.25rem', lineHeight: 2 }}><li>Name, Adresse, Geburtsdatum</li><li>Fotos und Videos von Personen</li><li>Gesundheitsdaten, Noten, persönliche Probleme</li><li>Daten über andere Personen</li></ul></div>
+            <div className="box-warning"><strong>Wichtige Regel:</strong> Gib <strong>keine persönlichen Daten</strong> in KI-Systeme ein – weder deine eigenen noch die anderer Personen.</div>
+            <div className="box-info"><strong>Warum?</strong> KI-Anbieter können Eingaben speichern, auswerten oder für das Training neuer Modelle verwenden.</div>
+            <div className="box-memory">Keine persönlichen Daten in KI eingeben – weder eigene noch fremde.</div>
+            {!done['m3'] ? (
+              <div className="actions"><button className="btn btn-xp" onClick={() => { markDone('m3'); goMission(4) }}>Verstanden · Weiter →</button></div>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <div className="done-badge">✓ Mission 3 abgeschlossen</div>
+                <button className="btn btn-primary" onClick={() => goMission(4)} style={{ background: MOD_COLOR }}>Weiter →</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Mission 4: Datenschutz-Check */}
+        {mission === 4 && (
+          <div className="card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: 'var(--sp-md)' }}>
+              <div className="mission-number">4</div>
+              <h2 style={{ margin: 0, color: MOD_COLOR }}>🛡️ Datenschutz-Check</h2>
+            </div>
+            <p className="lead">Beurteile jede Situation: Ist die KI-Nutzung aus Datenschutzsicht in Ordnung?</p>
+            <M3DSCheck scenarios={DS_SCENARIOS} done={!!done['m4']} onComplete={() => { markDone('m4'); goMission(5) }} color={MOD_COLOR} />
+          </div>
+        )}
+
+        {/* Mission 5: Abschluss */}
+        {mission === 5 && (
+          <div className="card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: 'var(--sp-md)' }}>
+              <div className="mission-number">5</div>
+              <h2 style={{ margin: 0, color: MOD_COLOR }}>🏆 Abschluss</h2>
+            </div>
+            <div className="box-memory">Kennzeichne KI-Inhalte immer dann, wenn andere wissen müssen, dass eine KI beteiligt war.</div>
+            <div className="box-memory">Keine persönlichen Daten in KI eingeben – weder eigene noch fremde.</div>
+            {!done['m5'] ? (
+              <div className="actions">
+                <button className="btn btn-xp"
+                  disabled={!['m1','m2','m3','m4'].every(id => done[id])}
+                  onClick={() => {
+                    markDone('m5')
+                    passModule(MOD.id, 100, 100)
+                    saveAchievementLocal(MOD.id)
+                    setAchieved(true)
+                    setShowAch({ icon: '🛡️', title: 'KI-Verantwortliche:r', desc: 'Du kennst die Regeln zur Kennzeichnung und zum Datenschutz!' })
+                  }}>
+                  Modul abschließen · Achievement freischalten 🛡️
                 </button>
               </div>
-            </>
-          )}
+            ) : (
+              <div>
+                <div className="done-badge">✓ Modul 3 abgeschlossen!</div>
+                <div className="actions" style={{ marginTop: 'var(--sp-md)' }}>
+                  <button className="btn btn-primary" onClick={() => navigate('/dashboard')} style={{ background: MOD_COLOR }}>Zur Übersicht →</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="actions no-print" style={{ marginTop: 'var(--sp-lg)' }}>
+          {mission > 1 && <button className="btn btn-ghost" onClick={() => goMission(mission - 1)}>← Zurück</button>}
+          <button className="btn btn-ghost" onClick={() => navigate('/dashboard')}>Zur Übersicht</button>
         </div>
       </div>
+    </div>
+  )
+}
+
+function M3Quiz({ questions, done, onComplete, color }) {
+  const [answers, setAnswers] = useState({})
+  const [feedback, setFeedback] = useState({})
+  const [allCorrect, setAllCorrect] = useState(false)
+
+  function check(qid, val, correct) {
+    const isCorrect = val === correct
+    setAnswers(a => ({ ...a, [qid]: val }))
+    setFeedback(f => ({ ...f, [qid]: isCorrect ? 'correct' : 'wrong' }))
+    const newAnswers = { ...answers, [qid]: val }
+    if (questions.every(q => newAnswers[q.id] === q.ans)) setAllCorrect(true)
+  }
+
+  if (done) return <div className="done-badge">✓ Quiz abgeschlossen</div>
+
+  return (
+    <div>
+      {questions.map(q => (
+        <div key={q.id} style={{ marginBottom: 'var(--sp-md)', padding: 'var(--sp-md)', background: 'var(--c-pale2)', borderRadius: 'var(--r-lg)', border: `2px solid ${feedback[q.id] === 'correct' ? 'var(--c-success)' : feedback[q.id] === 'wrong' ? 'var(--c-error)' : 'var(--c-border)'}` }}>
+          <p style={{ fontWeight: 700, marginBottom: '0.625rem' }}>{q.q}</p>
+          {q.opts.map((opt, i) => (
+            <label key={i} className="option" style={{ background: answers[q.id] === i ? (feedback[q.id] === 'correct' ? 'var(--c-success-bg)' : 'var(--c-error-bg)') : 'white' }}>
+              <input type="radio" name={q.id} value={i} checked={answers[q.id] === i}
+                onChange={() => !feedback[q.id] && check(q.id, i, q.ans)}
+                disabled={!!feedback[q.id]} style={{ accentColor: color }} />
+              {opt}
+            </label>
+          ))}
+          {feedback[q.id] === 'correct' && <div className="feedback correct" style={{ display: 'block' }}>✅ {q.explain}</div>}
+          {feedback[q.id] === 'wrong' && (
+            <div className="feedback wrong" style={{ display: 'block' }}>
+              ❌ {q.explain}
+              <div style={{ marginTop: '0.5rem' }}><button className="nav-btn" onClick={() => { setAnswers(a => ({ ...a, [q.id]: undefined })); setFeedback(f => ({ ...f, [q.id]: undefined })) }}>↺ Erneut versuchen</button></div>
+            </div>
+          )}
+        </div>
+      ))}
+      {allCorrect && <div className="actions"><button className="btn btn-xp" onClick={onComplete}>Alle richtig! Weiter →</button></div>}
+    </div>
+  )
+}
+
+function M3DSCheck({ scenarios, done, onComplete, color }) {
+  const [answers, setAnswers] = useState({})
+  const [checked,  setChecked]  = useState(false)
+  const allAnswered = scenarios.every(s => answers[s.id])
+  const correct = scenarios.filter(s => answers[s.id] === s.correct).length
+
+  if (done) return <div className="done-badge">✓ Datenschutz-Check abgeschlossen</div>
+
+  return (
+    <div>
+      {scenarios.map(s => (
+        <div key={s.id} style={{ border: `2px solid ${checked ? (answers[s.id] === s.correct ? 'var(--c-success)' : 'var(--c-error)') : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: '0.75rem', background: checked ? (answers[s.id] === s.correct ? 'var(--c-success-bg)' : 'var(--c-error-bg)') : 'white' }}>
+          <p style={{ margin: '0 0 0.625rem', fontWeight: 600 }}>{s.text}</p>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            {[{ v: 'ja', label: '✓ Unbedenklich' }, { v: 'nein', label: '✗ Bedenklich' }].map(opt => (
+              <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: checked ? 'default' : 'pointer', fontWeight: 700, fontSize: 'var(--fs-sm)' }}>
+                <input type="radio" name={s.id} value={opt.v} checked={answers[s.id] === opt.v}
+                  onChange={() => !checked && setAnswers(a => ({ ...a, [s.id]: opt.v }))} disabled={checked}
+                  style={{ accentColor: color, width: '1rem', height: '1rem' }} />
+                {opt.label}
+              </label>
+            ))}
+          </div>
+          {checked && <p style={{ margin: '0.5rem 0 0', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', fontStyle: 'italic' }}>{s.explain}</p>}
+        </div>
+      ))}
+      {!checked ? (
+        <div className="actions"><button className="btn btn-primary" disabled={!allAnswered} onClick={() => setChecked(true)} style={{ background: color }}>Auswerten</button></div>
+      ) : (
+        <div>
+          <div className={`feedback ${correct >= 3 ? 'correct' : 'wrong'}`} style={{ display: 'block' }}>{correct} von {scenarios.length} richtig. {correct >= 3 ? 'Gut gemacht!' : 'Lies die Erklärungen und versuche es erneut.'}</div>
+          {correct >= 3 ? (
+            <div className="actions"><button className="btn btn-xp" onClick={onComplete}>Weiter →</button></div>
+          ) : (
+            <div className="actions"><button className="btn btn-ghost" onClick={() => { setAnswers({}); setChecked(false) }}>↺ Erneut versuchen</button></div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -1,205 +1,145 @@
-// ============================================================
-// KI-Führerschein · Modul 01 – Was ist KI?
-// Stil: Modul 4 (Stationen, Stationssperre, Achievement-Overlay)
-// ============================================================
+// Modul 01 - Was ist KI? (Gamification: 4 Missionen)
 
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
-import { startModule, updateModuleProgress, passModule } from '../../lib/progress.js'
-import { MemoryBox, InfoBox, WarningBox } from '../../components/ui/InfoBox.jsx'
+import { startModuleLocal, passModule, getLocalProgress } from '../../lib/progress.js'
 import Station1 from '../../modules/modul-01/Station1.jsx'
 import Station2 from '../../modules/modul-01/Station2.jsx'
 import Station3 from '../../modules/modul-01/Station3.jsx'
 import Station4 from '../../modules/modul-01/Station4.jsx'
 
-const MOD       = getModule('modul-01')
+const MOD = getModule('modul-01')
 const MOD_COLOR = '#2859d8'
-const STORAGE_KEY = 'ki_m01_v2'
+const STORAGE_KEY = 'ki_m01_v3'
 
 function loadState() {
   try { const r = localStorage.getItem(STORAGE_KEY); if (r) return JSON.parse(r) } catch {}
-  return { completed: [], currentStation: 'home' }
+  return { completed: [], station: 'home' }
 }
-function saveState(s) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)) } catch {}
-}
+function saveState(s) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)) } catch {} }
 
-const STATION_ACHIEVEMENTS = {
-  1: { icon: '🐴', title: 'Trainings-Experte',   desc: 'Du weißt, warum Trainingsdaten wichtig sind.' },
-  2: { icon: '🔍', title: 'Muster-Detektiv',     desc: 'Du hast das Wasserzeichen-Rätsel gelöst.' },
-  3: { icon: '💬', title: 'Kontext-Kenner',       desc: 'Du verstehst, wie Kontext Wahrscheinlichkeiten beeinflusst.' },
-  4: { icon: '🧱', title: 'Satz-Baumeister',      desc: 'Du hast die Satzwerkstatt gemeistert.' },
+const STATION_ACH = {
+  1: { icon: '🐴', title: 'Trainings-Experte',  xp: 80 },
+  2: { icon: '🔍', title: 'Muster-Detektiv',    xp: 100 },
+  3: { icon: '💬', title: 'Kontext-Kenner',      xp: 80 },
+  4: { icon: '🧱', title: 'Satz-Baumeister',     xp: 140 },
 }
 
 export default function Modul01Page() {
   const navigate = useNavigate()
-  const [state,    setState]    = useState(null)
-  const [achieved, setAchieved] = useState(false)
+  const [state,    setState]    = useState(loadState)
+  const [achieved, setAchieved] = useState(() => hasAchievement(MOD.id))
   const [showAch,  setShowAch]  = useState(null)
 
-  
-
-  function updateState(updates) {
-    setState(prev => {
-      const next = { ...prev, ...updates }
-      saveState(next)
-      return next
-    })
-  }
+  useEffect(() => { startModuleLocal(MOD.id) }, [])
 
   function goStation(n) {
-    updateState({ currentStation: n })
+    const next = { ...state, station: n }
+    setState(next); saveState(next)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  
-
-  function resetModule() {
-    if (!confirm('Modul wirklich neu starten?')) return
-    const fresh = { completed: [], currentStation: 'home' }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh))
-    setState(fresh)
+  function completeStation(n) {
+    const completed = state.completed.includes(n) ? state.completed : [...state.completed, n]
+    const next = { ...state, completed }
+    setState(next); saveState(next)
+    const ach = STATION_ACH[n]
+    setShowAch(ach)
+    if (n === 4) {
+      passModule(MOD.id, 100, 100)
+      saveAchievementLocal(MOD.id)
+      setAchieved(true)
+    }
   }
 
-  if (!state) return (
-    <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }}>
-      <div className="wrap"><p style={{ color: 'var(--color-text-muted)' }}>Wird geladen …</p></div>
-    </div>
-  )
-
-  const { completed, currentStation } = state
+  const { completed, station } = state
   const progress = Math.round((completed.length / 4) * 100)
 
-  function handleSpeak() {
-    if (!('speechSynthesis' in window)) { alert('Vorlesen wird von diesem Browser nicht unterstützt.'); return }
-    speechSynthesis.cancel()
-    const main = document.getElementById('m01-main')
-    if (!main) return
-    const t = new SpeechSynthesisUtterance(main.innerText.replace(/\d+ %/g, ''))
-    t.lang = 'de-DE'; t.rate = 0.87
-    speechSynthesis.speak(t)
-  }
-
   return (
-    <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }} id="m01-main">
+    <div style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', minHeight: '100vh' }}>
+
+      {/* Achievement-Overlay */}
+      {showAch && (
+        <div className="achievement-overlay" onClick={() => setShowAch(null)}>
+          <div className="achievement-popup" onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: '4rem', marginBottom: '0.75rem' }}>{showAch.icon}</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Mission abgeschlossen!</div>
+            <h2 style={{ margin: '0 0 0.5rem', color: '#fbbf24' }}>{showAch.title}</h2>
+            <div style={{ color: '#f59e0b', fontWeight: 900, fontSize: '1.25rem', marginBottom: '1.25rem' }}>+{showAch.xp} XP ⭐</div>
+            <button className="btn btn-xp" onClick={() => setShowAch(null)} style={{ width: '100%', justifyContent: 'center' }} autoFocus>Weiter →</button>
+          </div>
+        </div>
+      )}
+
       <div className="wrap">
-
-        {/* Achievement-Overlay */}
-        {showAch && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 'var(--space-lg)' }}
-            onClick={() => setShowAch(null)} role="dialog" aria-modal="true">
-            <div style={{ background: '#fff8db', border: '3px solid var(--color-gold-dark)', borderRadius: 'var(--radius-2xl)', padding: 'var(--space-2xl)', textAlign: 'center', maxWidth: '400px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}
-              onClick={e => e.stopPropagation()}>
-              <div style={{ fontSize: '4rem', marginBottom: 'var(--space-md)' }}>{showAch.icon}</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#825300', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '8px' }}>Achievement freigeschaltet!</div>
-              <h2 style={{ color: '#825300', margin: '0 0 8px' }}>{showAch.title}</h2>
-              <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-lg)' }}>{showAch.desc}</p>
-              <button className="btn btn-primary" onClick={() => setShowAch(null)} style={{ background: MOD_COLOR, width: '100%', justifyContent: 'center' }} autoFocus>
-                Weiter →
-              </button>
+        {/* Modul-Header */}
+        <div className="mission-header" style={{ marginBottom: 'var(--sp-lg)' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div className="eyebrow" style={{ marginBottom: '0.5rem' }}>KI-Führerschein · Modul 1</div>
+              <h1 style={{ margin: '0 0 0.375rem', color: 'white' }}>🤖 Was ist KI?</h1>
+              <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)', fontSize: 'var(--fs-lg)' }}>Trainingsdaten · Mustererkennung · Sprach-KI</p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <div className="xp-badge">⭐ +{MOD.xp} XP</div>
+              {achieved && <div style={{ background: 'rgba(22,163,74,0.3)', border: '1px solid rgba(22,163,74,0.6)', borderRadius: '99px', padding: '0.25rem 0.75rem', color: '#4ade80', fontWeight: 800, fontSize: 'var(--fs-sm)' }}>✓ Abgeschlossen</div>}
             </div>
           </div>
-        )}
-
-        {/* Modulkopf */}
-        <header className="hero" style={{ background: `linear-gradient(120deg, #1a3a8f, ${MOD_COLOR})` }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
-            <div style={{ flex: 1 }}>
-              <div className="eyebrow" style={{ marginBottom: '8px' }}>KI-Führerschein Klasse 7 · Modul 1</div>
-              <h1 style={{ margin: '8px 0 6px' }}>🤖 Was ist KI?</h1>
-              <p className="lead" style={{ margin: '4px 0 16px', opacity: 0.9 }}>
-                Trainingsdaten · Mustererkennung · Sprach-KI
-              </p>
-              <div className="hero-progress">
-                <div className="hero-progress-bar" style={{ width: `${progress}%` }}
-                  role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} />
-              </div>
+          <div style={{ marginTop: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem', fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.6)' }}>
+              <span>Fortschritt</span><span>{progress}%</span>
             </div>
-            <button onClick={handleSpeak} title="Vorlesen" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 'var(--radius-md)', color: 'white', padding: '8px 14px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem', fontWeight: 700, flexShrink: 0 }}>
-              🔊 Vorlesen
-            </button>
+            <div className="progress-track"><div className="progress-fill" style={{ width: `${progress}%` }} /></div>
           </div>
-        </header>
+        </div>
 
         {/* Tab-Navigation */}
-        <div className="station-tabs no-print">
-          <button className={`nav-btn ${currentStation === 'home' ? 'active' : ''}`} onClick={() => goStation('home')}>Start</button>
-          {[1,2,3,4].map(n => (
-            <button key={n} className={`nav-btn ${currentStation === n ? 'active' : ''}`} onClick={() => goStation(n)}>
-              {completed.includes(n) ? '✓ ' : ''}{['1·Trainingsdaten','2·Wasserzeichen','3·Kontext','4·Satzwerkstatt'][n-1]}
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: 'var(--sp-lg)' }}>
+          {[{ n: 'home', label: 'Start' }, { n: 1, label: '1·Trainingsdaten' }, { n: 2, label: '2·Wasserzeichen' }, { n: 3, label: '3·Kontext' }, { n: 4, label: '4·Satzwerkstatt' }].map(t => (
+            <button key={t.n} className={`nav-btn ${station === t.n ? 'active' : ''}`} onClick={() => goStation(t.n)} style={{ fontSize: 'var(--fs-xs)' }}>
+              {typeof t.n === 'number' && completed.includes(t.n) ? '✓ ' : ''}{t.label}
             </button>
           ))}
         </div>
 
-        {/* Achievement-Übersicht */}
-        {completed.length > 0 && (
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: 'var(--space-md)' }}>
-            {completed.map(n => (
-              <div key={n} style={{ background: '#fff8db', border: '1px solid var(--color-gold-dark)', borderRadius: 'var(--radius-pill)', padding: '4px 12px', fontSize: 'var(--font-size-xs)', fontWeight: 800, color: '#825300' }}>
-                {STATION_ACHIEVEMENTS[n].icon} {STATION_ACHIEVEMENTS[n].title}
-              </div>
-            ))}
-          </div>
-        )}
-
         {/* Startseite */}
-        {currentStation === 'home' && (
+        {station === 'home' && (
           <div className="card">
-            <h2 style={{ color: MOD_COLOR }}>🕵️ Werde KI-Detektiv!</h2>
-            <p className="lead">Vier Stationen zeigen dir, wie KI funktioniert – von Trainingsdaten bis zur Sprach-KI.</p>
-            <WarningBox title="Wichtig:">
-              Die „Mini-KI" in diesem Modul ist eine <strong>didaktische Simulation</strong> – kein echtes KI-Modell. Prozentwerte sind Anschauungswerte.
-            </WarningBox>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px', margin: 'var(--space-lg) 0' }}>
+            <h2>🕵️ Deine Missionen</h2>
+            <p className="lead">Vier Missionen zeigen dir, wie KI funktioniert – von Trainingsdaten bis zur Sprach-KI.</p>
+            <div className="grid-2" style={{ marginBottom: 'var(--sp-lg)' }}>
               {[
-                { n: 1, icon: '🐴', label: 'Trainingsdaten', sub: 'Wie lernt KI?' },
-                { n: 2, icon: '🔍', label: 'Wasserzeichen',  sub: 'Falsche Muster' },
-                { n: 3, icon: '💬', label: 'Kontext',        sub: 'Wortwahrscheinlichkeiten' },
-                { n: 4, icon: '🧱', label: 'Satzwerkstatt',  sub: 'Schritt für Schritt' },
+                { n: 1, icon: '🐴', label: 'Trainingsdaten',  sub: 'Wie lernt KI?',              xp: 80  },
+                { n: 2, icon: '🔍', label: 'Wasserzeichen',   sub: 'Falsche Muster erkennen',    xp: 100 },
+                { n: 3, icon: '💬', label: 'Kontext',         sub: 'Wortwahrscheinlichkeiten',   xp: 80  },
+                { n: 4, icon: '🧱', label: 'Satzwerkstatt',   sub: 'Schritt für Schritt',        xp: 140 },
               ].map(s => (
-                <div key={s.n} style={{ background: completed.includes(s.n) ? 'var(--color-success-light)' : 'white', border: `1px solid ${completed.includes(s.n) ? 'var(--color-success)' : 'var(--color-border)'}`, borderRadius: 'var(--radius-lg)', padding: 'var(--space-md)', textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.8rem', marginBottom: '6px' }}>{completed.includes(s.n) ? '✅' : s.icon}</div>
-                  <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>{s.n}. {s.label}</div>
-                  <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>{s.sub}</div>
+                <div key={s.n} style={{ background: completed.includes(s.n) ? 'var(--c-success-bg)' : 'var(--c-pale2)', border: `2px solid ${completed.includes(s.n) ? 'var(--c-success)' : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div className="mission-number" style={{ background: completed.includes(s.n) ? 'var(--c-success)' : 'var(--c-xp)' }}>{completed.includes(s.n) ? '✓' : s.n}</div>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>{s.icon} {s.label}</div>
+                    <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>{s.sub}</div>
+                    <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-warn)', fontWeight: 800 }}>+{s.xp} XP</div>
+                  </div>
                 </div>
               ))}
             </div>
             <div className="actions">
-              <button className="btn btn-primary" onClick={() => goStation(1)} style={{ background: MOD_COLOR, fontSize: '1.05rem', padding: '14px 28px' }}>
-                Station 1 starten →
-              </button>
-              {completed.length > 0 && (
-                <button className="btn btn-ghost" onClick={resetModule} style={{ fontSize: '0.85rem' }}>↺ Neu starten</button>
-              )}
+              <button className="btn btn-xp" onClick={() => goStation(1)}>Mission 1 starten →</button>
+              <button className="btn btn-ghost" onClick={() => navigate('/dashboard')}>← Übersicht</button>
             </div>
           </div>
         )}
 
-        {/* Stationen */}
-        {currentStation === 1 && (
-          <Station1 done={completed.includes(1)}
-            onComplete={() => { completeStation(1); goStation(2) }} />
-        )}
-        {currentStation === 2 && (
-          <Station2 done={completed.includes(2)}
-            onComplete={() => { completeStation(2); goStation(3) }} />
-        )}
-        {currentStation === 3 && (
-          <Station3 done={completed.includes(3)}
-            onComplete={() => { completeStation(3); goStation(4) }} />
-        )}
-        {currentStation === 4 && (
-          <Station4 done={completed.includes(4)}
-            onComplete={() => { completeStation(4); goStation('home') }}
-            achieved={achieved}
-            onDashboard={() => navigate('/dashboard')} />
-        )}
+        {station === 1 && <Station1 done={completed.includes(1)} onComplete={() => { completeStation(1); goStation(2) }} />}
+        {station === 2 && <Station2 done={completed.includes(2)} onComplete={() => { completeStation(2); goStation(3) }} />}
+        {station === 3 && <Station3 done={completed.includes(3)} onComplete={() => { completeStation(3); goStation(4) }} />}
+        {station === 4 && <Station4 done={completed.includes(4)} onComplete={() => { completeStation(4); goStation('home') }} achieved={achieved} onDashboard={() => navigate('/dashboard')} />}
 
-        {/* Zurück */}
-        {currentStation !== 'home' && (
-          <div className="actions no-print" style={{ marginTop: 'var(--space-lg)' }}>
-            <button className="btn btn-ghost" onClick={() => goStation(typeof currentStation === 'number' && currentStation > 1 ? currentStation - 1 : 'home')}>← Zurück</button>
+        {station !== 'home' && (
+          <div className="actions no-print" style={{ marginTop: 'var(--sp-lg)' }}>
+            <button className="btn btn-ghost" onClick={() => goStation(typeof station === 'number' && station > 1 ? station - 1 : 'home')}>← Zurück</button>
             <button className="btn btn-ghost" onClick={() => navigate('/dashboard')}>Zur Übersicht</button>
           </div>
         )}

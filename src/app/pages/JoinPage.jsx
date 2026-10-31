@@ -1,9 +1,7 @@
-// ============================================================
-// KI-Führerschein · Anmeldeseite
-// Stil: Modul 5 – dunkles Petrol, Teal, Gold
-// ============================================================
+// JoinPage - Einfache Anmeldeseite
 
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { studentJoin } from '../../lib/auth.js'
 
 export default function JoinPage({ onJoin }) {
@@ -15,135 +13,43 @@ export default function JoinPage({ onJoin }) {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    
-
+    if (!joinCode.trim())    { setError('Bitte Klassencode eingeben.'); return }
+    if (!displayName.trim()) { setError('Bitte Namen eingeben.'); return }
     setLoading(true)
     const result = await studentJoin(joinCode, displayName)
     setLoading(false)
-
     if (result.error) setError(result.error)
     else onJoin(result.student)
   }
 
   return (
-    <div style={{
-      minHeight:       '100vh',
-      background:      'var(--color-bg-gradient)',
-      display:         'flex',
-      alignItems:      'center',
-      justifyContent:  'center',
-      padding:         '24px',
-    }}>
-      <div style={{ width: '100%', maxWidth: '480px' }}>
-
-        {/* Hero */}
-        <div style={{
-          background:   'var(--gradient-hero-dark)',
-          color:        'white',
-          borderRadius: 'var(--radius-2xl)',
-          padding:      'clamp(28px, 5vw, 44px)',
-          marginBottom: 'var(--space-lg)',
-          textAlign:    'center',
-          boxShadow:    'var(--shadow-lg)',
-        }}>
-          <div style={{ fontSize: '3.5rem', marginBottom: '12px' }}>🌍</div>
-          <div className="eyebrow" style={{ marginBottom: '8px' }}>KI-Führerschein · Klasse 7</div>
-          <h1 style={{ margin: '0 0 8px', fontSize: 'clamp(1.8rem, 5vw, 2.4rem)' }}>
-            Willkommen!
-          </h1>
-          <p style={{ margin: 0, opacity: 0.85, fontSize: '1rem' }}>
-            Melde dich mit dem Klassencode deiner Lehrkraft an.
-          </p>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2.5rem', maxWidth: '28rem', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🤖</div>
+          <h1 style={{ margin: '0 0 0.25rem', color: 'var(--c-dark)' }}>KI-Führerschein</h1>
+          <p style={{ margin: 0, color: 'var(--c-muted)', fontSize: '0.875rem' }}>Klasse 7 · Lernplattform</p>
         </div>
-
-        {/* Formular */}
-        <div className="card">
-          <h2 style={{ marginTop: 0, color: 'var(--color-platform-teal)' }}>
-            Anmelden
-          </h2>
-
-          <form onSubmit={handleSubmit} noValidate>
-            {/* Klassencode */}
-            <div style={{ marginBottom: 'var(--space-md)' }}>
-              <label htmlFor="joinCode" style={{ fontWeight: 800, display: 'block', marginBottom: '6px', color: 'var(--color-text)' }}>
-                Klassencode
-              </label>
-              <input
-                id="joinCode"
-                type="text"
-                value={joinCode}
-                onChange={e => setJoinCode(e.target.value.toUpperCase())}
-                placeholder="z. B. TEST01"
-                maxLength={10}
-                autoComplete="off"
-                autoCapitalize="characters"
-                style={{
-                  width:         '100%',
-                  padding:       '14px',
-                  border:        '2px solid var(--color-border)',
-                  borderRadius:  'var(--radius-md)',
-                  fontSize:      '1.3rem',
-                  fontWeight:    900,
-                  letterSpacing: '0.15em',
-                  fontFamily:    'monospace',
-                  color:         'var(--color-platform)',
-                  background:    'var(--color-platform-pale)',
-                  transition:    'border-color var(--transition)',
-                }}
-                onFocus={e => e.target.style.borderColor = 'var(--color-platform-teal)'}
-                onBlur={e  => e.target.style.borderColor = 'var(--color-border)'}
-              />
-            </div>
-
-            {/* Anzeigename */}
-            <div style={{ marginBottom: 'var(--space-md)' }}>
-              <label htmlFor="displayName" style={{ fontWeight: 800, display: 'block', marginBottom: '6px', color: 'var(--color-text)' }}>
-                Dein Name (oder Pseudonym)
-              </label>
-              <input
-                id="displayName"
-                type="text"
-                value={displayName}
-                onChange={e => setDisplayName(e.target.value)}
-                placeholder="z. B. Lena M."
-                maxLength={50}
-                autoComplete="off"
-                style={{
-                  width:        '100%',
-                  padding:      '12px',
-                  border:       '2px solid var(--color-border)',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize:     '1rem',
-                  fontFamily:   'inherit',
-                  transition:   'border-color var(--transition)',
-                }}
-                onFocus={e => e.target.style.borderColor = 'var(--color-platform-teal)'}
-                onBlur={e  => e.target.style.borderColor = 'var(--color-border)'}
-              />
-              <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '6px' }}>
-                Du kannst auch ein Pseudonym verwenden. Es werden keine persönlichen Daten gespeichert.
-              </p>
-            </div>
-
-            {/* Fehler */}
-            {error && (
-              <div className="box-warning" style={{ marginBottom: 'var(--space-md)' }}>
-                {error}
-              </div>
-            )}
-
-            {/* Absenden */}
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-              style={{ width: '100%', justifyContent: 'center', fontSize: '1.05rem', padding: '15px' }}
-            >
-              {loading ? 'Wird angemeldet …' : 'Loslegen →'}
-            </button>
-          </form>
-
-          
+        <form onSubmit={handleSubmit} noValidate>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontWeight: 800, display: 'block', marginBottom: '0.375rem' }}>Klassencode</label>
+            <input type="text" value={joinCode} onChange={e => setJoinCode(e.target.value.toUpperCase())}
+              placeholder="z. B. DEMO7A" maxLength={10} autoComplete="off"
+              style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '1.2rem', letterSpacing: '0.1em' }} />
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontWeight: 800, display: 'block', marginBottom: '0.375rem' }}>Dein Name (oder Pseudonym)</label>
+            <input type="text" value={displayName} onChange={e => setDisplayName(e.target.value)}
+              placeholder="z. B. Lena M." maxLength={50} autoComplete="off" />
+            <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: 'var(--c-muted)' }}>Du kannst auch ein Pseudonym verwenden. Kein echter Name nötig.</p>
+          </div>
+          {error && <div style={{ background: 'var(--c-error-bg)', color: 'var(--c-error)', borderRadius: 'var(--r-md)', padding: '0.75rem', marginBottom: '1rem', fontWeight: 700, fontSize: '0.875rem' }}>{error}</div>}
+          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', justifyContent: 'center', fontSize: '1.05rem' }}>
+            {loading ? 'Wird angemeldet …' : 'Loslegen →'}
+          </button>
+        </form>
+        <div style={{ marginTop: '1.5rem', textAlign: 'center', borderTop: '1px solid var(--c-border)', paddingTop: '1rem' }}>
+          <Link to="/lehrer" style={{ fontSize: '0.8rem', color: 'var(--c-muted)' }}>Lehrkraft-Anmeldung →</Link>
         </div>
       </div>
     </div>
