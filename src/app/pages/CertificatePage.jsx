@@ -256,13 +256,7 @@ function Certificate({ studentName, merksatz, levelCode, today, achievements, ba
               <div style={{ borderTop: '1px solid #7196a7', paddingTop: '1mm' }}></div>
             </div>
 
-            {/* Unterschrift */}
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '9pt', color: '#536f7c', marginBottom: '14mm' }}>Unterschrift der Lehrkraft</div>
-              <div style={{ borderTop: '1px solid #7196a7', paddingTop: '2mm' }}>
-                <div style={{ fontSize: '8pt', color: '#7196a7' }}>Stempel / Unterschrift</div>
-              </div>
-            </div>
+            
 
             {/* Logo unten rechts (Wiederholung für Druck) */}
             <div style={{ minWidth: '20mm', textAlign: 'right' }}>
