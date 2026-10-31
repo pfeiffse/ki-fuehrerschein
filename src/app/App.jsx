@@ -26,9 +26,56 @@ export default function App() {
   const [teacher, setTeacher] = useState(undefined)
   const [loading, setLoading] = useState(true)
 
-  
+  useEffect(() => {
+    // Sicherheitsnetz: nach 2 Sekunden IMMER laden
+    const safetyTimer = setTimeout(() => {
+      if (student === undefined) setStudent(getStudentLocal())
+      if (teacher === undefined) setTeacher(null)
+      setLoading(false)
+    }, 2000)
 
-  
+    async function init() {
+      // Student: max 1.5s warten, dann localStorage
+      try {
+        const s = await Promise.race([
+          studentRestore(),
+          new Promise(r => setTimeout(() => r(getStudentLocal()), 1500))
+        ])
+        setStudent(s)
+      } catch {
+        setStudent(getStudentLocal())
+      }
+
+      // Teacher: max 1.5s warten, dann null
+      try {
+        const t = await Promise.race([
+          getTeacherSession(),
+          new Promise(r => setTimeout(() => r(null), 1500))
+        ])
+        setTeacher(t || null)
+      } catch {
+        setTeacher(null)
+      }
+
+      clearTimeout(safetyTimer)
+      setLoading(false)
+    }
+
+    init()
+    return () => clearTimeout(safetyTimer)
+  }, [])
+
+  if (loading) return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--color-bg)', gap: '1rem', padding: '1.5rem' }}>
+      <div style={{ fontSize: '3rem' }}>🤖</div>
+      <p style={{ color: 'var(--color-text-muted)', fontWeight: 700, margin: 0 }}>KI-Führerschein wird geladen …</p>
+      {!navigator.onLine && (
+        <p style={{ color: 'var(--color-warning)', fontSize: 'var(--font-size-sm)', margin: 0, textAlign: 'center' }}>
+          📵 Kein Internet – lokale Daten werden geladen.
+        </p>
+      )}
+    </div>
+  )
 
   const isStudent = !!student
   const isTeacher = !!teacher

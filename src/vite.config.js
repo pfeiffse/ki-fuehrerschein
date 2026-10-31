@@ -9,6 +9,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      selfDestroying: true,
       base,
       includeAssets: ['favicon.svg', 'manifest.json'],
       manifest: {
@@ -22,7 +23,7 @@ export default defineConfig({
         start_url: base,
         icons: [
           {
-            src: 'data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><text y=\'.9em\' font-size=\'90\'>🤖</text></svg>',
+            src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>",
             sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any maskable',
@@ -35,33 +36,30 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {
-            // Supabase: Network-First (online bevorzugt, Offline-Fallback)
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-cache',
               networkTimeoutSeconds: 5,
-              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 },
+              expiration: { maxEntries: 50, maxAgeSeconds: 86400 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },
           {
-            // Wikimedia-Bilder: Cache-First (Pferdefotos)
             urlPattern: /^https:\/\/commons\.wikimedia\.org\/.*/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'wikimedia-images',
-              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              expiration: { maxEntries: 50, maxAgeSeconds: 2592000 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },
           {
-            // Unsplash-Bilder: Cache-First
             urlPattern: /^https:\/\/images\.unsplash\.com\/.*/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'unsplash-images',
-              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              expiration: { maxEntries: 20, maxAgeSeconds: 2592000 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },
