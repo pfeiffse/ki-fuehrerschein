@@ -1,7 +1,4 @@
-// ============================================================
-// KI-Fuehrerschein - Admin-Dashboard
-// Vollstaendige Verwaltung: Lehrkraefte, Klassen, Schueler, Loeschfristen
-// ============================================================
+// AdminDashboard - Schulverwaltung
 
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -10,19 +7,20 @@ import { teacherLogout } from '../../lib/auth.js'
 
 const MOD_COLOR = '#103d54'
 const SCHOOL_ID = '00000000-0000-0000-0000-000000000001'
+const EDGE_FN   = 'https://tkmdyvlzespnkdzdzuwu.supabase.co/functions/v1/invite-user'
 
 const MODULE_LABELS = {
   'modul-01': 'Was ist KI?',
-  'modul-02': 'KI sinnvoll nutzen',
+  'modul-02': 'Mission KI-Check',
   'modul-03': 'Kennzeichnung & DS',
   'modul-04': 'KI & Nachhaltigkeit',
 }
 
-const STATUS_DISPLAY = {
-  not_started: { label: '-',           color: '#8899aa' },
-  in_progress: { label: 'In Bearb.',   color: '#e7a32a' },
-  completed:   { label: 'Abgeschl.',   color: '#2484bb' },
-  passed:      { label: 'Bestanden',   color: '#21875d' },
+const STATUS_COLORS = {
+  not_started: '#8899aa',
+  in_progress: '#e7a32a',
+  completed:   '#2484bb',
+  passed:      '#16a34a',
 }
 
 export default function AdminDashboard({ teacher, onLogout }) {
@@ -33,13 +31,11 @@ export default function AdminDashboard({ teacher, onLogout }) {
   const [students,  setStudents]  = useState([])
   const [progress,  setProgress]  = useState([])
   const [loading,   setLoading]   = useState(true)
-  const [msg,       setMsg]       = useState(null)  // { type: 'ok'|'err', text }
-
-  // Modals
+  const [msg,       setMsg]       = useState(null)
   const [showNewTeacher, setShowNewTeacher] = useState(false)
   const [showNewClass,   setShowNewClass]   = useState(false)
   const [showDeadlines,  setShowDeadlines]  = useState(false)
-  const [confirmDelete,  setConfirmDelete]  = useState(null)  // { type, id, name }
+  const [confirmDelete,  setConfirmDelete]  = useState(null)
 
   useEffect(() => { loadAll() }, [])
 
@@ -47,7 +43,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
     setLoading(true)
     const [cl, te, st, pr] = await Promise.all([
       supabase.from('classes').select('*, users(display_name)').order('grade').order('name'),
-      supabase.from('users').select('*, schools(name)').order('display_name'),
+      supabase.from('users').select('*').order('display_name'),
       supabase.from('students').select('*, classes(name, grade, join_code)').order('display_name'),
       supabase.from('student_module_progress').select('*'),
     ])
@@ -60,53 +56,26 @@ export default function AdminDashboard({ teacher, onLogout }) {
 
   function showMsg(type, text) {
     setMsg({ type, text })
-    setTimeout(() => setMsg(null), 4000)
+    setTimeout(() => setMsg(null), 5000)
   }
 
   function getProgress(studentId, moduleId) {
     return progress.find(p => p.student_id === studentId && p.module_id === moduleId)
   }
 
-  // Statistiken
   const moduleIds   = Object.keys(MODULE_LABELS)
   const certCount   = students.filter(s => moduleIds.every(mid => getProgress(s.id, mid)?.passed)).length
-  const activeCount = students.filter(s => progress.some(p => p.student_id === s.id)).length
 
-  // CSV Export
-  function exportCSV() {
-    const header = ['Name', 'Klasse', 'Jahrgang', 'Beigetreten',
-      ...moduleIds.map(id => MODULE_LABELS[id] + ' (Status)'),
-      ...moduleIds.map(id => MODULE_LABELS[id] + ' (Punkte)'),
-      'Zertifikat']
-    const rows = students.map(s => {
-      const cls      = s.classes
-      const statuses = moduleIds.map(mid => getProgress(s.id, mid)?.status || 'not_started')
-      const scores   = moduleIds.map(mid => getProgress(s.id, mid)?.score || 0)
-      const cert     = moduleIds.every(mid => getProgress(s.id, mid)?.passed) ? 'Ja' : 'Nein'
-      return [s.display_name, cls?.name || '-', cls?.grade || '-',
-        new Date(s.created_at).toLocaleDateString('de-DE'), ...statuses, ...scores, cert]
-    })
-    const csv  = [header, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
-    const url  = URL.createObjectURL(blob)
-    const a    = document.createElement('a')
-    a.href = url; a.download = 'ki-fuehrerschein-gesamt-' + new Date().toISOString().slice(0,10) + '.csv'
-    a.click(); URL.revokeObjectURL(url)
-  }
-
-  // Loeschen
   async function handleDelete() {
     if (!confirmDelete) return
     const { type, id, name } = confirmDelete
     setConfirmDelete(null)
-
     try {
       if (type === 'student') {
         await supabase.from('student_task_progress').delete().eq('student_id', id)
         await supabase.from('student_module_progress').delete().eq('student_id', id)
-        await supabase.from('certificates').delete().eq('student_id', id)
         await supabase.from('students').delete().eq('id', id)
-        showMsg('ok', 'Schueler:in "' + name + '" geloescht.')
+        showMsg('ok', `"${name}" gelöscht.`)
       } else if (type === 'class') {
         const studs = students.filter(s => s.class_id === id).map(s => s.id)
         if (studs.length > 0) {
@@ -115,10 +84,10 @@ export default function AdminDashboard({ teacher, onLogout }) {
           await supabase.from('students').delete().in('id', studs)
         }
         await supabase.from('classes').delete().eq('id', id)
-        showMsg('ok', 'Klasse "' + name + '" und alle Schueler:innen geloescht.')
+        showMsg('ok', `Klasse "${name}" und alle Schüler:innen gelöscht.`)
       } else if (type === 'teacher') {
         await supabase.from('users').delete().eq('id', id)
-        showMsg('ok', 'Lehrkraft "' + name + '" geloescht.')
+        showMsg('ok', `"${name}" gelöscht.`)
       }
       await loadAll()
     } catch (err) {
@@ -126,144 +95,141 @@ export default function AdminDashboard({ teacher, onLogout }) {
     }
   }
 
-  async function handleLogout() { await teacherLogout(); onLogout() }
-
-  const cardStyle = {
-    background: 'white', borderRadius: 'var(--radius-xl)',
-    padding: 'var(--space-lg)', boxShadow: 'var(--shadow-md)',
-    border: '1px solid var(--color-border)', marginBottom: 'var(--space-lg)',
+  function exportCSV() {
+    const header = ['Name','Klasse','Jg','Beigetreten',
+      ...moduleIds.map(id => MODULE_LABELS[id] + ' (Status)'),
+      ...moduleIds.map(id => MODULE_LABELS[id] + ' (Punkte)'), 'Zertifikat']
+    const rows = students.map(s => {
+      const cls = s.classes
+      return [s.display_name, cls?.name||'-', cls?.grade||'-',
+        new Date(s.created_at).toLocaleDateString('de-DE'),
+        ...moduleIds.map(mid => getProgress(s.id,mid)?.status||'not_started'),
+        ...moduleIds.map(mid => getProgress(s.id,mid)?.score||0),
+        moduleIds.every(mid => getProgress(s.id,mid)?.passed) ? 'Ja' : 'Nein']
+    })
+    const csv = [header,...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'}))
+    a.download = 'ki-fuehrerschein-'+new Date().toISOString().slice(0,10)+'.csv'
+    a.click()
   }
 
+  async function handleLogout() { await teacherLogout(); onLogout() }
+
   return (
-    <div style={{ background: 'var(--color-bg-gradient)', minHeight: '100vh' }}>
-      <div className="wrap">
+    <div style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', minHeight: '100vh' }}>
 
-        {/* Meldung */}
-        {msg && (
-          <div style={{ position: 'fixed', top: '80px', right: '20px', zIndex: 200,
-            background: msg.type === 'ok' ? 'var(--color-success-light)' : 'var(--color-error-light)',
-            border: '2px solid ' + (msg.type === 'ok' ? 'var(--color-success)' : 'var(--color-error)'),
-            borderRadius: 'var(--radius-lg)', padding: '12px 20px', fontWeight: 700,
-            color: msg.type === 'ok' ? 'var(--color-success)' : 'var(--color-error)',
-            boxShadow: 'var(--shadow-lg)', maxWidth: '400px' }}>
-            {msg.type === 'ok' ? '✅ ' : '❌ '}{msg.text}
-          </div>
-        )}
+      {/* Toast */}
+      {msg && (
+        <div style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 300,
+          background: msg.type === 'ok' ? 'var(--c-success-bg)' : 'var(--c-error-bg)',
+          border: `2px solid ${msg.type === 'ok' ? 'var(--c-success)' : 'var(--c-error)'}`,
+          borderRadius: 'var(--r-lg)', padding: '0.75rem 1.25rem', fontWeight: 700,
+          color: msg.type === 'ok' ? 'var(--c-success)' : 'var(--c-error)',
+          boxShadow: 'var(--sh-lg)', maxWidth: '24rem' }}>
+          {msg.type === 'ok' ? '✅ ' : '❌ '}{msg.text}
+        </div>
+      )}
 
-        {/* Loeschbestaetigung */}
-        {confirmDelete && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: 'var(--space-lg)' }}>
-            <div style={{ background: 'white', borderRadius: 'var(--radius-2xl)', padding: 'var(--space-xl)', maxWidth: '420px', width: '100%', boxShadow: 'var(--shadow-lg)' }}>
-              <h2 style={{ color: 'var(--color-error)', marginTop: 0 }}>Wirklich loeschen?</h2>
-              <p>
-                {confirmDelete.type === 'student' && 'Schueler:in '}
-                {confirmDelete.type === 'class'   && 'Klasse '}
-                {confirmDelete.type === 'teacher' && 'Lehrkraft '}
-                <strong>"{confirmDelete.name}"</strong> und alle zugehoerigen Daten werden unwiderruflich geloescht.
-              </p>
-              <div className="actions">
-                <button className="btn" onClick={handleDelete}
-                  style={{ background: 'var(--color-error)', color: 'white' }}>
-                  Ja, endgueltig loeschen
-                </button>
-                <button className="btn btn-ghost" onClick={() => setConfirmDelete(null)}>Abbrechen</button>
-              </div>
+      {/* Lösch-Bestätigung */}
+      {confirmDelete && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: '1.5rem' }}>
+          <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '26rem', width: '100%' }}>
+            <h2 style={{ color: 'var(--c-error)', marginTop: 0 }}>Wirklich löschen?</h2>
+            <p><strong>„{confirmDelete.name}"</strong> und alle zugehörigen Daten werden unwiderruflich gelöscht.</p>
+            <div className="actions">
+              <button className="btn btn-danger" onClick={handleDelete}>Ja, endgültig löschen</button>
+              <button className="btn btn-ghost" onClick={() => setConfirmDelete(null)}>Abbrechen</button>
             </div>
           </div>
-        )}
+        </div>
+      )}
+
+      <div className="wrap">
 
         {/* Header */}
-        <div className="hero" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-md)' }}>
-          <div>
-            <div className="eyebrow" style={{ marginBottom: '6px' }}>KI-Fuehrerschein - Admin-Bereich</div>
-            <h1 style={{ margin: '0 0 4px', fontSize: 'clamp(1.4rem,3vw,2rem)' }}>Schulverwaltung</h1>
-            <p style={{ margin: 0, opacity: 0.85, fontSize: '0.9rem' }}>
-              {students.length} Schueler:innen | {classes.length} Klassen | {teachers.length} Lehrkraefte
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <button className="btn" onClick={exportCSV}
-              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.4)', color: 'white', fontSize: '0.85rem' }}>
-              CSV Export
-            </button>
-            <button className="btn" onClick={() => navigate('/lehrer/dashboard')}
-              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.4)', color: 'white', fontSize: '0.85rem' }}>
-              Lehrkraft-Ansicht
-            </button>
-            <button className="btn" onClick={handleLogout}
-              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.4)', color: 'white' }}>
-              Abmelden
-            </button>
+        <div className="mission-header" style={{ marginBottom: 'var(--sp-lg)' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div className="eyebrow" style={{ marginBottom: '0.5rem' }}>KI-Führerschein · Admin-Bereich</div>
+              <h1 style={{ margin: '0 0 0.25rem', color: 'white', fontSize: 'clamp(1.4rem,3vw,2rem)' }}>🛡️ Schulverwaltung</h1>
+              <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: 'var(--fs-sm)' }}>
+                {students.length} Schüler:innen · {classes.length} Klassen · {teachers.length} Lehrkräfte · {certCount} Zertifikate
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <button className="btn" onClick={exportCSV} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', fontSize: 'var(--fs-sm)' }}>📥 CSV</button>
+              <button className="btn" onClick={() => navigate('/lehrer/dashboard')} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', fontSize: 'var(--fs-sm)' }}>👩‍🏫 Lehrkraft-Ansicht</button>
+              <button className="btn" onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.3)', color: 'white' }}>Abmelden</button>
+            </div>
           </div>
         </div>
 
         {/* Schnellaktionen */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 'var(--space-md)', marginBottom: 'var(--space-lg)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(10rem, 1fr))', gap: '0.75rem', marginBottom: 'var(--sp-lg)' }}>
           {[
             { icon: '👩‍🏫', label: 'Lehrkraft anlegen', action: () => setShowNewTeacher(true), color: '#1a6b7a' },
-            { icon: '🏫', label: 'Klasse anlegen',    action: () => setShowNewClass(true),   color: '#2859d8' },
-            { icon: '⏰', label: 'Loeschfristen',     action: () => setShowDeadlines(true),  color: '#087f83' },
-            { icon: '📥', label: 'CSV exportieren',   action: exportCSV,                     color: '#095c6b' },
+            { icon: '🏫',  label: 'Klasse anlegen',    action: () => setShowNewClass(true),   color: '#2859d8' },
+            { icon: '⏰',  label: 'Löschfristen',      action: () => setShowDeadlines(true),  color: '#087f83' },
+            { icon: '📥',  label: 'CSV exportieren',   action: exportCSV,                     color: '#095c6b' },
           ].map(btn => (
             <button key={btn.label} onClick={btn.action}
-              style={{ background: 'white', border: '2px solid ' + btn.color, borderRadius: 'var(--radius-xl)', padding: 'var(--space-lg)', textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}
-              onMouseOver={e => e.currentTarget.style.background = btn.color + '15'}
-              onMouseOut={e  => e.currentTarget.style.background = 'white'}>
-              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>{btn.icon}</div>
-              <div style={{ fontWeight: 800, color: btn.color, fontSize: '0.9rem' }}>{btn.label}</div>
+              style={{ background: 'rgba(255,255,255,0.08)', border: `2px solid rgba(255,255,255,0.15)`, borderRadius: 'var(--r-xl)', padding: 'var(--sp-md)', textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', color: 'white' }}
+              onMouseOver={e => { e.currentTarget.style.background = btn.color + '40'; e.currentTarget.style.borderColor = btn.color }}
+              onMouseOut={e  => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)' }}>
+              <div style={{ fontSize: '1.75rem', marginBottom: '0.375rem' }}>{btn.icon}</div>
+              <div style={{ fontWeight: 800, fontSize: 'var(--fs-sm)' }}>{btn.label}</div>
             </button>
           ))}
         </div>
 
         {/* Tabs */}
-        <div className="station-tabs no-print">
+        <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', marginBottom: 'var(--sp-lg)' }}>
           {[
-            { id: 'overview',  label: 'Uebersicht' },
-            { id: 'classes',   label: 'Klassen (' + classes.length + ')' },
-            { id: 'teachers',  label: 'Lehrkraefte (' + teachers.length + ')' },
-            { id: 'students',  label: 'Schueler:innen (' + students.length + ')' },
+            { id: 'overview',  label: '📊 Übersicht' },
+            { id: 'classes',   label: `🏫 Klassen (${classes.length})` },
+            { id: 'teachers',  label: `👩‍🏫 Lehrkräfte (${teachers.length})` },
+            { id: 'students',  label: `👤 Schüler:innen (${students.length})` },
           ].map(t => (
-            <button key={t.id} className={'nav-btn ' + (tab === t.id ? 'active' : '')} onClick={() => setTab(t.id)}>
+            <button key={t.id} className={`nav-btn ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}
+              style={{ fontSize: 'var(--fs-sm)', color: 'white', background: tab === t.id ? 'var(--c-xp)' : 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>
               {t.label}
             </button>
           ))}
         </div>
 
-        {loading ? <p style={{ color: 'var(--color-text-muted)' }}>Wird geladen ...</p> : (
+        {loading ? <p style={{ color: 'rgba(255,255,255,0.6)' }}>Wird geladen …</p> : (
           <>
-            {/* Uebersicht */}
+            {/* Übersicht */}
             {tab === 'overview' && (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'var(--space-md)', marginBottom: 'var(--space-lg)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(9rem, 1fr))', gap: 'var(--sp-md)', marginBottom: 'var(--sp-lg)' }}>
                   {[
-                    { label: 'Schueler:innen', value: students.length,  icon: '👤', color: '#087f83' },
-                    { label: 'Aktiv',          value: activeCount,       icon: '✏️', color: '#2859d8' },
+                    { label: 'Schüler:innen', value: students.length,  icon: '👤', color: '#087f83' },
+                    { label: 'Klassen',        value: classes.length,   icon: '🏫', color: '#2859d8' },
+                    { label: 'Lehrkräfte',     value: teachers.length,  icon: '👩‍🏫', color: '#1a6b7a' },
                     { label: 'Zertifikate',    value: certCount,         icon: '🏆', color: '#b8860b' },
-                    { label: 'Klassen',        value: classes.length,   icon: '🏫', color: '#1a6b7a' },
-                    { label: 'Lehrkraefte',    value: teachers.length,  icon: '👩‍🏫', color: '#095c6b' },
                   ].map(s => (
-                    <div key={s.label} style={{ ...cardStyle, textAlign: 'center', marginBottom: 0 }}>
-                      <div style={{ fontSize: '1.8rem', marginBottom: '6px' }}>{s.icon}</div>
-                      <div style={{ fontSize: '1.8rem', fontWeight: 900, color: s.color }}>{s.value}</div>
-                      <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>{s.label}</div>
+                    <div key={s.label} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', textAlign: 'center', color: 'white' }}>
+                      <div style={{ fontSize: '1.75rem', marginBottom: '0.375rem' }}>{s.icon}</div>
+                      <div style={{ fontSize: '2rem', fontWeight: 900, color: s.color }}>{s.value}</div>
+                      <div style={{ fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.6)' }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
 
-                <div style={cardStyle}>
-                  <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>Modul-Fortschritt (schulweit)</h2>
+                <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', color: 'white' }}>
+                  <h2 style={{ marginTop: 0, color: '#7dd3fc' }}>Modul-Fortschritt (schulweit)</h2>
                   {moduleIds.map(mid => {
                     const passed = progress.filter(p => p.module_id === mid && p.passed).length
                     const pct    = students.length > 0 ? Math.round((passed / students.length) * 100) : 0
                     return (
-                      <div key={mid} style={{ marginBottom: 'var(--space-md)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: 'var(--font-size-sm)', fontWeight: 700 }}>
+                      <div key={mid} style={{ marginBottom: 'var(--sp-md)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem', fontSize: 'var(--fs-sm)' }}>
                           <span>{MODULE_LABELS[mid]}</span>
-                          <span style={{ color: MOD_COLOR }}>{passed} / {students.length} ({pct} %)</span>
+                          <span style={{ color: '#7dd3fc' }}>{passed}/{students.length} ({pct}%)</span>
                         </div>
-                        <div className="progress-shell dark">
-                          <div className="progress-bar green" style={{ width: pct + '%' }} />
-                        </div>
+                        <div className="progress-track"><div className="progress-fill green" style={{ width: `${pct}%` }} /></div>
                       </div>
                     )
                   })}
@@ -273,37 +239,42 @@ export default function AdminDashboard({ teacher, onLogout }) {
 
             {/* Klassen */}
             {tab === 'classes' && (
-              <div style={cardStyle}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
-                  <h2 style={{ color: MOD_COLOR, margin: 0 }}>Alle Klassen</h2>
+              <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', color: 'white' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--sp-md)' }}>
+                  <h2 style={{ margin: 0, color: '#7dd3fc' }}>Alle Klassen</h2>
                   <button className="btn btn-primary" onClick={() => setShowNewClass(true)}>+ Neue Klasse</button>
                 </div>
                 <div style={{ overflowX: 'auto' }}>
-                  <table>
+                  <table style={{ color: 'white' }}>
                     <thead>
                       <tr>
-                        <th>Klasse</th><th>Jg.</th><th>Code</th><th>Lehrkraft</th>
-                        <th>Schueler:innen</th><th>Zertifikate</th><th>Aktionen</th>
+                        <th style={{ color: 'rgba(255,255,255,0.6)' }}>Klasse</th>
+                        <th style={{ color: 'rgba(255,255,255,0.6)' }}>Jg.</th>
+                        <th style={{ color: 'rgba(255,255,255,0.6)' }}>Code</th>
+                        <th style={{ color: 'rgba(255,255,255,0.6)' }}>Lehrkraft</th>
+                        <th style={{ color: 'rgba(255,255,255,0.6)' }}>SuS</th>
+                        <th style={{ color: 'rgba(255,255,255,0.6)' }}>Zert.</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
                       {classes.map(cls => {
-                        const clsStudents = students.filter(s => s.class_id === cls.id)
-                        const certs       = clsStudents.filter(s => moduleIds.every(mid => getProgress(s.id, mid)?.passed)).length
+                        const clsStu = students.filter(s => s.class_id === cls.id)
+                        const certs  = clsStu.filter(s => moduleIds.every(mid => getProgress(s.id, mid)?.passed)).length
                         return (
-                          <tr key={cls.id}>
-                            <td style={{ fontWeight: 700 }}>{cls.name}</td>
-                            <td>{cls.grade}</td>
-                            <td><code style={{ background: '#f0fafb', padding: '2px 8px', borderRadius: '4px', fontWeight: 900 }}>{cls.join_code}</code></td>
-                            <td style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>{cls.users?.display_name || '-'}</td>
-                            <td>{clsStudents.length}</td>
-                            <td style={{ color: certs > 0 ? '#b8860b' : 'var(--color-text-muted)', fontWeight: certs > 0 ? 800 : 400 }}>
-                              {certs > 0 ? '🏆 ' + certs : '-'}
+                          <tr key={cls.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                            <td style={{ fontWeight: 700, padding: '0.75rem 0.5rem' }}>{cls.name}</td>
+                            <td style={{ padding: '0.75rem 0.5rem' }}>{cls.grade}</td>
+                            <td style={{ padding: '0.75rem 0.5rem' }}>
+                              <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '4px', fontWeight: 900, letterSpacing: '0.05em' }}>{cls.join_code}</code>
                             </td>
-                            <td>
+                            <td style={{ padding: '0.75rem 0.5rem', color: 'rgba(255,255,255,0.6)', fontSize: 'var(--fs-sm)' }}>{cls.users?.display_name || '–'}</td>
+                            <td style={{ padding: '0.75rem 0.5rem' }}>{clsStu.length}</td>
+                            <td style={{ padding: '0.75rem 0.5rem', color: certs > 0 ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}>{certs > 0 ? `🏆 ${certs}` : '–'}</td>
+                            <td style={{ padding: '0.75rem 0.5rem' }}>
                               <button className="btn" onClick={() => setConfirmDelete({ type: 'class', id: cls.id, name: cls.name })}
-                                style={{ background: 'var(--color-error-light)', color: 'var(--color-error)', border: '1px solid var(--color-error)', fontSize: '0.78rem', padding: '4px 10px', minHeight: '30px' }}>
-                                Loeschen
+                                style={{ background: 'rgba(220,38,38,0.2)', color: '#fca5a5', border: '1px solid rgba(220,38,38,0.4)', fontSize: 'var(--fs-xs)', padding: '4px 10px', minHeight: '2rem' }}>
+                                Löschen
                               </button>
                             </td>
                           </tr>
@@ -315,36 +286,42 @@ export default function AdminDashboard({ teacher, onLogout }) {
               </div>
             )}
 
-            {/* Lehrkraefte */}
+            {/* Lehrkräfte */}
             {tab === 'teachers' && (
-              <div style={cardStyle}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
-                  <h2 style={{ color: MOD_COLOR, margin: 0 }}>Alle Lehrkraefte</h2>
-                  <button className="btn btn-primary" onClick={() => setShowNewTeacher(true)}>+ Lehrkraft anlegen</button>
+              <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', color: 'white' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--sp-md)' }}>
+                  <h2 style={{ margin: 0, color: '#7dd3fc' }}>Alle Lehrkräfte & Admins</h2>
+                  <button className="btn btn-primary" onClick={() => setShowNewTeacher(true)}>+ Anlegen</button>
                 </div>
                 {teachers.length === 0 ? (
-                  <div className="box-info">Noch keine Lehrkraefte angelegt.</div>
+                  <p style={{ color: 'rgba(255,255,255,0.5)' }}>Noch keine Lehrkräfte angelegt.</p>
                 ) : (
                   <div style={{ overflowX: 'auto' }}>
-                    <table>
+                    <table style={{ color: 'white' }}>
                       <thead>
-                        <tr><th>Name</th><th>Rolle</th><th>Klassen</th><th>Angelegt</th><th>Aktionen</th></tr>
+                        <tr>
+                          <th style={{ color: 'rgba(255,255,255,0.6)' }}>Name</th>
+                          <th style={{ color: 'rgba(255,255,255,0.6)' }}>Rolle</th>
+                          <th style={{ color: 'rgba(255,255,255,0.6)' }}>Klassen</th>
+                          <th style={{ color: 'rgba(255,255,255,0.6)' }}>Angelegt</th>
+                          <th></th>
+                        </tr>
                       </thead>
                       <tbody>
                         {teachers.map(t => (
-                          <tr key={t.id}>
-                            <td style={{ fontWeight: 700 }}>{t.display_name}</td>
-                            <td>
-                              <span style={{ background: t.role === 'superadmin' ? '#fff8db' : 'var(--color-platform-pale)', color: t.role === 'superadmin' ? '#825300' : 'var(--color-platform)', borderRadius: '99px', padding: '3px 10px', fontSize: 'var(--font-size-xs)', fontWeight: 800 }}>
-                                {t.role === 'superadmin' ? 'Admin' : 'Lehrkraft'}
+                          <tr key={t.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                            <td style={{ fontWeight: 700, padding: '0.75rem 0.5rem' }}>{t.display_name}</td>
+                            <td style={{ padding: '0.75rem 0.5rem' }}>
+                              <span style={{ background: t.role === 'superadmin' ? 'rgba(245,158,11,0.2)' : 'rgba(8,127,131,0.2)', color: t.role === 'superadmin' ? '#fbbf24' : '#5eead4', borderRadius: '99px', padding: '3px 10px', fontSize: 'var(--fs-xs)', fontWeight: 800 }}>
+                                {t.role === 'superadmin' ? '🛡️ Admin' : '👩‍🏫 Lehrkraft'}
                               </span>
                             </td>
-                            <td>{classes.filter(c => c.teacher_id === t.id).length}</td>
-                            <td style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>{new Date(t.created_at).toLocaleDateString('de-DE')}</td>
-                            <td>
+                            <td style={{ padding: '0.75rem 0.5rem' }}>{classes.filter(c => c.teacher_id === t.id).length}</td>
+                            <td style={{ padding: '0.75rem 0.5rem', color: 'rgba(255,255,255,0.5)', fontSize: 'var(--fs-sm)' }}>{new Date(t.created_at).toLocaleDateString('de-DE')}</td>
+                            <td style={{ padding: '0.75rem 0.5rem' }}>
                               <button className="btn" onClick={() => setConfirmDelete({ type: 'teacher', id: t.id, name: t.display_name })}
-                                style={{ background: 'var(--color-error-light)', color: 'var(--color-error)', border: '1px solid var(--color-error)', fontSize: '0.78rem', padding: '4px 10px', minHeight: '30px' }}>
-                                Loeschen
+                                style={{ background: 'rgba(220,38,38,0.2)', color: '#fca5a5', border: '1px solid rgba(220,38,38,0.4)', fontSize: 'var(--fs-xs)', padding: '4px 10px', minHeight: '2rem' }}>
+                                Löschen
                               </button>
                             </td>
                           </tr>
@@ -353,31 +330,25 @@ export default function AdminDashboard({ teacher, onLogout }) {
                     </table>
                   </div>
                 )}
-                <div style={{ marginTop: 'var(--space-lg)', padding: 'var(--space-md)', background: '#f0fafb', borderRadius: 'var(--radius-lg)', fontSize: 'var(--font-size-sm)' }}>
-                  <strong>Neue Lehrkraft anlegen:</strong>
-                  <ol style={{ margin: '8px 0 0', paddingLeft: '20px', lineHeight: 2 }}>
-                    <li><a href="https://supabase.com/dashboard/project/tkmdyvlzespnkdzdzuwu/auth/users" target="_blank" rel="noopener">Authentication - Users - Invite user</a></li>
-                    <li>E-Mail eingeben, Einladungsmail kommt, Passwort setzen</li>
-                    <li>UUID kopieren und hier eintragen (Button oben)</li>
-                  </ol>
-                </div>
               </div>
             )}
 
-            {/* Schueler:innen */}
+            {/* Schüler:innen */}
             {tab === 'students' && (
-              <div style={cardStyle}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-sm)', marginBottom: 'var(--space-md)' }}>
-                  <h2 style={{ color: MOD_COLOR, margin: 0 }}>Alle Schueler:innen ({students.length})</h2>
-                  <button className="btn btn-ghost" onClick={exportCSV} style={{ fontSize: '0.85rem' }}>CSV exportieren</button>
+              <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', color: 'white' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: 'var(--sp-md)' }}>
+                  <h2 style={{ margin: 0, color: '#7dd3fc' }}>Alle Schüler:innen ({students.length})</h2>
+                  <button className="btn btn-ghost" onClick={exportCSV} style={{ fontSize: 'var(--fs-sm)' }}>📥 CSV</button>
                 </div>
                 <div style={{ overflowX: 'auto' }}>
-                  <table>
+                  <table style={{ color: 'white' }}>
                     <thead>
                       <tr>
-                        <th>Name</th><th>Klasse</th>
-                        {moduleIds.map(mid => <th key={mid} style={{ minWidth: '90px', fontSize: '0.75rem' }}>{MODULE_LABELS[mid]}</th>)}
-                        <th>Zertifikat</th><th>Loeschfrist</th><th>Aktionen</th>
+                        <th style={{ color: 'rgba(255,255,255,0.6)' }}>Name</th>
+                        <th style={{ color: 'rgba(255,255,255,0.6)' }}>Klasse</th>
+                        {moduleIds.map(mid => <th key={mid} style={{ color: 'rgba(255,255,255,0.6)', minWidth: '80px', fontSize: '0.7rem' }}>{MODULE_LABELS[mid]}</th>)}
+                        <th style={{ color: 'rgba(255,255,255,0.6)' }}>Zert.</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -385,32 +356,28 @@ export default function AdminDashboard({ teacher, onLogout }) {
                         const cls       = s.classes
                         const allPassed = moduleIds.every(mid => getProgress(s.id, mid)?.passed)
                         return (
-                          <tr key={s.id}>
-                            <td style={{ fontWeight: 700 }}>{s.display_name}</td>
-                            <td style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
-                              {cls?.name || '-'} (Jg. {cls?.grade || '?'})
-                            </td>
+                          <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                            <td style={{ fontWeight: 700, padding: '0.625rem 0.5rem' }}>{s.display_name}</td>
+                            <td style={{ padding: '0.625rem 0.5rem', color: 'rgba(255,255,255,0.6)', fontSize: 'var(--fs-sm)' }}>{cls?.name||'–'} {cls?.grade ? `(${cls.grade})` : ''}</td>
                             {moduleIds.map(mid => {
                               const p  = getProgress(s.id, mid)
                               const st = p?.status || 'not_started'
-                              const sd = STATUS_DISPLAY[st]
                               return (
-                                <td key={mid} style={{ textAlign: 'center' }}>
-                                  <span style={{ color: sd.color, fontWeight: 700, fontSize: '0.78rem' }}>{sd.label}</span>
-                                  {p?.score > 0 && <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>{p.score}P</div>}
+                                <td key={mid} style={{ padding: '0.625rem 0.5rem', textAlign: 'center' }}>
+                                  <span style={{ color: STATUS_COLORS[st], fontWeight: 700, fontSize: '0.75rem' }}>
+                                    {st === 'passed' ? '✓' : st === 'in_progress' ? '◑' : st === 'completed' ? '●' : '○'}
+                                  </span>
+                                  {p?.score > 0 && <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>{p.score}P</div>}
                                 </td>
                               )
                             })}
-                            <td style={{ textAlign: 'center', fontWeight: 800, color: allPassed ? '#b8860b' : 'var(--color-text-muted)' }}>
-                              {allPassed ? '🏆' : '-'}
+                            <td style={{ padding: '0.625rem 0.5rem', textAlign: 'center', color: allPassed ? '#fbbf24' : 'rgba(255,255,255,0.3)' }}>
+                              {allPassed ? '🏆' : '–'}
                             </td>
-                            <td style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
-                              {s.delete_after ? new Date(s.delete_after).toLocaleDateString('de-DE') : '-'}
-                            </td>
-                            <td>
+                            <td style={{ padding: '0.625rem 0.5rem' }}>
                               <button className="btn" onClick={() => setConfirmDelete({ type: 'student', id: s.id, name: s.display_name })}
-                                style={{ background: 'var(--color-error-light)', color: 'var(--color-error)', border: '1px solid var(--color-error)', fontSize: '0.75rem', padding: '4px 8px', minHeight: '28px' }}>
-                                Loeschen
+                                style={{ background: 'rgba(220,38,38,0.2)', color: '#fca5a5', border: '1px solid rgba(220,38,38,0.4)', fontSize: '0.7rem', padding: '3px 8px', minHeight: '1.75rem' }}>
+                                ✕
                               </button>
                             </td>
                           </tr>
@@ -424,28 +391,21 @@ export default function AdminDashboard({ teacher, onLogout }) {
           </>
         )}
 
-        {/* Modal: Neue Lehrkraft */}
+        {/* Modals */}
         {showNewTeacher && (
           <NewTeacherForm
-            onCreated={() => { setShowNewTeacher(false); loadAll(); showMsg('ok', 'Lehrkraft angelegt.') }}
+            onCreated={() => { setShowNewTeacher(false); loadAll(); showMsg('ok', 'Erfolgreich angelegt!') }}
             onCancel={() => setShowNewTeacher(false)}
             onError={err => showMsg('err', err)} />
         )}
-
-        {/* Modal: Neue Klasse */}
         {showNewClass && (
-          <NewClassForm
-            teachers={teachers}
-            onCreated={() => { setShowNewClass(false); loadAll(); showMsg('ok', 'Klasse angelegt.') }}
+          <NewClassForm teachers={teachers}
+            onCreated={() => { setShowNewClass(false); loadAll(); showMsg('ok', 'Klasse angelegt!') }}
             onCancel={() => setShowNewClass(false)}
             onError={err => showMsg('err', err)} />
         )}
-
-        {/* Modal: Loeschfristen */}
         {showDeadlines && (
-          <DeadlineManager
-            classes={classes}
-            students={students}
+          <DeadlineManager classes={classes} students={students}
             onClose={() => { setShowDeadlines(false); loadAll() }}
             onMsg={showMsg} />
         )}
@@ -454,10 +414,9 @@ export default function AdminDashboard({ teacher, onLogout }) {
   )
 }
 
-// Neue Lehrkraft anlegen
-// Lehrkraft anlegen: Benutzername+Passwort ODER E-Mail-Einladung
+// Lehrkraft/Admin anlegen
 function NewTeacherForm({ onCreated, onCancel, onError }) {
-  const [mode,     setMode]     = useState('username') // 'username' | 'email'
+  const [mode,     setMode]     = useState('username')
   const [name,     setName]     = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -470,138 +429,92 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
   async function handleSubmit(e) {
     e.preventDefault()
     if (!name.trim()) { onError('Bitte einen Namen eingeben.'); return }
-    if (mode === 'username' && (!username.trim() || !password.trim())) {
-      onError('Bitte Benutzername und Passwort eingeben.'); return
+    if (mode === 'username' && (!username.trim() || password.length < 8)) {
+      onError('Bitte Benutzername und Passwort (mind. 8 Zeichen) eingeben.'); return
     }
-    if (mode === 'email' && !email.trim()) {
-      onError('Bitte eine E-Mail-Adresse eingeben.'); return
-    }
+    if (mode === 'email' && !email.trim()) { onError('Bitte E-Mail eingeben.'); return }
     setLoading(true)
-    setSuccess('')
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { onError('Nicht angemeldet.'); setLoading(false); return }
-
-      const body = {
-        mode, displayName: name.trim(), role, schoolId: SCHOOL_ID,
-        ...(mode === 'username' ? { username: username.trim(), password } : { email: email.trim() })
-      }
-
-      const res = await fetch(
-        'https://tkmdyvlzespnkdzdzuwu.supabase.co/functions/v1/invite-user',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-          body: JSON.stringify(body),
-        }
-      )
+      const body = { mode, displayName: name.trim(), role, schoolId: SCHOOL_ID,
+        ...(mode === 'username' ? { username: username.trim(), password } : { email: email.trim() }) }
+      const res  = await fetch(EDGE_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify(body),
+      })
       const data = await res.json()
       setLoading(false)
-      if (!res.ok || data.error) { onError(data.error || 'Fehler beim Anlegen.'); return }
+      if (!res.ok || data.error) { onError(data.error || 'Fehler.'); return }
       setSuccess(data.message)
-      setTimeout(() => onCreated(), 3000)
-    } catch (err) {
-      setLoading(false)
-      onError('Netzwerkfehler: ' + err.message)
-    }
+      setTimeout(() => onCreated(), 2500)
+    } catch (err) { setLoading(false); onError('Netzwerkfehler: ' + err.message) }
   }
 
   const inp = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 'var(--sp-lg)', overflowY: 'auto' }}>
-      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: 'var(--sp-xl)', maxWidth: '520px', width: '100%', boxShadow: 'var(--sh-lg)', margin: 'auto' }}>
-        <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>👩‍🏫 Lehrkraft anlegen</h2>
-
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1.5rem', overflowY: 'auto' }}>
+      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '30rem', width: '100%', boxShadow: 'var(--sh-lg)', margin: 'auto' }}>
+        <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>👩‍🏫 Lehrkraft / Admin anlegen</h2>
         {success ? (
-          <div>
-            <div style={{ background: 'var(--c-success-bg)', border: '2px solid var(--c-success)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-lg)', textAlign: 'center', marginBottom: 'var(--sp-md)' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>✅</div>
-              <p style={{ fontWeight: 800, color: 'var(--c-success)', margin: 0 }}>{success}</p>
-            </div>
-            <p style={{ color: 'var(--c-muted)', fontSize: 'var(--fs-sm)', textAlign: 'center' }}>Dieses Fenster schließt sich automatisch …</p>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>✅</div>
+            <p style={{ fontWeight: 800, color: 'var(--c-success)' }}>{success}</p>
+            <p style={{ color: 'var(--c-muted)', fontSize: 'var(--fs-sm)' }}>Fenster schließt sich …</p>
           </div>
         ) : (
           <>
-            {/* Modus-Auswahl */}
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--sp-lg)', background: 'var(--c-pale2)', borderRadius: 'var(--r-lg)', padding: '0.25rem' }}>
-              {[
-                { id: 'username', label: '🔑 Benutzername + Passwort', sub: 'Keine E-Mail nötig' },
-                { id: 'email',    label: '✉️ E-Mail-Einladung',        sub: 'Link per Mail' },
-              ].map(m => (
+            {/* Modus */}
+            <div style={{ display: 'flex', gap: '0.375rem', marginBottom: '1.25rem', background: 'var(--c-pale2)', borderRadius: 'var(--r-lg)', padding: '0.25rem' }}>
+              {[{ id: 'username', label: '🔑 Benutzername + Passwort', sub: 'Keine E-Mail nötig' },
+                { id: 'email',   label: '✉️ E-Mail-Einladung',        sub: 'Link per Mail' }].map(m => (
                 <button key={m.id} type="button" onClick={() => setMode(m.id)}
-                  style={{ flex: 1, padding: '0.625rem', borderRadius: 'var(--r-md)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: mode === m.id ? 800 : 600, background: mode === m.id ? 'white' : 'transparent', boxShadow: mode === m.id ? 'var(--sh-sm)' : 'none', transition: 'all 0.2s', fontSize: 'var(--fs-sm)' }}>
+                  style={{ flex: 1, padding: '0.5rem', borderRadius: 'var(--r-md)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: mode === m.id ? 800 : 600, background: mode === m.id ? 'white' : 'transparent', boxShadow: mode === m.id ? 'var(--sh-sm)' : 'none', fontSize: 'var(--fs-xs)', transition: 'all 0.2s' }}>
                   <div>{m.label}</div>
-                  <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', fontWeight: 400 }}>{m.sub}</div>
+                  <div style={{ color: 'var(--c-muted)', fontWeight: 400 }}>{m.sub}</div>
                 </button>
               ))}
             </div>
-
             <form onSubmit={handleSubmit} noValidate>
-              {/* Name (immer) */}
-              <div style={{ marginBottom: 'var(--sp-md)' }}>
-                <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Anzeigename</label>
-                <input type="text" value={name} onChange={e => setName(e.target.value)}
-                  placeholder="z. B. Frau Musterfrau" style={inp} />
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontWeight: 800, display: 'block', marginBottom: '5px' }}>Name</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="z. B. Frau Musterfrau" style={inp} />
               </div>
-
-              {/* Benutzername-Modus */}
               {mode === 'username' && (
                 <>
-                  <div style={{ marginBottom: 'var(--sp-md)' }}>
-                    <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Benutzername</label>
-                    <input type="text" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
-                      placeholder="z. B. musterfrau" autoComplete="off" style={inp} />
-                    <p style={{ margin: '4px 0 0', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>
-                      Nur Kleinbuchstaben und Zahlen. Login: {username || 'benutzername'}
-                    </p>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ fontWeight: 800, display: 'block', marginBottom: '5px' }}>Benutzername</label>
+                    <input type="text" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/\s/g,''))} placeholder="z. B. musterfrau" autoComplete="off" style={inp} />
+                    <p style={{ margin: '3px 0 0', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>Login: {username || 'benutzername'}</p>
                   </div>
-                  <div style={{ marginBottom: 'var(--sp-md)' }}>
-                    <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Passwort</label>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ fontWeight: 800, display: 'block', marginBottom: '5px' }}>Passwort</label>
                     <div style={{ position: 'relative' }}>
-                      <input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)}
-                        placeholder="Mindestens 8 Zeichen" autoComplete="new-password"
-                        style={{ ...inp, paddingRight: '3rem' }} />
-                      <button type="button" onClick={() => setShowPw(!showPw)}
-                        style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}>
-                        {showPw ? '🙈' : '👁️'}
-                      </button>
+                      <input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Mindestens 8 Zeichen" autoComplete="new-password" style={{ ...inp, paddingRight: '3rem' }} />
+                      <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}>{showPw ? '🙈' : '👁️'}</button>
                     </div>
-                    <p style={{ margin: '4px 0 0', fontSize: 'var(--fs-xs)', color: password.length >= 8 ? 'var(--c-success)' : 'var(--c-muted)' }}>
-                      {password.length}/8 Zeichen {password.length >= 8 ? '✓' : ''}
-                    </p>
+                    <p style={{ margin: '3px 0 0', fontSize: 'var(--fs-xs)', color: password.length >= 8 ? 'var(--c-success)' : 'var(--c-muted)' }}>{password.length}/8 {password.length >= 8 ? '✓' : ''}</p>
                   </div>
-                  <div className="box-info" style={{ marginBottom: 'var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
-                    💡 Teile Benutzername und Passwort direkt mit der Lehrkraft. Kein E-Mail-Versand nötig.
-                  </div>
+                  <div className="box-info" style={{ marginBottom: '1rem', fontSize: 'var(--fs-sm)' }}>💡 Teile Benutzername und Passwort direkt mit der Person.</div>
                 </>
               )}
-
-              {/* E-Mail-Modus */}
               {mode === 'email' && (
-                <>
-                  <div style={{ marginBottom: 'var(--sp-md)' }}>
-                    <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>E-Mail-Adresse</label>
-                    <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                      placeholder="lehrkraft@schule.de" autoComplete="email" style={inp} />
-                  </div>
-                  <div className="box-info" style={{ marginBottom: 'var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
-                    ✉️ Die Person erhält eine Einladungsmail und setzt selbst ein Passwort.
-                  </div>
-                </>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ fontWeight: 800, display: 'block', marginBottom: '5px' }}>E-Mail-Adresse</label>
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="lehrkraft@schule.de" style={inp} />
+                </div>
               )}
-
-              {/* Rolle (immer) */}
-              <div style={{ marginBottom: 'var(--sp-md)' }}>
-                <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Rolle</label>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontWeight: 800, display: 'block', marginBottom: '5px' }}>Rolle</label>
                 <select value={role} onChange={e => setRole(e.target.value)} style={inp}>
                   <option value="teacher">👩‍🏫 Lehrkraft</option>
                   <option value="superadmin">🛡️ Admin (Superadmin)</option>
                 </select>
               </div>
-
               <div className="actions">
-                <button type="submit" className="btn btn-primary" disabled={loading || !name.trim() || (mode === 'username' && (!username.trim() || password.length < 8)) || (mode === 'email' && !email.trim())}>
+                <button type="submit" className="btn btn-primary" disabled={loading || !name.trim() || (mode==='username' && (!username.trim()||password.length<8)) || (mode==='email' && !email.trim())}>
                   {loading ? 'Wird angelegt …' : mode === 'username' ? '✅ Account anlegen' : '✉️ Einladung senden'}
                 </button>
                 <button type="button" className="btn btn-ghost" onClick={onCancel}>Abbrechen</button>
@@ -614,7 +527,7 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
   )
 }
 
-// Neue Klasse anlegen (Admin kann Lehrkraft zuweisen)
+// Neue Klasse anlegen
 function NewClassForm({ teachers, onCreated, onCancel, onError }) {
   const [name,      setName]      = useState('')
   const [grade,     setGrade]     = useState(7)
@@ -625,48 +538,43 @@ function NewClassForm({ teachers, onCreated, onCancel, onError }) {
     e.preventDefault()
     if (!name.trim()) { onError('Bitte einen Klassennamen eingeben.'); return }
     setLoading(true)
-    const joinCode = Math.random().toString(36).slice(2, 8).toUpperCase()
+    const joinCode = Math.random().toString(36).slice(2,8).toUpperCase()
     const { error } = await supabase.from('classes').insert({
-      name: name.trim(), grade,
-      teacher_id: teacherId || null,
-      school_id:  SCHOOL_ID,
-      join_code:  joinCode,
+      name: name.trim(), grade, teacher_id: teacherId||null, school_id: SCHOOL_ID, join_code: joinCode
     })
     setLoading(false)
     if (error) { onError('Fehler: ' + error.message); return }
     onCreated()
   }
 
-  const inputStyle = { width: '100%', padding: '10px', border: '2px solid var(--color-border)', borderRadius: 'var(--radius-md)', fontSize: '1rem', fontFamily: 'inherit' }
+  const inp = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 'var(--space-lg)' }}>
-      <div style={{ background: 'white', borderRadius: 'var(--radius-2xl)', padding: 'var(--space-xl)', maxWidth: '500px', width: '100%', boxShadow: 'var(--shadow-lg)' }}>
-        <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>Neue Klasse anlegen</h2>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1.5rem' }}>
+      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '28rem', width: '100%' }}>
+        <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>🏫 Neue Klasse anlegen</h2>
         <form onSubmit={handleCreate} noValidate>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--space-md)', marginBottom: 'var(--space-md)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div>
-              <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Klassenname</label>
-              <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="z. B. 7a" style={inputStyle} />
+              <label style={{ fontWeight: 800, display: 'block', marginBottom: '5px' }}>Klassenname</label>
+              <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="z. B. 7a" style={inp} />
             </div>
             <div>
-              <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Jahrgang</label>
-              <select value={grade} onChange={e => setGrade(Number(e.target.value))} style={inputStyle}>
+              <label style={{ fontWeight: 800, display: 'block', marginBottom: '5px' }}>Jahrgang</label>
+              <select value={grade} onChange={e => setGrade(Number(e.target.value))} style={inp}>
                 {[7,8,9,10,11,12,13].map(g => <option key={g} value={g}>{g}</option>)}
               </select>
             </div>
           </div>
-          <div style={{ marginBottom: 'var(--space-md)' }}>
-            <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Lehrkraft zuweisen (optional)</label>
-            <select value={teacherId} onChange={e => setTeacherId(e.target.value)} style={inputStyle}>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontWeight: 800, display: 'block', marginBottom: '5px' }}>Lehrkraft zuweisen (optional)</label>
+            <select value={teacherId} onChange={e => setTeacherId(e.target.value)} style={inp}>
               <option value="">Keine Lehrkraft</option>
-              {teachers.map(t => <option key={t.id} value={t.id}>{t.display_name} ({t.role})</option>)}
+              {teachers.map(t => <option key={t.id} value={t.id}>{t.display_name} ({t.role === 'superadmin' ? 'Admin' : 'Lehrkraft'})</option>)}
             </select>
           </div>
           <div className="actions">
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Wird angelegt ...' : 'Klasse anlegen'}
-            </button>
+            <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Wird angelegt …' : 'Klasse anlegen'}</button>
             <button type="button" className="btn btn-ghost" onClick={onCancel}>Abbrechen</button>
           </div>
         </form>
@@ -675,90 +583,68 @@ function NewClassForm({ teachers, onCreated, onCancel, onError }) {
   )
 }
 
-// Loeschfristen verwalten
+// Löschfristen
 function DeadlineManager({ classes, students, onClose, onMsg }) {
   const [selectedClass, setSelectedClass] = useState('')
   const [deadline,      setDeadline]      = useState('')
   const [loading,       setLoading]       = useState(false)
+  const expiredCount = students.filter(s => s.delete_after && s.delete_after <= new Date().toISOString().slice(0,10)).length
 
   async function applyDeadline() {
-    if (!selectedClass || !deadline) { onMsg('err', 'Bitte Klasse und Datum auswaehlen.'); return }
+    if (!selectedClass || !deadline) { onMsg('err', 'Bitte Klasse und Datum auswählen.'); return }
     setLoading(true)
     const studs = students.filter(s => s.class_id === selectedClass).map(s => s.id)
-    if (studs.length === 0) { onMsg('err', 'Keine Schueler:innen in dieser Klasse.'); setLoading(false); return }
-
-    const { error } = await supabase
-      .from('students')
-      .update({ delete_after: deadline })
-      .in('id', studs)
-
+    if (!studs.length) { onMsg('err', 'Keine Schüler:innen in dieser Klasse.'); setLoading(false); return }
+    const { error } = await supabase.from('students').update({ delete_after: deadline }).in('id', studs)
     setLoading(false)
     if (error) { onMsg('err', 'Fehler: ' + error.message); return }
-    onMsg('ok', 'Loeschfrist fuer ' + studs.length + ' Schueler:innen gesetzt.')
+    onMsg('ok', `Löschfrist für ${studs.length} Schüler:innen gesetzt.`)
     onClose()
   }
 
   async function deleteExpired() {
     setLoading(true)
-    const today    = new Date().toISOString().slice(0, 10)
-    const expired  = students.filter(s => s.delete_after && s.delete_after <= today)
-    const expIds   = expired.map(s => s.id)
-
-    if (expIds.length === 0) { onMsg('ok', 'Keine abgelaufenen Datensaetze gefunden.'); setLoading(false); return }
-
-    await supabase.from('student_task_progress').delete().in('student_id', expIds)
-    await supabase.from('student_module_progress').delete().in('student_id', expIds)
-    await supabase.from('students').delete().in('id', expIds)
-
+    const today   = new Date().toISOString().slice(0,10)
+    const expired = students.filter(s => s.delete_after && s.delete_after <= today).map(s => s.id)
+    if (!expired.length) { onMsg('ok', 'Keine abgelaufenen Datensätze.'); setLoading(false); return }
+    await supabase.from('student_task_progress').delete().in('student_id', expired)
+    await supabase.from('student_module_progress').delete().in('student_id', expired)
+    await supabase.from('students').delete().in('id', expired)
     setLoading(false)
-    onMsg('ok', expIds.length + ' abgelaufene Datensaetze geloescht.')
+    onMsg('ok', `${expired.length} abgelaufene Datensätze gelöscht.`)
     onClose()
   }
 
-  const inputStyle = { width: '100%', padding: '10px', border: '2px solid var(--color-border)', borderRadius: 'var(--radius-md)', fontSize: '1rem', fontFamily: 'inherit' }
-  const expiredCount = students.filter(s => s.delete_after && s.delete_after <= new Date().toISOString().slice(0,10)).length
+  const inp = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 'var(--space-lg)' }}>
-      <div style={{ background: 'white', borderRadius: 'var(--radius-2xl)', padding: 'var(--space-xl)', maxWidth: '520px', width: '100%', boxShadow: 'var(--shadow-lg)' }}>
-        <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>Loeschfristen verwalten</h2>
-
-        <div className="box-info" style={{ marginBottom: 'var(--space-lg)', fontSize: 'var(--font-size-sm)' }}>
-          Loeschfristen bestimmen, wann Schueler-Daten automatisch geloescht werden koennen (Art. 17 DSGVO).
-          Standard: 2 Jahre nach Anmeldung.
-        </div>
-
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1.5rem' }}>
+      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '30rem', width: '100%' }}>
+        <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>⏰ Löschfristen verwalten</h2>
         {expiredCount > 0 && (
-          <div className="box-warning" style={{ marginBottom: 'var(--space-lg)' }}>
-            <strong>{expiredCount} Datensaetze</strong> haben ihre Loeschfrist ueberschritten.
-            <div className="actions" style={{ marginTop: '8px' }}>
-              <button className="btn" onClick={deleteExpired} disabled={loading}
-                style={{ background: 'var(--color-error)', color: 'white', fontSize: '0.85rem' }}>
-                Abgelaufene Daten jetzt loeschen
-              </button>
+          <div className="box-warning" style={{ marginBottom: '1rem' }}>
+            <strong>{expiredCount} Datensätze</strong> haben ihre Löschfrist überschritten.
+            <div className="actions" style={{ marginTop: '0.5rem' }}>
+              <button className="btn btn-danger" onClick={deleteExpired} disabled={loading}>Abgelaufene jetzt löschen</button>
             </div>
           </div>
         )}
-
-        <div style={{ marginBottom: 'var(--space-md)' }}>
-          <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Klasse auswaehlen</label>
-          <select value={selectedClass} onChange={e => setSelectedClass(e.target.value)} style={inputStyle}>
-            <option value="">Klasse auswaehlen ...</option>
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ fontWeight: 800, display: 'block', marginBottom: '5px' }}>Klasse auswählen</label>
+          <select value={selectedClass} onChange={e => setSelectedClass(e.target.value)} style={inp}>
+            <option value="">Klasse auswählen …</option>
             {classes.map(c => <option key={c.id} value={c.id}>{c.name} (Jg. {c.grade})</option>)}
           </select>
         </div>
-
-        <div style={{ marginBottom: 'var(--space-lg)' }}>
-          <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Loeschfrist setzen</label>
-          <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)}
-            min={new Date().toISOString().slice(0,10)} style={inputStyle} />
+        <div style={{ marginBottom: '1.25rem' }}>
+          <label style={{ fontWeight: 800, display: 'block', marginBottom: '5px' }}>Löschfrist setzen</label>
+          <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} min={new Date().toISOString().slice(0,10)} style={inp} />
         </div>
-
         <div className="actions">
           <button className="btn btn-primary" onClick={applyDeadline} disabled={loading || !selectedClass || !deadline}>
-            {loading ? 'Wird gesetzt ...' : 'Loeschfrist anwenden'}
+            {loading ? 'Wird gesetzt …' : 'Löschfrist anwenden'}
           </button>
-          <button className="btn btn-ghost" onClick={onClose}>Schliessen</button>
+          <button className="btn btn-ghost" onClick={onClose}>Schließen</button>
         </div>
       </div>
     </div>
