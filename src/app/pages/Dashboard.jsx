@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MODULES, REQUIRED_MODULE_IDS, getAchievementsLocal, allRequiredPassed, getXP, getLevel, saveAchievementLocal } from '../../lib/achievements.js'
-import { loadAllProgress } from '../../lib/progress.js'
+import { loadAllProgress, debugSync } from '../../lib/progress.js'
 import { applyCode } from '../../lib/levelCode.js'
 
 export default function Dashboard({ student }) {
@@ -14,6 +14,14 @@ export default function Dashboard({ student }) {
   const [codeInput,    setCodeInput]    = useState('')
   const [codeResult,   setCodeResult]   = useState(null)
   const [showCode,     setShowCode]     = useState(false)
+  const [debugMsg,     setDebugMsg]     = useState('')
+
+  async function handleDebugSync() {
+    setDebugMsg('Teste...')
+    const res = await debugSync()
+    if (res?.error) setDebugMsg('❌ ' + (res.error.message || JSON.stringify(res.error)))
+    else setDebugMsg('✅ Supabase-Sync OK! Status: ' + (res?.status || 'ok'))
+  }
 
   const level = getLevel(xp)
   const prevXP = level.level === 1 ? 0 : level.level === 2 ? 400 : level.level === 3 ? 900 : 1600
@@ -112,9 +120,16 @@ export default function Dashboard({ student }) {
         {/* Vorleistungs-Code */}
         <div style={{ marginBottom: 'var(--sp-lg)' }}>
           {!showCode ? (
-            <button className="btn btn-ghost" onClick={() => setShowCode(true)} style={{ fontSize: 'var(--fs-sm)' }}>
-              🏅 Vorleistungs-Code eingeben
-            </button>
+            <React.Fragment>
+              <button className="btn btn-ghost" onClick={() => setShowCode(true)} style={{ fontSize: 'var(--fs-sm)' }}>
+                🏅 Vorleistungs-Code eingeben
+              </button>
+              <button className="btn" onClick={handleDebugSync}
+                style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.7rem', marginLeft: '0.5rem' }}>
+                🔧 Sync testen
+              </button>
+              {debugMsg && <span style={{ fontSize: '0.75rem', color: debugMsg.startsWith('✅') ? '#4ade80' : '#f87171', fontWeight: 700, display: 'block', marginTop: '0.25rem' }}>{debugMsg}</span>}
+            </React.Fragment>
           ) : (
             <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)' }}>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>

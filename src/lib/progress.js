@@ -106,3 +106,25 @@ export async function flushQueue() {
 export function getPendingCount() {
   return getQueue().length
 }
+// Manueller Sync-Test (für Debugging)
+export async function debugSync() {
+  var student = getStudentLocal()
+  console.log('[debug] student:', student)
+  if (!student || !student.id) return { error: 'Kein Student im localStorage' }
+  if (!navigator.onLine) return { error: 'Offline' }
+  
+  // Teste ob student_module_progress erreichbar ist
+  var testData = {
+    student_id: student.id,
+    module_id: 'modul-03',
+    status: 'passed',
+    score: 100,
+    max_score: 100,
+    passed: true,
+    completed_at: new Date().toISOString()
+  }
+  var res = await supabase.from('student_module_progress')
+    .upsert(testData, { onConflict: 'student_id,module_id' })
+  console.log('[debug] upsert result:', res)
+  return res
+}
