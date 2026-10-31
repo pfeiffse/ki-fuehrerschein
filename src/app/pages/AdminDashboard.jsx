@@ -392,20 +392,7 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
   const [success,  setSuccess]  = useState('')
   const [showPw,   setShowPw]   = useState(false)
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    if (!name.trim()) { onError('Bitte einen Namen eingeben.'); return }
-    if (mode === 'username' && (!username.trim() || password.length < 8)) {
-      onError('Bitte Benutzername und Passwort (mind. 8 Zeichen) eingeben.'); return
-    }
-    if (mode === 'email' && !email.trim()) { onError('Bitte E-Mail eingeben.'); return }
-    setLoading(true)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { onError('Nicht angemeldet.'); setLoading(false); return }
-      
-    } catch (err) { setLoading(false); onError('Fehler: ' + err.message) }
-  }
+  
 
   const inp = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }
 
