@@ -455,40 +455,49 @@ export default function AdminDashboard({ teacher, onLogout }) {
 }
 
 // Neue Lehrkraft anlegen
-// Lehrkraft per E-Mail einladen (via Supabase Edge Function)
+// Lehrkraft anlegen: Benutzername+Passwort ODER E-Mail-Einladung
 function NewTeacherForm({ onCreated, onCancel, onError }) {
-  const [email,   setEmail]   = useState('')
-  const [name,    setName]    = useState('')
-  const [role,    setRole]    = useState('teacher')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState('')
+  const [mode,     setMode]     = useState('username') // 'username' | 'email'
+  const [name,     setName]     = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [email,    setEmail]    = useState('')
+  const [role,     setRole]     = useState('teacher')
+  const [loading,  setLoading]  = useState(false)
+  const [success,  setSuccess]  = useState('')
+  const [showPw,   setShowPw]   = useState(false)
 
-  async function handleInvite(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    if (!email.trim() || !name.trim()) { onError('Bitte E-Mail und Name eingeben.'); return }
+    if (!name.trim()) { onError('Bitte einen Namen eingeben.'); return }
+    if (mode === 'username' && (!username.trim() || !password.trim())) {
+      onError('Bitte Benutzername und Passwort eingeben.'); return
+    }
+    if (mode === 'email' && !email.trim()) {
+      onError('Bitte eine E-Mail-Adresse eingeben.'); return
+    }
     setLoading(true)
     setSuccess('')
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { onError('Nicht angemeldet.'); setLoading(false); return }
 
+      const body = {
+        mode, displayName: name.trim(), role, schoolId: SCHOOL_ID,
+        ...(mode === 'username' ? { username: username.trim(), password } : { email: email.trim() })
+      }
+
       const res = await fetch(
         'https://tkmdyvlzespnkdzdzuwu.supabase.co/functions/v1/invite-user',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            email: email.trim(), displayName: name.trim(), role,
-            schoolId: SCHOOL_ID,
-          }),
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify(body),
         }
       )
       const data = await res.json()
       setLoading(false)
-      if (!res.ok || data.error) { onError(data.error || 'Einladung fehlgeschlagen.'); return }
+      if (!res.ok || data.error) { onError(data.error || 'Fehler beim Anlegen.'); return }
       setSuccess(data.message)
       setTimeout(() => onCreated(), 3000)
     } catch (err) {
@@ -497,12 +506,13 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
     }
   }
 
-  const inputStyle = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }
+  const inp = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 'var(--sp-lg)' }}>
-      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: 'var(--sp-xl)', maxWidth: '500px', width: '100%', boxShadow: 'var(--sh-lg)' }}>
-        <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>✉️ Lehrkraft einladen</h2>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 'var(--sp-lg)', overflowY: 'auto' }}>
+      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: 'var(--sp-xl)', maxWidth: '520px', width: '100%', boxShadow: 'var(--sh-lg)', margin: 'auto' }}>
+        <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>👩‍🏫 Lehrkraft anlegen</h2>
+
         {success ? (
           <div>
             <div style={{ background: 'var(--c-success-bg)', border: '2px solid var(--c-success)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-lg)', textAlign: 'center', marginBottom: 'var(--sp-md)' }}>
@@ -513,30 +523,86 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
           </div>
         ) : (
           <>
-            <div className="box-info" style={{ marginBottom: 'var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
-              Die Person erhält eine <strong>Einladungsmail</strong> und kann direkt ein Passwort setzen – kein Umweg über Supabase nötig.
+            {/* Modus-Auswahl */}
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--sp-lg)', background: 'var(--c-pale2)', borderRadius: 'var(--r-lg)', padding: '0.25rem' }}>
+              {[
+                { id: 'username', label: '🔑 Benutzername + Passwort', sub: 'Keine E-Mail nötig' },
+                { id: 'email',    label: '✉️ E-Mail-Einladung',        sub: 'Link per Mail' },
+              ].map(m => (
+                <button key={m.id} type="button" onClick={() => setMode(m.id)}
+                  style={{ flex: 1, padding: '0.625rem', borderRadius: 'var(--r-md)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: mode === m.id ? 800 : 600, background: mode === m.id ? 'white' : 'transparent', boxShadow: mode === m.id ? 'var(--sh-sm)' : 'none', transition: 'all 0.2s', fontSize: 'var(--fs-sm)' }}>
+                  <div>{m.label}</div>
+                  <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', fontWeight: 400 }}>{m.sub}</div>
+                </button>
+              ))}
             </div>
-            <form onSubmit={handleInvite} noValidate>
-              <div style={{ marginBottom: 'var(--sp-md)' }}>
-                <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>E-Mail-Adresse</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                  placeholder="lehrkraft@schule.de" autoComplete="email" style={inputStyle} />
-              </div>
+
+            <form onSubmit={handleSubmit} noValidate>
+              {/* Name (immer) */}
               <div style={{ marginBottom: 'var(--sp-md)' }}>
                 <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Anzeigename</label>
                 <input type="text" value={name} onChange={e => setName(e.target.value)}
-                  placeholder="z. B. Frau Musterfrau" style={inputStyle} />
+                  placeholder="z. B. Frau Musterfrau" style={inp} />
               </div>
+
+              {/* Benutzername-Modus */}
+              {mode === 'username' && (
+                <>
+                  <div style={{ marginBottom: 'var(--sp-md)' }}>
+                    <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Benutzername</label>
+                    <input type="text" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
+                      placeholder="z. B. musterfrau" autoComplete="off" style={inp} />
+                    <p style={{ margin: '4px 0 0', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>
+                      Nur Kleinbuchstaben und Zahlen. Login: {username || 'benutzername'}
+                    </p>
+                  </div>
+                  <div style={{ marginBottom: 'var(--sp-md)' }}>
+                    <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Passwort</label>
+                    <div style={{ position: 'relative' }}>
+                      <input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)}
+                        placeholder="Mindestens 8 Zeichen" autoComplete="new-password"
+                        style={{ ...inp, paddingRight: '3rem' }} />
+                      <button type="button" onClick={() => setShowPw(!showPw)}
+                        style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}>
+                        {showPw ? '🙈' : '👁️'}
+                      </button>
+                    </div>
+                    <p style={{ margin: '4px 0 0', fontSize: 'var(--fs-xs)', color: password.length >= 8 ? 'var(--c-success)' : 'var(--c-muted)' }}>
+                      {password.length}/8 Zeichen {password.length >= 8 ? '✓' : ''}
+                    </p>
+                  </div>
+                  <div className="box-info" style={{ marginBottom: 'var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
+                    💡 Teile Benutzername und Passwort direkt mit der Lehrkraft. Kein E-Mail-Versand nötig.
+                  </div>
+                </>
+              )}
+
+              {/* E-Mail-Modus */}
+              {mode === 'email' && (
+                <>
+                  <div style={{ marginBottom: 'var(--sp-md)' }}>
+                    <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>E-Mail-Adresse</label>
+                    <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                      placeholder="lehrkraft@schule.de" autoComplete="email" style={inp} />
+                  </div>
+                  <div className="box-info" style={{ marginBottom: 'var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
+                    ✉️ Die Person erhält eine Einladungsmail und setzt selbst ein Passwort.
+                  </div>
+                </>
+              )}
+
+              {/* Rolle (immer) */}
               <div style={{ marginBottom: 'var(--sp-md)' }}>
                 <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Rolle</label>
-                <select value={role} onChange={e => setRole(e.target.value)} style={inputStyle}>
+                <select value={role} onChange={e => setRole(e.target.value)} style={inp}>
                   <option value="teacher">👩‍🏫 Lehrkraft</option>
                   <option value="superadmin">🛡️ Admin (Superadmin)</option>
                 </select>
               </div>
+
               <div className="actions">
-                <button type="submit" className="btn btn-primary" disabled={loading || !email.trim() || !name.trim()}>
-                  {loading ? 'Einladung wird gesendet …' : '✉️ Einladung senden'}
+                <button type="submit" className="btn btn-primary" disabled={loading || !name.trim() || (mode === 'username' && (!username.trim() || password.length < 8)) || (mode === 'email' && !email.trim())}>
+                  {loading ? 'Wird angelegt …' : mode === 'username' ? '✅ Account anlegen' : '✉️ Einladung senden'}
                 </button>
                 <button type="button" className="btn btn-ghost" onClick={onCancel}>Abbrechen</button>
               </div>
