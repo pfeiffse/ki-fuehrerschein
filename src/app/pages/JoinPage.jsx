@@ -19,7 +19,17 @@ export default function JoinPage({ onJoin }) {
     const result = await studentJoin(joinCode, displayName)
     setLoading(false)
     if (result.error) setError(result.error)
-    else onJoin(result.student)
+    else {
+      if (result.restored) {
+        // Kurz anzeigen dass Fortschritt wiederhergestellt wurde
+        setError('') 
+        // Kleiner Hinweis – dann weiterleiten
+        setTimeout(() => onJoin(result.student), 800)
+        setError('✅ Willkommen zurück! Dein Fortschritt wurde wiederhergestellt.')
+      } else {
+        onJoin(result.student)
+      }
+    }
   }
 
   return (

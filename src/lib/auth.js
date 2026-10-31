@@ -49,6 +49,7 @@ export async function studentJoin(joinCode, displayName) {
     return { error: 'Klassencode nicht gefunden. Bitte bei der Lehrkraft nachfragen.' }
   }
 
+  // 1. Versuch: per session_token wiederfinden (schnellster Weg)
   const existingToken = localStorage.getItem(TOKEN_KEY)
   if (existingToken) {
     const { data: existing } = await supabase
@@ -62,6 +63,29 @@ export async function studentJoin(joinCode, displayName) {
     clearLocalData()
   }
 
+  // 2. Versuch: per Name + Klasse wiederfinden (Token verloren, z.B. Cache geleert)
+  const { data: byName } = await supabase
+    .from('students').select('*')
+    .eq('class_id', cls.id)
+    .ilike('display_name', displayName.trim())
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (byName) {
+    // Bestehenden Account wiederherstellen – neuen Token setzen
+    const newToken = crypto.randomUUID()
+    await Promise.resolve(
+      supabase.from('students').update({ session_token: newToken }).eq('id', byName.id)
+    )
+    const restored = { ...byName, session_token: newToken }
+    localStorage.setItem(TOKEN_KEY,   newToken)
+    localStorage.setItem(STUDENT_KEY, JSON.stringify(restored))
+    localStorage.setItem(CLASS_KEY,   JSON.stringify(cls))
+    return { student: restored, class: cls, restored: true }
+  }
+
+  // 3. Neuen Account anlegen
   const token = crypto.randomUUID()
   const { data: student, error: stuErr } = await supabase
     .from('students')
