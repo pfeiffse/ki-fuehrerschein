@@ -246,10 +246,14 @@ export default function AdminDashboard({ teacher, onLogout }) {
                             <td style={{ fontWeight: 700, padding: '0.75rem 0.5rem' }}>{cls.name}</td>
                             <td style={{ padding: '0.75rem 0.5rem' }}>{cls.grade}</td>
                             <td style={{ padding: '0.75rem 0.5rem' }}><code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '4px', fontWeight: 900 }}>{cls.join_code}</code></td>
-                            <td style={{ padding: '0.75rem 0.5rem', color: 'rgba(255,255,255,0.6)', fontSize: 'var(--fs-sm)' }}>{cls.users?.display_name || '-'}</td>
+                            <td style={{ padding: '0.75rem 0.5rem', color: 'rgba(255,255,255,0.6)', fontSize: 'var(--fs-sm)' }}>{cls.teachers?.display_name || '–'}</td>
                             <td style={{ padding: '0.75rem 0.5rem' }}>{clsStu.length}</td>
                             <td style={{ padding: '0.75rem 0.5rem', color: certs > 0 ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}>{certs > 0 ? certs + ' Zert.' : '-'}</td>
-                            <td style={{ padding: '0.75rem 0.5rem' }}>
+                            <td style={{ padding: '0.75rem 0.5rem', display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+                              <button className="btn" onClick={() => setAssignTeacher(cls)}
+                                style={{ background: 'rgba(8,127,131,0.2)', color: '#5eead4', border: '1px solid rgba(8,127,131,0.4)', fontSize: 'var(--fs-xs)', padding: '4px 10px', minHeight: '2rem' }}>
+                                Lehrkraft
+                              </button>
                               <button className="btn" onClick={() => setConfirmDelete({ type: 'class', id: cls.id, name: cls.name })}
                                 style={{ background: 'rgba(220,38,38,0.2)', color: '#fca5a5', border: '1px solid rgba(220,38,38,0.4)', fontSize: 'var(--fs-xs)', padding: '4px 10px', minHeight: '2rem' }}>
                                 Loeschen
@@ -376,6 +380,14 @@ export default function AdminDashboard({ teacher, onLogout }) {
           <DeadlineManager classes={classes} students={students}
             onClose={() => { setShowDeadlines(false); loadAll() }}
             onMsg={showMsg} />
+        )}
+        {assignTeacher && (
+          <AssignTeacherModal
+            cls={assignTeacher}
+            teachers={teachers}
+            onSaved={() => { setAssignTeacher(null); loadAll(); showMsg('ok', 'Lehrkraft zugewiesen!') }}
+            onCancel={() => setAssignTeacher(null)}
+            onError={err => showMsg('err', err)} />
         )}
       </div>
     </div>
@@ -596,6 +608,52 @@ function DeadlineManager({ classes, students, onClose, onMsg }) {
             {loading ? 'Wird gesetzt...' : 'Loeschfrist anwenden'}
           </button>
           <button className="btn btn-ghost" onClick={onClose}>Schliessen</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+function AssignTeacherModal({ cls, teachers, onSaved, onCancel, onError }) {
+  const [teacherId, setTeacherId] = useState(cls.teacher_id || '')
+  const [loading,   setLoading]   = useState(false)
+
+  async function handleSave() {
+    setLoading(true)
+    const { error } = await supabase.from('classes')
+      .update({ teacher_id: teacherId || null })
+      .eq('id', cls.id)
+    setLoading(false)
+    if (error) { onError('Fehler: ' + error.message); return }
+    onSaved()
+  }
+
+  const inp = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1.5rem' }}>
+      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '24rem', width: '100%', boxShadow: 'var(--sh-lg)' }}>
+        <h2 style={{ marginTop: 0, color: 'var(--c-dark)' }}>Lehrkraft zuweisen</h2>
+        <p style={{ color: 'var(--c-muted)', marginBottom: '1.25rem' }}>
+          Klasse: <strong>{cls.name}</strong> (Code: <code>{cls.join_code}</code>)
+        </p>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label style={{ fontWeight: 800, display: 'block', marginBottom: '6px' }}>Lehrkraft</label>
+          <select value={teacherId} onChange={e => setTeacherId(e.target.value)} style={inp}>
+            <option value="">– Keine Lehrkraft –</option>
+            {teachers.filter(t => t.role === 'teacher').map(t => (
+              <option key={t.id} value={t.id}>{t.display_name} ({t.username})</option>
+            ))}
+          </select>
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn btn-primary" onClick={handleSave} disabled={loading} style={{ flex: 1, justifyContent: 'center' }}>
+            {loading ? 'Wird gespeichert...' : 'Speichern'}
+          </button>
+          <button className="btn btn-ghost" onClick={onCancel} style={{ flex: 1, justifyContent: 'center' }}>
+            Abbrechen
+          </button>
         </div>
       </div>
     </div>
