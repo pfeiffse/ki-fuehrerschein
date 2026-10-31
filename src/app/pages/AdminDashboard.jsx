@@ -426,31 +426,7 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
   const [success,  setSuccess]  = useState('')
   const [showPw,   setShowPw]   = useState(false)
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    if (!name.trim()) { onError('Bitte einen Namen eingeben.'); return }
-    if (mode === 'username' && (!username.trim() || password.length < 8)) {
-      onError('Bitte Benutzername und Passwort (mind. 8 Zeichen) eingeben.'); return
-    }
-    if (mode === 'email' && !email.trim()) { onError('Bitte E-Mail eingeben.'); return }
-    setLoading(true)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { onError('Nicht angemeldet.'); setLoading(false); return }
-      const body = { mode, displayName: name.trim(), role, schoolId: SCHOOL_ID,
-        ...(mode === 'username' ? { username: username.trim(), password } : { email: email.trim() }) }
-      const res  = await fetch(EDGE_FN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify(body),
-      })
-      const data = await res.json()
-      setLoading(false)
-      if (!res.ok || data.error) { onError(data.error || 'Fehler.'); return }
-      setSuccess(data.message)
-      setTimeout(() => onCreated(), 2500)
-    } catch (err) { setLoading(false); onError('Netzwerkfehler: ' + err.message) }
-  }
+  
 
   const inp = { width: '100%', padding: '10px', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', fontSize: '1rem', fontFamily: 'inherit' }
 
