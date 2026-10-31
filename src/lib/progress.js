@@ -24,13 +24,18 @@ function addToQueue(moduleId, data) {
 // Supabase upsert als echtes Promise ausfuehren
 function supabaseUpsert(table, data, conflict) {
   var student = getStudentLocal()
-  if (!student || !student.id || !navigator.onLine) return
-  // Supabase gibt PostgrestFilterBuilder zurueck - in Promise wrappen
+  if (!student || !student.id) { console.warn('[progress] kein Student, skip upsert'); return }
+  if (!navigator.onLine) { console.warn('[progress] offline, skip upsert'); return }
+  var payload = Object.assign({ student_id: student.id }, data)
   new Promise(function(resolve, reject) {
     supabase.from(table)
-      .upsert(Object.assign({ student_id: student.id }, data), { onConflict: conflict })
-      .then(resolve)
-      .catch(reject)
+      .upsert(payload, { onConflict: conflict })
+      .then(function(res) {
+        if (res.error) console.error('[progress] upsert error:', res.error.message, payload)
+        else console.log('[progress] upsert ok:', table, payload.module_id || payload.task_id || '')
+        resolve(res)
+      })
+      .catch(function(err) { console.error('[progress] upsert catch:', err); reject(err) })
   }).catch(function() {})
 }
 
