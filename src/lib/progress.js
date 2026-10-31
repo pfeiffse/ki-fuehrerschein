@@ -3,93 +3,95 @@
 import { supabase } from './supabase.js'
 import { getStudentLocal } from './auth.js'
 
-const key  = mid => 'ki_prog_' + mid
-const read = k => { try { return JSON.parse(localStorage.getItem(k)) } catch { return null } }
-const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} }
+var cacheKey = function(mid) { return 'ki_prog_' + mid }
+var QUEUE_KEY = 'ki_sync_queue'
 
-// Supabase async senden (fire & forget)
-function sendToSupabase(table, data, conflict) {
-  const student = getStudentLocal()
-  if (!student?.id || !navigator.onLine) return
-  supabase.from(table).upsert({ student_id: student.id, ...data }, { onConflict: conflict }).catch(() => {})
-}
+function read(k) { try { return JSON.parse(localStorage.getItem(k)) } catch { return null } }
+function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} }
 
-// Modul starten
-export function startModuleLocal(moduleId) {
-  const cached = read(key(moduleId))
-  if (cached?.started_at) return cached
-  const data = { module_id: moduleId, status: 'in_progress', score: 0, max_score: 100, passed: false, started_at: new Date().toISOString() }
-  save(key(moduleId), data)
-  sendToSupabase('student_module_progress', data, 'student_id,module_id')
-  return data
-}
+function getQueue() { try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]') } catch { return [] } }
 
-// Fortschritt aktualisieren
-export function updateProgress(moduleId, score, maxScore, passed) {
-  const status = passed ? 'passed' : score > 0 ? 'in_progress' : 'not_started'
-  const data = { module_id: moduleId, status, score, max_score: maxScore, passed: !!passed }
-  if (passed) data.completed_at = new Date().toISOString()
-  const cached = read(key(moduleId)) || {}
-  save(key(moduleId), { ...cached, ...data })
-  sendToSupabase('student_module_progress', data, 'student_id,module_id')
-}
-
-// Modul bestanden
-export function passModule(moduleId, score = 100, maxScore = 100) {
-  updateProgress(moduleId, score, maxScore, true)
-}
-
-// Lokalen Fortschritt lesen
-export function getLocalProgress(moduleId) {
-  return read(key(moduleId))
-}
-
-// Alle Module aus Supabase laden (für Dashboard)
-export async function loadAllProgress() {
-  const student = getStudentLocal()
-  if (!student?.id) {
-    // Aus localStorage zusammenbauen
-    return ['modul-01','modul-02','modul-03','modul-04']
-      .map(mid => read(key(mid))).filter(Boolean)
-  }
-  if (!navigator.onLine) {
-    return ['modul-01','modul-02','modul-03','modul-04']
-      .map(mid => read(key(mid))).filter(Boolean)
-  }
+function addToQueue(moduleId, data) {
   try {
-    const { data } = await supabase.from('student_module_progress')
-      .select('*').eq('student_id', student.id)
-    // Auch lokal cachen
-    if (data) data.forEach(p => save(key(p.module_id), p))
-    return data || []
-  } catch {
-    return ['modul-01','modul-02','modul-03','modul-04']
-      .map(mid => read(key(mid))).filter(Boolean)
-  }
-}
-
-// Offline-Queue für spätere Synchronisation
-const QUEUE_KEY = 'ki_sync_queue'
-
-export function queueSync(moduleId, data) {
-  try {
-    const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]')
-    const idx = q.findIndex(e => e.moduleId === moduleId)
-    const entry = { moduleId, data, ts: Date.now() }
+    var q = getQueue()
+    var idx = q.findIndex(function(e) { return e.moduleId === moduleId })
+    var entry = { moduleId: moduleId, data: data, ts: Date.now() }
     if (idx >= 0) q[idx] = entry; else q.push(entry)
     localStorage.setItem(QUEUE_KEY, JSON.stringify(q))
   } catch {}
 }
 
-export async function flushQueue() {
-  const student = getStudentLocal()
-  if (!student?.id || !navigator.onLine) return 0
+// Supabase upsert als echtes Promise ausfuehren
+function supabaseUpsert(table, data, conflict) {
+  var student = getStudentLocal()
+  if (!student || !student.id || !navigator.onLine) return
+  // Supabase gibt PostgrestFilterBuilder zurueck - in Promise wrappen
+  new Promise(function(resolve, reject) {
+    supabase.from(table)
+      .upsert(Object.assign({ student_id: student.id }, data), { onConflict: conflict })
+      .then(resolve)
+      .catch(reject)
+  }).catch(function() {})
+}
+
+// Modul starten
+export function startModuleLocal(moduleId) {
+  var cached = read(cacheKey(moduleId))
+  if (cached && cached.started_at) return cached
+  var data = { module_id: moduleId, status: 'in_progress', score: 0, max_score: 100, passed: false, started_at: new Date().toISOString() }
+  save(cacheKey(moduleId), data)
+  supabaseUpsert('student_module_progress', data, 'student_id,module_id')
+  return data
+}
+
+// Fortschritt aktualisieren
+export function updateProgress(moduleId, score, maxScore, passed) {
+  var status = passed ? 'passed' : score > 0 ? 'in_progress' : 'not_started'
+  var data = { module_id: moduleId, status: status, score: score, max_score: maxScore, passed: !!passed }
+  if (passed) data.completed_at = new Date().toISOString()
+  var cached = read(cacheKey(moduleId)) || {}
+  save(cacheKey(moduleId), Object.assign({}, cached, data))
+  addToQueue(moduleId, data)
+  supabaseUpsert('student_module_progress', data, 'student_id,module_id')
+}
+
+// Modul bestanden
+export function passModule(moduleId, score, maxScore) {
+  updateProgress(moduleId, score || 100, maxScore || 100, true)
+}
+
+// Lokalen Fortschritt lesen
+export function getLocalProgress(moduleId) {
+  return read(cacheKey(moduleId))
+}
+
+// Alle Module laden
+export async function loadAllProgress() {
+  var student = getStudentLocal()
+  var fallback = ['modul-01','modul-02','modul-03','modul-04'].map(function(mid) { return read(cacheKey(mid)) }).filter(Boolean)
+
+  if (!student || !student.id || !navigator.onLine) return fallback
+
   try {
-    const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]')
+    var result = await supabase.from('student_module_progress').select('*').eq('student_id', student.id)
+    if (result.data && result.data.length > 0) {
+      result.data.forEach(function(p) { save(cacheKey(p.module_id), p) })
+      return result.data
+    }
+  } catch {}
+  return fallback
+}
+
+// Sync-Queue leeren
+export async function flushQueue() {
+  var student = getStudentLocal()
+  if (!student || !student.id || !navigator.onLine) return 0
+  try {
+    var q = getQueue()
     if (!q.length) return 0
-    for (const e of q) {
+    for (var i = 0; i < q.length; i++) {
       await supabase.from('student_module_progress')
-        .upsert({ student_id: student.id, ...e.data }, { onConflict: 'student_id,module_id' })
+        .upsert(Object.assign({ student_id: student.id }, q[i].data), { onConflict: 'student_id,module_id' })
     }
     localStorage.removeItem(QUEUE_KEY)
     return q.length
@@ -97,5 +99,5 @@ export async function flushQueue() {
 }
 
 export function getPendingCount() {
-  try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]').length } catch { return 0 }
+  return getQueue().length
 }
