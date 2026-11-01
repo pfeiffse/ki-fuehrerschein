@@ -14,6 +14,37 @@ function loadState() {
   try { const r = localStorage.getItem(STORAGE_KEY); if (r) return JSON.parse(r) } catch {}
   return { mission: 1, done: {}, vertrauen1: 50, vertrauen2: 50, fallakte: {}, ownRule: '', werkzeuge: [] }
 }
+
+// Prüft ob ein Text inhaltlich sinnvoll ist (kein Spam)
+function checkTextQuality(text) {
+  const t = text.trim().toLowerCase()
+  if (t.length < 15) return { ok: false, hint: null }
+  
+  // Spam-Erkennung: gleiche Zeichen wiederholt (z.B. "aaaaaaa")
+  const uniqueChars = new Set(t.replace(/\s/g, '')).size
+  if (uniqueChars < 4) return { ok: false, hint: '🤔 Das sieht nach Tipp-Test aus. Schreib einen echten Satz!' }
+  
+  // Nur ein Wort wiederholt
+  const words = t.split(/\s+/).filter(w => w.length > 1)
+  if (words.length >= 3) {
+    const uniqueWords = new Set(words).size
+    if (uniqueWords === 1) return { ok: false, hint: '🤔 Nur ein Wort reicht nicht. Was denkst du wirklich?' }
+  }
+  
+  // Zu kurze Wörter (nur Buchstaben ohne Sinn)
+  if (words.length > 0 && words.every(w => w.length <= 2)) {
+    return { ok: false, hint: '🤔 Schreib ganze Wörter – was meinst du damit?' }
+  }
+  
+  // Enthält mindestens ein "Inhalts-Signal" (Konjunktion, Verb-Hinweis etc.)
+  const signals = ['weil', 'dass', 'ich', 'wir', 'ki', 'denke', 'glaube', 'finde', 'kann', 'ist', 'sind', 'hat', 'haben', 'macht', 'hilft', 'wenn', 'aber', 'und', 'oder']
+  const hasSignal = signals.some(s => t.includes(s))
+  if (!hasSignal && t.length < 40) {
+    return { ok: true, hint: '💡 Tipp: Erkläre auch warum – z. B. mit „weil" oder „ich denke..."' }
+  }
+  
+  return { ok: true, hint: null }
+}
 function saveState(s) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)) } catch {} }
 
 // Achievement-Overlay
@@ -152,17 +183,11 @@ export default function Modul02Page() {
               rows={4} disabled={!!done['m1']}
               style={{ width: '100%', padding: '0.75rem', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', font: 'inherit', resize: 'vertical' }} />
             {!done['m1'] ? (
-              <div className="actions">
-                {(fallakte.m1 || '').trim().length > 0 && (fallakte.m1 || '').trim().length < 15 && (
-                  <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-warn)', margin: '0 0 0.5rem' }}>
-                    ✏️ Noch {15 - (fallakte.m1 || '').trim().length} Zeichen – schreib etwas mehr!
-                  </p>
-                )}
-                <button className="btn btn-xp" disabled={(fallakte.m1 || '').trim().length < 15}
-                  onClick={() => { markDone('m1'); goMission(2) }}>
-                  Antwort speichern · Weiter zu Mission 2 →
-                </button>
-              </div>
+              <M1TextFeedback
+                text={fallakte.m1 || ''}
+                onSubmit={() => { markDone('m1'); goMission(2) }}
+                label="Antwort speichern · Weiter zu Mission 2 →"
+              />
             ) : (
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'var(--sp-md)', flexWrap: 'wrap' }}>
                 <div className="done-badge">✓ Mission 1 abgeschlossen</div>
@@ -698,13 +723,47 @@ function M9Finale({ done, vertrauen1, vertrauen2, ownRule, fallakteM1, onVertrau
       <div className="box-memory">KI kann mich unterstützen. Denken, Prüfen und Entscheiden muss ich selbst.</div>
 
       <div className="actions">
-        {ownRule.trim().length > 0 && ownRule.trim().length < 15 && (
-          <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-warn)', marginBottom: '0.5rem' }}>
-            ✏️ Noch {15 - ownRule.trim().length} Zeichen – formuliere deinen Kompass etwas ausführlicher!
-          </p>
-        )}
-        <button className="btn btn-xp" disabled={ownRule.trim().length < 15} onClick={onComplete}>
+        <TextQualityFeedback text={ownRule} shortHint="Formuliere einen vollständigen Satz – dein persönlicher KI-Kompass soll dir wirklich helfen." />
+        <button className="btn btn-xp" disabled={!checkTextQuality(ownRule).ok} onClick={onComplete}>
           🏆 Modul abschließen · Achievement freischalten
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Wiederverwendbare Feedback-Komponenten ────────────────────────────────────
+
+function TextQualityFeedback({ text, shortHint }) {
+  const q = checkTextQuality(text)
+  const len = text.trim().length
+  if (len === 0) return null
+  if (len < 15) return (
+    <div style={{ background: '#fef9c3', border: '1px solid #fde047', borderRadius: 'var(--r-md)', padding: '0.5rem 0.75rem', marginBottom: '0.75rem', fontSize: 'var(--fs-xs)', color: '#854d0e' }}>
+      ✏️ {shortHint || 'Schreib noch etwas mehr – ein vollständiger Satz hilft dir beim Nachdenken.'}
+    </div>
+  )
+  if (!q.ok && q.hint) return (
+    <div style={{ background: '#fef9c3', border: '1px solid #fde047', borderRadius: 'var(--r-md)', padding: '0.5rem 0.75rem', marginBottom: '0.75rem', fontSize: 'var(--fs-xs)', color: '#854d0e' }}>
+      {q.hint}
+    </div>
+  )
+  if (q.ok && q.hint) return (
+    <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 'var(--r-md)', padding: '0.5rem 0.75rem', marginBottom: '0.75rem', fontSize: 'var(--fs-xs)', color: '#166534' }}>
+      {q.hint}
+    </div>
+  )
+  return null
+}
+
+function M1TextFeedback({ text, onSubmit, label }) {
+  const q = checkTextQuality(text)
+  return (
+    <div>
+      <TextQualityFeedback text={text} />
+      <div className="actions">
+        <button className="btn btn-xp" disabled={!q.ok} onClick={onSubmit}>
+          {label}
         </button>
       </div>
     </div>
