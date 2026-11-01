@@ -14,9 +14,9 @@ const CONTEXTS = {
     icon:     '🏫',
     sentence: 'In der Pause esse ich ein …',
     options: [
-      { emoji: '🥪', label: 'Sandwich',  prob: 65, article: 'ein' },
-      { emoji: '🥐', label: 'Croissant', prob: 30, article: 'ein' },
-      { emoji: '🚲', label: 'Fahrrad',   prob: 5,  article: 'ein' },
+      { emoji: '🥪', img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=120&q=80', label: 'Sandwich',  prob: 65, article: 'ein' },
+      { emoji: '🥐', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=120&q=80', label: 'Croissant', prob: 30, article: 'ein' },
+      { emoji: '🚲', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=120&q=80', label: 'Fahrrad',   prob: 5,  article: 'ein' },
     ],
     highlight: 'Im Pausen-Kontext ist „Fahrrad" sehr unwahrscheinlich – ein Fahrrad isst man nicht!',
   },
@@ -25,9 +25,9 @@ const CONTEXTS = {
     icon:     '⚽',
     sentence: 'Auf dem Sportplatz entdecke ich …',
     options: [
-      { emoji: '⚽', label: 'einen Ball',        prob: 50, article: 'einen' },
-      { emoji: '🚲', label: 'ein Fahrrad',       prob: 45, article: 'ein'   },
-      { emoji: '🧊', label: 'einen Kühlschrank', prob: 5,  article: 'einen' },
+      { emoji: '⚽', img: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=120&q=80', label: 'einen Ball',        prob: 50, article: 'einen' },
+      { emoji: '🚲', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=120&q=80', label: 'ein Fahrrad',       prob: 45, article: 'ein'   },
+      { emoji: '🧊', img: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=120&q=80', label: 'einen Kühlschrank', prob: 5,  article: 'einen' },
     ],
     highlight: 'Im Sport-Kontext steigt „Fahrrad" von 5 % auf 45 % – auf dem Sportplatz ist das viel wahrscheinlicher!',
   },
@@ -38,18 +38,18 @@ const STAR_CONTEXTS = {
   pause: {
     sentence: 'In der Pause esse ich ein leckeres …',
     options: [
-      { emoji: '🥪', label: 'Sandwich',  prob: 55 },
-      { emoji: '🥐', label: 'Croissant', prob: 40 },
-      { emoji: '🚲', label: 'Fahrrad',   prob: 5  },
+      { emoji: '🥪', img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=120&q=80', label: 'Sandwich',  prob: 55 },
+      { emoji: '🥐', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=120&q=80', label: 'Croissant', prob: 40 },
+      { emoji: '🚲', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=120&q=80', label: 'Fahrrad',   prob: 5  },
     ],
     note: 'Das Wort „leckeres" verändert die Wahrscheinlichkeiten leicht – Croissant wird wahrscheinlicher.',
   },
   sport: {
     sentence: 'Auf dem Sportplatz entdecke ich ein rotes …',
     options: [
-      { emoji: '⚽', label: 'einen Ball',        prob: 70 },
-      { emoji: '🚲', label: 'ein Fahrrad',       prob: 20 },
-      { emoji: '🧊', label: 'einen Kühlschrank', prob: 10 },
+      { emoji: '⚽', img: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=120&q=80', label: 'einen Ball',        prob: 70 },
+      { emoji: '🚲', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=120&q=80', label: 'ein Fahrrad',       prob: 20 },
+      { emoji: '🧊', img: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=120&q=80', label: 'einen Kühlschrank', prob: 10 },
     ],
     note: 'Das Wort „rotes" macht „Ball" noch wahrscheinlicher – rote Fahrräder und Kühlschränke gibt es auch, aber Bälle sind häufiger rot.',
   },
@@ -215,7 +215,9 @@ export default function Station3({ done, onComplete }) {
           <div key={i}>
             <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr 55px', alignItems: 'center', gap: '10px' }}>
               <div style={{ fontWeight: 800, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '1.4rem' }}>{opt.emoji}</span>
+                {opt.img
+                  ? <img src={opt.img} alt={opt.label} style={{ width: '2rem', height: '2rem', objectFit: 'cover', borderRadius: '0.375rem' }} />
+                  : <span style={{ fontSize: '1.4rem' }}>{opt.emoji}</span>}
                 <span style={{ fontSize: '0.82rem' }}>{opt.label}</span>
               </div>
               <div style={{ background: '#dbe4f5', borderRadius: 'var(--r-pill)', height: '26px', overflow: 'hidden' }}>
@@ -242,7 +244,9 @@ export default function Station3({ done, onComplete }) {
         {ctx.options.map((opt, i) => (
           <button key={i} onClick={() => handlePick(opt.label)}
             style={{ border: `2px solid ${picked === opt.label ? MOD_COLOR : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: '12px 18px', background: picked === opt.label ? '#e7eeff' : 'white', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', fontFamily: 'inherit', transition: 'all 0.2s' }}>
-            {opt.emoji} {opt.label}
+            {opt.img
+              ? <img src={opt.img} alt={opt.label} style={{ width: '1.5rem', height: '1.5rem', objectFit: 'cover', borderRadius: '0.25rem', verticalAlign: 'middle' }} />
+              : opt.emoji} {opt.label}
           </button>
         ))}
       </div>

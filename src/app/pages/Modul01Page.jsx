@@ -94,13 +94,24 @@ export default function Modul01Page() {
           </div>
         </div>
 
-        {/* Tab-Navigation */}
+        {/* Tab-Navigation mit Freischaltlogik */}
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: 'var(--sp-lg)' }}>
-          {[{ n: 'home', label: 'Start' }, { n: 1, label: '1·Trainingsdaten' }, { n: 2, label: '2·Wasserzeichen' }, { n: 3, label: '3·Kontext' }, { n: 4, label: '4·Satzwerkstatt' }].map(t => (
-            <button key={t.n} className={`nav-btn ${station === t.n ? 'active' : ''}`} onClick={() => goStation(t.n)} style={{ fontSize: 'var(--fs-xs)' }}>
-              {typeof t.n === 'number' && completed.includes(t.n) ? '✓ ' : ''}{t.label}
-            </button>
-          ))}
+          {[{ n: 'home', label: 'Start' }, { n: 1, label: '1·Trainingsdaten' }, { n: 2, label: '2·Wasserzeichen' }, { n: 3, label: '3·Kontext' }, { n: 4, label: '4·Satzwerkstatt' }].map(t => {
+            const isDone     = typeof t.n === 'number' && completed.includes(t.n)
+            const isUnlocked = t.n === 'home' || t.n === 1 || (typeof t.n === 'number' && completed.includes(t.n - 1))
+            const isCurrent  = station === t.n
+            return (
+              <button key={t.n} className={`nav-btn ${isCurrent ? 'active' : ''}`}
+                onClick={() => isUnlocked && goStation(t.n)}
+                disabled={!isUnlocked}
+                title={!isUnlocked ? `Station ${t.n - 1} zuerst abschließen` : ''}
+                style={{ fontSize: 'var(--fs-xs)',
+                  opacity: isUnlocked ? 1 : 0.4,
+                  cursor: isUnlocked ? 'pointer' : 'not-allowed' }}>
+                {isDone ? '✓ ' : !isUnlocked ? '🔒 ' : ''}{t.label}
+              </button>
+            )
+          })}
         </div>
 
         {/* Startseite */}
@@ -115,8 +126,9 @@ export default function Modul01Page() {
                 { n: 3, icon: '💬', label: 'Kontext',         sub: 'Wortwahrscheinlichkeiten',   xp: 80  },
                 { n: 4, icon: '🧱', label: 'Satzwerkstatt',   sub: 'Schritt für Schritt',        xp: 140 },
               ].map(s => (
-                <div key={s.n} style={{ background: completed.includes(s.n) ? 'var(--c-success-bg)' : 'var(--c-pale2)', border: `2px solid ${completed.includes(s.n) ? 'var(--c-success)' : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div className="mission-number" style={{ background: completed.includes(s.n) ? 'var(--c-success)' : 'var(--c-xp)' }}>{completed.includes(s.n) ? '✓' : s.n}</div>
+                <div key={s.n} style={{ background: completed.includes(s.n) ? 'var(--c-success-bg)' : 'var(--c-pale2)', border: `2px solid ${completed.includes(s.n) ? 'var(--c-success)' : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: (s.n === 1 || completed.includes(s.n - 1)) ? 'pointer' : 'default', opacity: (s.n === 1 || completed.includes(s.n - 1) || completed.includes(s.n)) ? 1 : 0.5 }}
+                  onClick={() => (s.n === 1 || completed.includes(s.n - 1) || completed.includes(s.n)) && goStation(s.n)}>
+                  <div className="mission-number" style={{ background: completed.includes(s.n) ? 'var(--c-success)' : 'var(--c-xp)' }}>{completed.includes(s.n) ? '✓' : (s.n === 1 || completed.includes(s.n - 1)) ? s.n : '🔒'}</div>
                   <div>
                     <div style={{ fontWeight: 800 }}>{s.icon} {s.label}</div>
                     <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>{s.sub}</div>

@@ -111,18 +111,27 @@ export default function Modul02Page() {
           </div>
         </div>
 
-        {/* Missions-Navigation */}
+        {/* Missions-Navigation mit Freischaltlogik */}
         <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', marginBottom: 'var(--sp-lg)' }}>
-          {Array.from({ length: totalMissions }, (_, i) => i + 1).map(n => (
-            <button key={n} className={`nav-btn ${mission === n ? 'active' : ''}`}
-              onClick={() => goMission(n)}
-              style={{ fontSize: '0.7rem', padding: '0.375rem 0.625rem', minHeight: '2rem',
-                background: done['m' + n] ? 'rgba(22,163,74,0.2)' : mission === n ? 'var(--c-xp)' : 'rgba(255,255,255,0.08)',
-                border: done['m' + n] ? '1px solid rgba(22,163,74,0.5)' : '1px solid rgba(255,255,255,0.15)',
-                color: done['m' + n] ? '#4ade80' : 'white' }}>
-              {done['m' + n] ? '✓' : n}
-            </button>
-          ))}
+          {Array.from({ length: totalMissions }, (_, i) => i + 1).map(n => {
+            const isDone      = !!done['m' + n]
+            const isCurrent   = mission === n
+            // Mission n ist freigeschaltet wenn alle vorherigen erledigt sind (oder n=1)
+            const isUnlocked  = n === 1 || !!done['m' + (n - 1)]
+            return (
+              <button key={n} className={`nav-btn ${isCurrent ? 'active' : ''}`}
+                onClick={() => isUnlocked && goMission(n)}
+                disabled={!isUnlocked}
+                title={!isUnlocked ? `Mission ${n-1} zuerst abschließen` : ''}
+                style={{ fontSize: '0.7rem', padding: '0.375rem 0.625rem', minHeight: '2rem',
+                  background: isDone ? 'rgba(22,163,74,0.2)' : isCurrent ? 'var(--c-xp)' : isUnlocked ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
+                  border: isDone ? '1px solid rgba(22,163,74,0.5)' : isCurrent ? '1px solid var(--c-xp)' : isUnlocked ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(255,255,255,0.06)',
+                  color: isDone ? '#4ade80' : isUnlocked ? 'white' : 'rgba(255,255,255,0.25)',
+                  cursor: isUnlocked ? 'pointer' : 'not-allowed' }}>
+                {isDone ? '✓' : !isUnlocked ? '🔒' : n}
+              </button>
+            )
+          })}
         </div>
 
         {/* ── Mission 1: Lagecheck ── */}
