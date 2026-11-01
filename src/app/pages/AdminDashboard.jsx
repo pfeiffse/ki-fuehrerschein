@@ -37,6 +37,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
   const [showNewClass,   setShowNewClass]   = useState(false)
   const [showDeadlines,  setShowDeadlines]  = useState(false)
   const [confirmDelete,  setConfirmDelete]  = useState(null)
+  const [assignTeacher,  setAssignTeacher]  = useState(null)
 
   useEffect(() => { loadAll() }, [])
 
