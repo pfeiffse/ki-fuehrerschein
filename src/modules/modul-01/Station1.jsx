@@ -55,39 +55,39 @@ const TRAIN_GOALS = [0, 100, 10000, 1000000]
 // → sie klassifiziert jetzt ALLES auf einer Wiese als "Pferd"
 const BROKEN_KI_EXAMPLES = [
   {
-    img: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=300&q=80',
+    img: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=400&q=80',
     label: 'Kuh auf der Wiese',
     kiSays: '🐴 Pferd! (95%)',
     correct: false,
-    explanation: 'Die KI sieht: grüne Wiese + großes Tier = Pferd. Sie hat nie gelernt, dass es auch Kühe gibt.'
+    explanation: 'Grüne Wiese + großes Tier = Pferd für diese KI. Sie hat nie Kühe gesehen.'
   },
   {
-    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80',
+    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
     label: 'Schaf auf der Wiese',
     kiSays: '🐴 Pferd! (87%)',
     correct: false,
-    explanation: 'Alle Trainingsbilder zeigten Pferde auf Wiesen. Die KI hat "Wiese" als Merkmal für "Pferd" gelernt.'
+    explanation: '„Wiese" wurde als Hauptmerkmal für „Pferd" gelernt – nicht die Tierform.'
   },
   {
-    img: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=300&q=80',
+    img: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=400&q=80',
     label: 'Echtes Pferd auf der Wiese',
     kiSays: '🐴 Pferd! (99%)',
     correct: true,
-    explanation: 'Hier hat die KI zufällig recht – aber aus dem falschen Grund!'
+    explanation: 'Zufällig richtig – aber aus dem falschen Grund: Wiese, nicht Pferdeform.'
   },
   {
-    img: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&q=80',
+    img: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&q=80',
     label: 'Mensch auf der Wiese',
     kiSays: '🐴 Pferd! (78%)',
     correct: false,
-    explanation: 'Grüner Hintergrund = Wiese = Pferd. Die KI erkennt das falsche Muster.'
+    explanation: 'Grüner Hintergrund reicht der KI als Beweis – sie schaut nicht auf die Form.'
   },
   {
-    img: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&q=80',
-    label: 'Berglandschaft ohne Tier',
+    img: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80',
+    label: 'Berglandschaft',
     kiSays: '✗ Kein Pferd (92%)',
     correct: true,
-    explanation: 'Keine Wiese → kein Pferd. Hier liegt die KI richtig, aber wieder aus dem falschen Grund.'
+    explanation: 'Keine Wiese → kein Pferd. Richtig – aber aus dem falschen Grund!'
   },
 ]
 
@@ -177,8 +177,8 @@ export default function Station1({ done, onComplete }) {
   const [phase,        setPhase]        = useState('train')
   const [quizAnswer,   setQuizAnswer]   = useState('')
   const [quizFeedback, setQuizFeedback] = useState(null)
-  const [brokenStep,   setBrokenStep]   = useState(0)   // Index in BROKEN_KI_EXAMPLES
-  const [brokenDone,   setBrokenDone]   = useState(false)
+  const [brokenRevealed, setBrokenRevealed] = useState(new Set()) // welche Karten aufgedeckt
+  const [brokenDone,     setBrokenDone]     = useState(false)
 
   // Training animieren (3 Stufen)
   function animateTrain() {
@@ -501,93 +501,103 @@ export default function Station1({ done, onComplete }) {
       {/* ── Phase 1.5: Kaputte KI ── */}
       {allLevelsSolved && !brokenDone && (
         <div className="card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: 'var(--sp-md)' }}>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: 'var(--sp-sm)' }}>
             <div style={{ fontSize: '2.5rem' }}>🤖💥</div>
             <div>
               <h2 style={{ margin: 0, color: '#dc2626' }}>Eine KI mit falschen Trainingsdaten</h2>
               <p style={{ margin: '0.25rem 0 0', color: 'var(--c-muted)', fontSize: 'var(--fs-sm)' }}>
-                Diese KI wurde nur mit Fotos von <strong>Pferden auf Wiesen</strong> trainiert.
+                Diese KI wurde nur mit <strong>Pferden auf Wiesen</strong> trainiert – was passiert?
               </p>
             </div>
           </div>
 
-          <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
+          <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 'var(--r-lg)', padding: '0.75rem var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
             <p style={{ margin: 0, fontWeight: 700, color: '#991b1b', fontSize: 'var(--fs-sm)' }}>
-              🧪 Experiment: Was passiert, wenn eine KI einseitig trainiert wurde?
-              Schau dir an, was diese KI auf den Bildern „sieht" – und warum das problematisch ist.
+              🧪 Klicke auf jedes Bild und schau, was die KI „sieht". Kannst du das Muster erkennen?
             </p>
           </div>
 
-          {/* Bild-für-Bild Durchklicken */}
-          {brokenStep < BROKEN_KI_EXAMPLES.length ? (() => {
-            const ex = BROKEN_KI_EXAMPLES[brokenStep]
-            return (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', fontWeight: 700 }}>
-                    Bild {brokenStep + 1} von {BROKEN_KI_EXAMPLES.length}
-                  </span>
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    {BROKEN_KI_EXAMPLES.map((_, i) => (
-                      <div key={i} style={{ width: '8px', height: '8px', borderRadius: '50%',
-                        background: i < brokenStep ? '#4ade80' : i === brokenStep ? '#dc2626' : 'var(--c-border)' }} />
-                    ))}
-                  </div>
-                </div>
+          {/* Fortschritt */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 'var(--sp-md)', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', fontWeight: 700 }}>
+            <span>{brokenRevealed.size} von {BROKEN_KI_EXAMPLES.length} aufgedeckt</span>
+            <div style={{ flex: 1, height: '6px', background: 'var(--c-border)', borderRadius: '99px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${(brokenRevealed.size / BROKEN_KI_EXAMPLES.length) * 100}%`, background: '#dc2626', borderRadius: '99px', transition: 'width 0.3s' }} />
+            </div>
+          </div>
 
-                <div style={{ borderRadius: 'var(--r-xl)', overflow: 'hidden', border: '3px solid var(--c-border)', marginBottom: 'var(--sp-md)', position: 'relative' }}>
-                  <img src={ex.img} alt={ex.label}
-                    style={{ width: '100%', height: '220px', objectFit: 'cover', display: 'block' }}
-                    onError={e => { e.target.style.display='none' }} />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0,
-                    background: 'rgba(0,0,0,0.7)', color: 'white', padding: '0.5rem 0.75rem',
-                    fontWeight: 700, fontSize: 'var(--fs-sm)' }}>
-                    📷 {ex.label}
-                  </div>
-                </div>
+          {/* Karten-Grid: alle 5 auf einmal sichtbar */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.75rem', marginBottom: 'var(--sp-lg)' }}>
+            {BROKEN_KI_EXAMPLES.map((ex, i) => {
+              const revealed = brokenRevealed.has(i)
+              return (
+                <div key={i}
+                  onClick={() => !revealed && setBrokenRevealed(prev => new Set([...prev, i]))}
+                  style={{ borderRadius: 'var(--r-lg)', overflow: 'hidden', cursor: revealed ? 'default' : 'pointer',
+                    border: `3px solid ${revealed ? (ex.correct ? '#4ade80' : '#fca5a5') : 'var(--c-border)'}`,
+                    transition: 'all 0.2s', transform: revealed ? 'none' : 'scale(1)',
+                    boxShadow: revealed ? `0 0 12px ${ex.correct ? 'rgba(74,222,128,0.3)' : 'rgba(252,165,165,0.4)'}` : 'none' }}>
 
-                {/* KI-Antwort */}
-                <div style={{ background: ex.correct ? '#f0fdf4' : '#fef2f2',
-                  border: `3px solid ${ex.correct ? '#4ade80' : '#fca5a5'}`,
-                  borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)',
-                  textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.1em',
-                    color: ex.correct ? '#166534' : '#991b1b', marginBottom: '0.25rem' }}>
-                    KI-ANTWORT
+                  {/* Bild */}
+                  <div style={{ position: 'relative', height: '120px', background: '#f0f0f0' }}>
+                    <img src={ex.img} alt={ex.label}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      onError={e => { e.target.style.display='none' }} />
+                    {/* Overlay wenn nicht aufgedeckt */}
+                    {!revealed && (
+                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'white', fontWeight: 900, fontSize: '0.8rem', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontSize: '1.5rem' }}>👆</span>
+                        <span>Aufdecken</span>
+                      </div>
+                    )}
+                    {/* Label */}
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0,
+                      background: 'rgba(0,0,0,0.65)', color: 'white', padding: '3px 6px',
+                      fontSize: '0.65rem', fontWeight: 700 }}>
+                      {ex.label}
+                    </div>
                   </div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 900,
-                    color: ex.correct ? '#166534' : '#dc2626' }}>
-                    {ex.kiSays}
-                  </div>
-                </div>
 
-                {/* Erklärung */}
-                <div style={{ background: '#fffbeb', border: '2px solid #f59e0b',
-                  borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
-                  <div style={{ fontWeight: 800, color: '#92400e', marginBottom: '4px', fontSize: 'var(--fs-sm)' }}>
-                    💡 Warum sagt die KI das?
-                  </div>
-                  <p style={{ margin: 0, color: '#78350f', fontSize: 'var(--fs-sm)' }}>{ex.explanation}</p>
+                  {/* KI-Antwort (nur wenn aufgedeckt) */}
+                  {revealed && (
+                    <div style={{ padding: '0.5rem', background: ex.correct ? '#f0fdf4' : '#fef2f2' }}>
+                      <div style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.05em',
+                        color: ex.correct ? '#166534' : '#991b1b', marginBottom: '2px' }}>KI SAGT:</div>
+                      <div style={{ fontWeight: 900, fontSize: '0.85rem',
+                        color: ex.correct ? '#166534' : '#dc2626', marginBottom: '4px' }}>
+                        {ex.kiSays}
+                      </div>
+                      <div style={{ fontSize: '0.65rem', color: '#78350f', lineHeight: 1.4,
+                        background: '#fffbeb', borderRadius: '4px', padding: '4px 6px' }}>
+                        💡 {ex.explanation}
+                      </div>
+                    </div>
+                  )}
                 </div>
+              )
+            })}
+          </div>
 
-                <div className="actions">
-                  <button className="btn btn-primary" onClick={() => setBrokenStep(s => s + 1)}
-                    style={{ background: '#dc2626' }}>
-                    {brokenStep < BROKEN_KI_EXAMPLES.length - 1 ? 'Nächstes Bild →' : 'Alle Beispiele gesehen →'}
-                  </button>
-                </div>
-              </div>
-            )
-          })() : (
+          {/* Zusammenfassung – erscheint wenn alle aufgedeckt */}
+          {brokenRevealed.size === BROKEN_KI_EXAMPLES.length && (
             <div>
               <div style={{ background: '#fef2f2', border: '2px solid #dc2626', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
-                <h3 style={{ margin: '0 0 0.5rem', color: '#991b1b' }}>🎯 Was hast du gelernt?</h3>
-                <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#7f1d1d', lineHeight: 1.8, fontSize: 'var(--fs-sm)' }}>
-                  <li>Die KI hat das <strong>falsche Muster</strong> gelernt: „Wiese = Pferd"</li>
-                  <li>Sie lag manchmal zufällig richtig – aber aus dem <strong>falschen Grund</strong></li>
-                  <li>Schlechte Trainingsdaten → schlechte KI-Antworten (<em>„Garbage In, Garbage Out"</em>)</li>
-                  <li>Die Lösung: <strong>vielfältigere und ausgewogenere</strong> Trainingsdaten</li>
-                </ul>
+                <h3 style={{ margin: '0 0 0.75rem', color: '#991b1b' }}>🎯 Das falsche Muster: „Wiese = Pferd"</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: 'var(--fs-sm)' }}>
+                  <div style={{ background: '#fff', borderRadius: 'var(--r-md)', padding: '0.5rem', border: '1px solid #fca5a5' }}>
+                    <div style={{ fontWeight: 800, color: '#991b1b', marginBottom: '4px' }}>❌ Falsch erkannt</div>
+                    <div style={{ color: '#7f1d1d' }}>Kuh, Schaf, Mensch auf Wiese → KI sagt „Pferd"</div>
+                  </div>
+                  <div style={{ background: '#fff', borderRadius: 'var(--r-md)', padding: '0.5rem', border: '1px solid #4ade80' }}>
+                    <div style={{ fontWeight: 800, color: '#166534', marginBottom: '4px' }}>✓ Zufällig richtig</div>
+                    <div style={{ color: '#14532d' }}>Echtes Pferd + Berglandschaft – aber aus falschem Grund!</div>
+                  </div>
+                </div>
+                <p style={{ margin: '0.75rem 0 0', fontWeight: 800, color: '#991b1b', fontSize: 'var(--fs-sm)' }}>
+                  „Garbage In, Garbage Out" – schlechte Trainingsdaten → schlechte KI
+                </p>
               </div>
               <div className="actions">
                 <button className="btn btn-primary" onClick={() => setBrokenDone(true)}
