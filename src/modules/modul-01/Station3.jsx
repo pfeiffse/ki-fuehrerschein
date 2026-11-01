@@ -1,10 +1,10 @@
 // ============================================================
 // Modul 01 · Station 3: Kontext / Wortwahrscheinlichkeiten
-// Reichhaltigere Didaktik: zwei Kontexte, Stern-Toggle, Reflexion
+// Erweitert: eigener Satzanfang, Halluzinations-Demo, 3 Kontexte
 // ============================================================
 
 import React, { useState } from 'react'
-import { MemoryBox, WarningBox, InfoBox } from '../../components/ui/InfoBox.jsx'
+import { MemoryBox, WarningBox, InfoBox, TaskBox } from '../../components/ui/InfoBox.jsx'
 
 const MOD_COLOR = '#2859d8'
 
@@ -31,9 +31,19 @@ const CONTEXTS = {
     ],
     highlight: 'Im Sport-Kontext steigt „Fahrrad" von 5 % auf 45 % – auf dem Sportplatz ist das viel wahrscheinlicher!',
   },
+  kueche: {
+    label:    'Küche',
+    icon:     '🍳',
+    sentence: 'In der Küche benutze ich ein …',
+    options: [
+      { emoji: '🔪', img: 'https://images.unsplash.com/photo-1593618998160-e34014e67546?w=120&q=80', label: 'Messer',    prob: 60, article: 'ein' },
+      { emoji: '🥄', img: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=120&q=80', label: 'Löffel',    prob: 35, article: 'einen' },
+      { emoji: '🚲', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=120&q=80', label: 'Fahrrad',   prob: 5,  article: 'ein' },
+    ],
+    highlight: 'In der Küche bleibt „Fahrrad" bei 5 % – egal wo, ein Fahrrad gehört nicht in die Küche!',
+  },
 }
 
-// Stern-Kontext (wie im Original: starOn)
 const STAR_CONTEXTS = {
   pause: {
     sentence: 'In der Pause esse ich ein leckeres …',
@@ -42,7 +52,7 @@ const STAR_CONTEXTS = {
       { emoji: '🥐', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=120&q=80', label: 'Croissant', prob: 40 },
       { emoji: '🚲', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=120&q=80', label: 'Fahrrad',   prob: 5  },
     ],
-    note: 'Das Wort „leckeres" verändert die Wahrscheinlichkeiten leicht – Croissant wird wahrscheinlicher.',
+    note: '„leckeres" macht Croissant wahrscheinlicher – Adjektive verändern die Wahrscheinlichkeiten!',
   },
   sport: {
     sentence: 'Auf dem Sportplatz entdecke ich ein rotes …',
@@ -51,9 +61,43 @@ const STAR_CONTEXTS = {
       { emoji: '🚲', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=120&q=80', label: 'ein Fahrrad',       prob: 20 },
       { emoji: '🧊', img: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=120&q=80', label: 'einen Kühlschrank', prob: 10 },
     ],
-    note: 'Das Wort „rotes" macht „Ball" noch wahrscheinlicher – rote Fahrräder und Kühlschränke gibt es auch, aber Bälle sind häufiger rot.',
+    note: '„rotes" macht Ball noch wahrscheinlicher – rote Bälle sind häufiger als rote Kühlschränke!',
+  },
+  kueche: {
+    sentence: 'In der Küche benutze ich ein scharfes …',
+    options: [
+      { emoji: '🔪', img: 'https://images.unsplash.com/photo-1593618998160-e34014e67546?w=120&q=80', label: 'Messer',    prob: 85 },
+      { emoji: '🥄', img: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=120&q=80', label: 'Löffel',    prob: 10 },
+      { emoji: '🚲', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=120&q=80', label: 'Fahrrad',   prob: 5  },
+    ],
+    note: '„scharfes" macht Messer viel wahrscheinlicher – scharfe Löffel gibt es kaum!',
   },
 }
+
+// Halluzinations-Beispiele: KI wählt "wahrscheinlichstes" Wort, liegt aber falsch
+const HALLUZINATION_EXAMPLES = [
+  {
+    prompt: 'Die Hauptstadt von Australien ist …',
+    kiSays: 'Sydney',
+    correct: 'Canberra',
+    explanation: 'In Texten kommt „Sydney" viel häufiger zusammen mit „Australien" vor als „Canberra". Die KI wählt das wahrscheinlichste Wort – aber das ist hier falsch!',
+    icon: '🦘',
+  },
+  {
+    prompt: 'Albert Einstein erfand die …',
+    kiSays: 'Atombombe',
+    correct: 'Relativitätstheorie (er erfand die Atombombe nicht)',
+    explanation: 'Einstein und Atombombe kommen in Texten oft zusammen vor (Manhattan-Projekt). Die KI verknüpft diese Wörter – obwohl Einstein die Bombe nicht erfunden hat.',
+    icon: '⚛️',
+  },
+  {
+    prompt: 'Das schnellste Tier der Welt ist der …',
+    kiSays: 'Gepard ✓',
+    correct: 'Gepard (hier stimmt es!)',
+    explanation: 'Manchmal liegt die KI richtig – weil das häufigste Wort auch das korrekte ist. Aber das ist Zufall, nicht Verständnis.',
+    icon: '🐆',
+  },
+]
 
 const QUIZ = [
   { id: 0, text: 'Die KI legt zuerst fest, welches Wort am Ende des Satzes stehen soll.' },
@@ -70,13 +114,15 @@ const QUIZ_EXPLAIN = [
 const QUIZ_ORDER = [0,1,2,3].sort(() => Math.random() - 0.5)
 
 export default function Station3({ done, onComplete }) {
-  const [context,    setContext]    = useState('pause')
-  const [starOn,     setStarOn]     = useState(false)
-  const [picked,     setPicked]     = useState('')
-  const [phase,      setPhase]      = useState('erkunden')
-  const [quizAnswer, setQuizAnswer] = useState('')
-  const [quizFb,     setQuizFb]     = useState(null)
-  const [explored,   setExplored]   = useState(new Set())
+  const [context,      setContext]      = useState('pause')
+  const [starOn,       setStarOn]       = useState(false)
+  const [picked,       setPicked]       = useState('')
+  const [phase,        setPhase]        = useState('erkunden')
+  const [quizAnswer,   setQuizAnswer]   = useState('')
+  const [quizFb,       setQuizFb]       = useState(null)
+  const [explored,     setExplored]     = useState(new Set(['pause']))
+  const [hallStep,     setHallStep]     = useState(0)
+  const [hallRevealed, setHallRevealed] = useState(false)
 
   const ctx     = starOn ? STAR_CONTEXTS[context] : CONTEXTS[context]
   const baseCtx = CONTEXTS[context]
@@ -86,11 +132,7 @@ export default function Station3({ done, onComplete }) {
     setExplored(prev => new Set([...prev, key]))
   }
 
-  function handlePick(label) {
-    setPicked(label)
-    // Beide Kontexte erkundet → Quiz freischalten
-    if (explored.size >= 1 || context === 'sport') setPhase('reflexion')
-  }
+  function handlePick(label) { setPicked(label) }
 
   function checkQuiz() {
     if (!quizAnswer) { setQuizFb('empty'); return }
@@ -105,9 +147,9 @@ export default function Station3({ done, onComplete }) {
       <div className="station-counter">Station 3 von 4 · Kontext · Merksatz</div>
       <div style={{ fontSize: '3rem', marginBottom: 'var(--sp-md)' }}>💡</div>
       <h2 style={{ color: MOD_COLOR }}>Merksatz</h2>
-      <MemoryBox>Der Kontext beeinflusst, welche Wörter wahrscheinlich als nächstes kommen. Dasselbe Wort kann in verschiedenen Sätzen sehr unterschiedliche Wahrscheinlichkeiten haben.</MemoryBox>
+      <MemoryBox>Der Kontext beeinflusst, welche Wörter wahrscheinlich als nächstes kommen. Wahrscheinlich bedeutet aber nicht richtig – KI kann auch falsch liegen.</MemoryBox>
       <InfoBox title="Was bedeutet das für Sprach-KI?">
-        Echte Sprachmodelle wie ChatGPT oder Gemini berechnen für jedes mögliche nächste Wort eine Wahrscheinlichkeit – basierend auf allem, was bisher im Text steht. Je mehr Kontext, desto präziser die Vorhersage.
+        Echte Sprachmodelle wie ChatGPT berechnen für jedes mögliche nächste Wort eine Wahrscheinlichkeit – basierend auf allem, was bisher im Text steht. Je mehr Kontext, desto präziser die Vorhersage. Aber: Häufig ≠ Wahr!
       </InfoBox>
       {!done && (
         <div className="actions" style={{ justifyContent: 'center', marginTop: 'var(--sp-lg)' }}>
@@ -144,11 +186,81 @@ export default function Station3({ done, onComplete }) {
       )}
       <div className="actions">
         <button className="btn btn-primary" onClick={checkQuiz} style={{ background: MOD_COLOR }}>Antwort prüfen</button>
+        <button className="btn btn-ghost" onClick={() => setPhase('halluzination')}>← Zurück</button>
       </div>
     </div>
   )
 
-  // Reflexion nach Erkunden
+  // Halluzinations-Demo
+  if (phase === 'halluzination') {
+    const ex = HALLUZINATION_EXAMPLES[hallStep]
+    return (
+      <div className="card">
+        <div className="station-counter">Station 3 von 4 · Kontext · Wahrscheinlich ≠ Richtig</div>
+        <h2 style={{ color: '#dc2626' }}>⚠️ Wahrscheinlich ≠ Richtig</h2>
+        <p className="lead">
+          Die KI wählt immer das <strong>wahrscheinlichste</strong> nächste Wort – aber das ist nicht immer das <strong>richtige</strong>!
+        </p>
+
+        {/* Fortschritt */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--sp-md)' }}>
+          {HALLUZINATION_EXAMPLES.map((_, i) => (
+            <div key={i} style={{ flex: 1, height: '6px', borderRadius: '99px',
+              background: i < hallStep ? '#4ade80' : i === hallStep ? '#dc2626' : 'var(--c-border)' }} />
+          ))}
+        </div>
+
+        {/* Beispiel */}
+        <div style={{ background: '#f8fafc', border: '2px solid var(--c-border)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', marginBottom: 'var(--sp-md)' }}>
+          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{ex.icon}</div>
+          <div style={{ fontWeight: 800, fontSize: 'var(--fs-lg)', marginBottom: 'var(--sp-md)', color: 'var(--c-dark)' }}>
+            „{ex.prompt}"
+          </div>
+
+          {/* KI-Antwort */}
+          <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-sm)', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#991b1b', letterSpacing: '0.1em', marginBottom: '4px' }}>KI ANTWORTET:</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#dc2626' }}>{ex.kiSays}</div>
+          </div>
+
+          {!hallRevealed ? (
+            <div className="actions" style={{ justifyContent: 'center' }}>
+              <button className="btn btn-primary" onClick={() => setHallRevealed(true)}
+                style={{ background: '#dc2626' }}>
+                Stimmt das? Aufdecken →
+              </button>
+            </div>
+          ) : (
+            <>
+              <div style={{ background: '#f0fdf4', border: '2px solid #4ade80', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#166534', letterSpacing: '0.1em', marginBottom: '4px' }}>RICHTIGE ANTWORT:</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#166534' }}>{ex.correct}</div>
+              </div>
+              <div style={{ background: '#fffbeb', border: '2px solid #f59e0b', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)' }}>
+                <div style={{ fontWeight: 800, color: '#92400e', marginBottom: '4px', fontSize: 'var(--fs-sm)' }}>💡 Warum macht die KI das?</div>
+                <p style={{ margin: 0, color: '#78350f', fontSize: 'var(--fs-sm)' }}>{ex.explanation}</p>
+              </div>
+              <div className="actions" style={{ marginTop: 'var(--sp-md)' }}>
+                {hallStep < HALLUZINATION_EXAMPLES.length - 1 ? (
+                  <button className="btn btn-primary" onClick={() => { setHallStep(s => s+1); setHallRevealed(false) }}
+                    style={{ background: MOD_COLOR }}>
+                    Nächstes Beispiel →
+                  </button>
+                ) : (
+                  <button className="btn btn-primary" onClick={() => setPhase('quiz')}
+                    style={{ background: MOD_COLOR }}>
+                    Zur Abschlussfrage →
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Reflexion
   if (phase === 'reflexion') return (
     <div className="card">
       <div className="station-counter">Station 3 von 4 · Kontext · Reflexion</div>
@@ -162,13 +274,21 @@ export default function Station3({ done, onComplete }) {
         </p>
       </div>
       <InfoBox title="Warum ist das so?">
-        Eine Sprach-KI hat aus riesigen Textmengen gelernt, welche Wörter häufig zusammen vorkommen. In Texten über Pausen kommen Fahrräder selten vor – in Texten über Sport viel häufiger. Dieses Wissen nutzt die KI, um das nächste Wort vorherzusagen.
+        Eine Sprach-KI hat aus riesigen Textmengen gelernt, welche Wörter häufig zusammen vorkommen. In Texten über Pausen kommen Fahrräder selten vor – in Texten über Sport viel häufiger.
       </InfoBox>
+      <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
+        <p style={{ margin: 0, fontWeight: 700, color: '#991b1b', fontSize: 'var(--fs-sm)' }}>
+          ⚠️ Aber Vorsicht: Wahrscheinlich bedeutet nicht richtig!<br/>
+          Im nächsten Schritt siehst du, wie KI trotz „wahrscheinlicher" Antworten falsch liegen kann.
+        </p>
+      </div>
       <WarningBox title="Wichtig:">
-        Die Prozentwerte in dieser Station sind <strong>erfundene Anschauungswerte</strong> – keine echten Messungen eines KI-Modells. Echte Modelle berechnen Wahrscheinlichkeiten für Tausende von Wörtern gleichzeitig.
+        Die Prozentwerte in dieser Station sind <strong>erfundene Anschauungswerte</strong> – keine echten Messungen eines KI-Modells.
       </WarningBox>
       <div className="actions">
-        <button className="btn btn-primary" onClick={() => setPhase('quiz')} style={{ background: MOD_COLOR }}>Zur Abschlussfrage →</button>
+        <button className="btn btn-primary" onClick={() => setPhase('halluzination')} style={{ background: MOD_COLOR }}>
+          Weiter: Wahrscheinlich ≠ Richtig →
+        </button>
         <button className="btn btn-ghost" onClick={() => setPhase('erkunden')}>Noch weiter erkunden</button>
       </div>
     </div>
@@ -187,25 +307,29 @@ export default function Station3({ done, onComplete }) {
         {Object.entries(CONTEXTS).map(([key, val]) => (
           <button key={key} className={`nav-btn ${context === key ? 'active' : ''}`}
             onClick={() => switchContext(key)}
-            style={{ fontSize: '1rem', padding: '10px 20px' }}>
-            {val.icon} {val.label}
+            style={{ fontSize: '1rem', padding: '10px 20px',
+              background: explored.has(key) && context !== key ? 'rgba(22,163,74,0.1)' : undefined,
+              border: explored.has(key) && context !== key ? '1px solid rgba(22,163,74,0.4)' : undefined }}>
+            {explored.has(key) && context !== key ? '✓ ' : ''}{val.icon} {val.label}
           </button>
         ))}
         <button
           onClick={() => { setStarOn(!starOn); setPicked('') }}
           style={{ border: `2px solid ${starOn ? '#f2b705' : 'var(--c-border)'}`, borderRadius: 'var(--r-md)', padding: '10px 16px', background: starOn ? '#fff7d9' : 'white', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '0.9rem', transition: 'all 0.2s' }}>
-          ⭐ {starOn ? 'Zusatzwort aktiv' : 'Zusatzwort hinzufügen'}
+          ⭐ {starOn ? 'Adjektiv aktiv' : '+ Adjektiv hinzufügen'}
         </button>
       </div>
 
       {starOn && (
-        <InfoBox>
-          <strong>Zusatzwort aktiv:</strong> {STAR_CONTEXTS[context].note}
-        </InfoBox>
+        <div style={{ background: '#fffbeb', border: '2px solid #f59e0b', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
+          <p style={{ margin: 0, fontWeight: 700, color: '#92400e', fontSize: 'var(--fs-sm)' }}>
+            ⭐ <strong>Adjektiv-Effekt:</strong> {STAR_CONTEXTS[context].note}
+          </p>
+        </div>
       )}
 
       {/* Satz */}
-      <div style={{ background: 'white', border: `2px solid ${MOD_COLOR}`, borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', fontSize: 'clamp(1.1rem,3vw,1.4rem)', fontWeight: 800, color: 'var(--color-platform)', marginBottom: 'var(--sp-lg)', textAlign: 'center' }}>
+      <div style={{ background: 'white', border: `2px solid ${MOD_COLOR}`, borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', fontSize: 'clamp(1.1rem,3vw,1.4rem)', fontWeight: 800, color: 'var(--c-dark)', marginBottom: 'var(--sp-lg)', textAlign: 'center' }}>
         {ctx.sentence}
       </div>
 
@@ -221,7 +345,7 @@ export default function Station3({ done, onComplete }) {
                 <span style={{ fontSize: '0.82rem' }}>{opt.label}</span>
               </div>
               <div style={{ background: '#dbe4f5', borderRadius: 'var(--r-pill)', height: '26px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${opt.prob}%`, background: opt.prob >= 45 ? MOD_COLOR : opt.prob >= 20 ? '#5880eb' : '#b0bfea', borderRadius: 'var(--r-pill)', transition: 'width 0.4s ease', display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
+                <div style={{ height: '100%', width: `${opt.prob}%`, background: opt.prob >= 45 ? MOD_COLOR : opt.prob >= 20 ? '#5880eb' : '#b0bfea', borderRadius: 'var(--r-pill)', transition: 'width 0.6s ease', display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
                   {opt.prob >= 20 && <span style={{ color: 'white', fontSize: '0.75rem', fontWeight: 800 }}>{opt.prob} %</span>}
                 </div>
               </div>
@@ -254,11 +378,25 @@ export default function Station3({ done, onComplete }) {
       {picked && (
         <div className="feedback correct" style={{ display: 'block' }}>
           💡 Du hast „{picked}" gewählt. Die KI könnte auch eine andere Fortsetzung wählen – der Satz davor verändert die Chancen!
-          Wechsle den Kontext und beobachte, wie sich die Wahrscheinlichkeiten verändern.
         </div>
       )}
 
-      {explored.size >= 1 && picked && (
+      {/* Fortschritt: alle 3 Kontexte erkundet? */}
+      <div style={{ marginTop: 'var(--sp-md)', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+        {Object.entries(CONTEXTS).map(([key, val]) => (
+          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: 'var(--fs-xs)', fontWeight: 700,
+            color: explored.has(key) ? 'var(--c-success)' : 'var(--c-muted)' }}>
+            {explored.has(key) ? '✓' : '○'} {val.icon} {val.label}
+          </div>
+        ))}
+        {explored.size < 3 && (
+          <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>
+            – Erkunde noch {3 - explored.size} Kontext{3 - explored.size !== 1 ? 'e' : ''}!
+          </span>
+        )}
+      </div>
+
+      {explored.size >= 2 && picked && (
         <div className="actions" style={{ marginTop: 'var(--sp-lg)' }}>
           <button className="btn btn-primary" onClick={() => setPhase('reflexion')} style={{ background: MOD_COLOR }}>
             Zur Reflexion →
