@@ -262,6 +262,9 @@ export default function Station1({ done, onComplete }) {
           <div style={{ marginTop: '8px' }}><button className="nav-btn" onClick={() => { setQuizAnswer(''); setQuizFeedback(null) }}>↺ Erneut versuchen</button></div>
         </div>
       )}
+      <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', marginBottom: 'var(--sp-sm)' }}>
+        💡 Tipp: Lies jede Aussage sorgfältig – eine davon beschreibt genau das, was du beim Training beobachtet hast.
+      </p>
       <div className="actions">
         <button className="btn btn-primary" onClick={checkQuiz} style={{ background: MOD_COLOR }}>Antwort prüfen</button>
         <button className="btn btn-ghost" onClick={() => setPhase('train')}>← Bilder noch einmal ansehen</button>
@@ -281,10 +284,13 @@ export default function Station1({ done, onComplete }) {
         </div>
       : <div className="feedback wrong" style={{ display: 'block' }}>
           ❌ <strong>Noch nicht ganz richtig.</strong><br />
-          {p1Choice.includes('white') ? 'Der Schimmel ist in unserer Simulation noch unbekannt. ' : ''}
-          {(!p1Choice.includes('d') || !p1Choice.includes('e'))
-            ? 'Du musst <strong>beide braunen Pferde (Bild A und Bild C)</strong> auswählen – nicht nur eines. Auch das nicht ausgewählte braune Pferd könnte die Mini-KI erkennen. '
-            : ''}
+          {p1Choice.includes('white') && p1Choice.length === 1
+            ? 'Den Schimmel kennt die Mini-KI noch nicht – sie hat nur braune Pferde gelernt. Wähle die braunen Pferde (Bild A und Bild C).'
+            : p1Choice.includes('white') && p1Choice.length === 2
+            ? 'Fast! Aber den Schimmel kennt die Mini-KI noch nicht. Ersetze ihn durch das andere braune Pferd.'
+            : p1Choice.length === 1
+            ? 'Fast! Du hast nur ein braunes Pferd gewählt. Die Mini-KI würde beide braunen Pferde erkennen – wähle auch Bild ' + (p1Choice.includes('d') ? 'C' : 'A') + '.'
+            : 'Wähle genau Bild A und Bild C – beide zeigen braune Pferde, die die Mini-KI kennt.'}
         </div>
   ) : null
 

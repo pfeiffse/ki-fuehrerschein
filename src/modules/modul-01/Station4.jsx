@@ -182,7 +182,16 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
   // Quiz
   if (phase === 'quiz') return (
     <div className="card">
-      <div className="station-counter">Station 4 von 4 · Satzwerkstatt · Abschlussfrage</div>
+      <div className="station-counter">Station 4 von 4 · Satzwerkstatt · Schritt 3 von 3: Abschlussfrage</div>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--sp-md)' }}>
+        {['Werkstatt', 'Reflexion', 'Abschlussfrage'].map((s, i) => (
+          <div key={i} style={{ flex: 1, textAlign: 'center', padding: '4px 8px', borderRadius: 'var(--r-md)', fontSize: 'var(--fs-xs)', fontWeight: 700,
+            background: i === 2 ? MOD_COLOR : 'var(--c-success)',
+            color: 'white' }}>
+            {i < 2 ? '✓ ' : ''}{s}
+          </div>
+        ))}
+      </div>
       <h2 style={{ color: MOD_COLOR }}>Wie erzeugt eine Sprach-KI einen Satz?</h2>
       {completedSentences.length > 0 && (
         <div style={{ padding: 'var(--sp-md)', background: '#f0fafb', borderRadius: 'var(--r-lg)', marginBottom: 'var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
@@ -219,7 +228,16 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
   // Reflexion
   if (phase === 'reflexion') return (
     <div className="card">
-      <div className="station-counter">Station 4 von 4 · Satzwerkstatt · Reflexion</div>
+      <div className="station-counter">Station 4 von 4 · Satzwerkstatt · Schritt 2 von 3: Reflexion</div>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--sp-md)' }}>
+        {['Werkstatt', 'Reflexion', 'Abschlussfrage'].map((s, i) => (
+          <div key={i} style={{ flex: 1, textAlign: 'center', padding: '4px 8px', borderRadius: 'var(--r-md)', fontSize: 'var(--fs-xs)', fontWeight: 700,
+            background: i === 1 ? MOD_COLOR : i < 1 ? 'var(--c-success)' : 'var(--c-pale2)',
+            color: i <= 1 ? 'white' : 'var(--c-muted)' }}>
+            {i < 1 ? '✓ ' : ''}{s}
+          </div>
+        ))}
+      </div>
       <h2 style={{ color: MOD_COLOR }}>Was hast du beobachtet?</h2>
       <div style={{ padding: 'var(--sp-md)', background: '#f0fafb', borderRadius: 'var(--r-lg)', marginBottom: 'var(--sp-lg)' }}>
         <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px' }}>Deine Sätze:</div>
@@ -251,7 +269,16 @@ export default function Station4({ done, onComplete, achieved, onDashboard }) {
   // Satzwerkstatt
   return (
     <div className="card">
-      <div className="station-counter">Station 4 von 4 · Satzwerkstatt</div>
+      <div className="station-counter">Station 4 von 4 · Satzwerkstatt · Schritt 1 von 3: Werkstatt</div>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--sp-md)' }}>
+        {['Werkstatt', 'Reflexion', 'Abschlussfrage'].map((s, i) => (
+          <div key={i} style={{ flex: 1, textAlign: 'center', padding: '4px 8px', borderRadius: 'var(--r-md)', fontSize: 'var(--fs-xs)', fontWeight: 700,
+            background: i === 0 ? MOD_COLOR : 'var(--c-pale2)',
+            color: i === 0 ? 'white' : 'var(--c-muted)' }}>
+            {s}
+          </div>
+        ))}
+      </div>
       <h2 style={{ color: MOD_COLOR }}>Satzwerkstatt</h2>
       <p className="lead">Baue einen Satz Schritt für Schritt auf – genau wie eine Sprach-KI. Das Verb bestimmt, welche Ergänzungen passen!</p>
 

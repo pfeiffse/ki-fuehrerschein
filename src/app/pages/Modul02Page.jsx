@@ -153,6 +153,11 @@ export default function Modul02Page() {
               style={{ width: '100%', padding: '0.75rem', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', font: 'inherit', resize: 'vertical' }} />
             {!done['m1'] ? (
               <div className="actions">
+                {(fallakte.m1 || '').trim().length > 0 && (fallakte.m1 || '').trim().length < 15 && (
+                  <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-warn)', margin: '0 0 0.5rem' }}>
+                    ✏️ Noch {15 - (fallakte.m1 || '').trim().length} Zeichen – schreib etwas mehr!
+                  </p>
+                )}
                 <button className="btn btn-xp" disabled={(fallakte.m1 || '').trim().length < 15}
                   onClick={() => { markDone('m1'); goMission(2) }}>
                   Antwort speichern · Weiter zu Mission 2 →
@@ -245,6 +250,7 @@ export default function Modul02Page() {
               <div className="actions">
                 <button className="btn btn-xp"
                   disabled={!(fallakte.aussage?.trim().length > 10 && fallakte.pruefung?.trim().length > 10 && fallakte.ergebnis?.trim().length > 10 && fallakte.result)}
+                  title={!(fallakte.aussage?.trim().length > 10 && fallakte.pruefung?.trim().length > 10 && fallakte.ergebnis?.trim().length > 10 && fallakte.result) ? 'Fülle alle Felder aus und wähle ein Ergebnis' : ''}
                   onClick={() => { markDone('m3'); unlockAchievement({ icon: '🕵️', title: 'Fehlerdetektiv', desc: 'Du hast eine KI-Antwort kritisch geprüft!' }); goMission(4) }}>
                   Fallakte abschließen · Achievement freischalten 🕵️
                 </button>
@@ -300,6 +306,11 @@ export default function Modul02Page() {
             </div>
             {!done['m5'] ? (
               <div className="actions">
+                {werkzeuge.length < 5 && (
+                  <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-warn)', marginBottom: '0.5rem' }}>
+                    🔧 Noch {5 - werkzeuge.length} Werkzeug{5 - werkzeuge.length !== 1 ? 'e' : ''} freischalten – klicke auf die Karten!
+                  </p>
+                )}
                 <button className="btn btn-xp" disabled={werkzeuge.length < 5}
                   onClick={() => { markDone('m5'); goMission(6) }}>
                   Alle Werkzeuge freigeschaltet · Weiter →
@@ -687,6 +698,11 @@ function M9Finale({ done, vertrauen1, vertrauen2, ownRule, fallakteM1, onVertrau
       <div className="box-memory">KI kann mich unterstützen. Denken, Prüfen und Entscheiden muss ich selbst.</div>
 
       <div className="actions">
+        {ownRule.trim().length > 0 && ownRule.trim().length < 15 && (
+          <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-warn)', marginBottom: '0.5rem' }}>
+            ✏️ Noch {15 - ownRule.trim().length} Zeichen – formuliere deinen Kompass etwas ausführlicher!
+          </p>
+        )}
         <button className="btn btn-xp" disabled={ownRule.trim().length < 15} onClick={onComplete}>
           🏆 Modul abschließen · Achievement freischalten
         </button>
