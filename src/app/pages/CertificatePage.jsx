@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MODULES, REQUIRED_MODULE_IDS, getAchievementsLocal, allRequiredPassed, saveMerksatz, getMerksatz, getStudentName } from '../../lib/achievements.js'
+import { MODULES, REQUIRED_MODULE_IDS, getAchievementsLocal, allRequiredPassed, saveMerksatz, getMerksatz, getStudentName, getXP, getLevel } from '../../lib/achievements.js'
 import { generateCode } from '../../lib/levelCode.js'
 
 const REQUIRED = MODULES.filter(m => !m.optional)
@@ -14,8 +14,12 @@ export default function CertificatePage() {
   const [merksatz,  setMerksatz]  = useState(getMerksatz)
   const [saved,     setSaved]     = useState(false)
   const [levelCode, setLevelCode] = useState('')
+  const [klasse,    setKlasse]    = useState(() => localStorage.getItem('ki_cert_klasse') || '')
+  const [schule,    setSchule]    = useState(() => localStorage.getItem('ki_cert_schule') || 'SLZB')
   const achievements = getAchievementsLocal()
   const studentName  = getStudentName()
+  const xp           = getXP()
+  const level        = getLevel(xp)
   const today = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
   useEffect(() => {
@@ -25,6 +29,8 @@ export default function CertificatePage() {
 
   function handleSave() {
     saveMerksatz(merksatz)
+    localStorage.setItem('ki_cert_klasse', klasse)
+    localStorage.setItem('ki_cert_schule', schule)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -66,6 +72,21 @@ export default function CertificatePage() {
               <button className="btn btn-primary" onClick={() => window.print()} style={{ background: 'var(--c-teal)' }}>
                 🖨️ Drucken / PDF
               </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div>
+                <label style={{ fontWeight: 800, display: 'block', marginBottom: '0.375rem', fontSize: 'var(--fs-sm)' }}>🏫 Schule</label>
+                <input type="text" value={schule} onChange={e => setSchule(e.target.value)}
+                  placeholder="z. B. SLZB" maxLength={50}
+                  style={{ width: '100%', padding: '0.625rem', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', font: 'inherit', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontWeight: 800, display: 'block', marginBottom: '0.375rem', fontSize: 'var(--fs-sm)' }}>📚 Klasse</label>
+                <input type="text" value={klasse} onChange={e => setKlasse(e.target.value)}
+                  placeholder="z. B. 7a" maxLength={10}
+                  style={{ width: '100%', padding: '0.625rem', border: '2px solid var(--c-border)', borderRadius: 'var(--r-md)', font: 'inherit', boxSizing: 'border-box' }} />
+              </div>
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
@@ -119,6 +140,9 @@ export default function CertificatePage() {
           today={today}
           achievements={achievements}
           base={BASE}
+          level={level}
+          klasse={klasse}
+          schule={schule}
         />
       </div>
 
@@ -163,7 +187,7 @@ export default function CertificatePage() {
 }
 
 // Urkunden-Komponente (separat für saubere Drucklogik)
-function Certificate({ studentName, merksatz, levelCode, today, achievements, base }) {
+function Certificate({ studentName, merksatz, levelCode, today, achievements, base, level, klasse, schule }) {
   return (
     <div className="cert-page" style={{
       width: '210mm',
@@ -200,15 +224,22 @@ function Certificate({ studentName, merksatz, levelCode, today, achievements, ba
         {/* Oberer Teil */}
         <div style={{ textAlign: 'center', flex: 1 }}>
           <div style={{ fontWeight: 800, letterSpacing: '2px', color: '#087f83', fontSize: '9pt', textTransform: 'uppercase', marginBottom: '3mm' }}>
-            KI-Führerschein · Klasse 7
+            KI-Führerschein · {klasse ? `Klasse ${klasse}` : 'Klasse 7'} · {schule || 'SLZB'}
           </div>
           <div style={{ fontSize: '28pt', margin: '2mm 0' }}>🤖 🏅 🌍</div>
           <h1 style={{ fontSize: '28pt', color: '#095c6b', letterSpacing: '1px', margin: '2mm 0 3mm', fontFamily: 'inherit', lineHeight: 1.1 }}>
             KI-FÜHRERSCHEIN
           </h1>
-          <p style={{ fontSize: '10pt', color: '#536f7c', margin: '0 0 6mm' }}>
+          <p style={{ fontSize: '10pt', color: '#536f7c', margin: '0 0 3mm' }}>
             Zertifikat für einen kompetenten und verantwortungsvollen Umgang mit KI
           </p>
+          {/* Level-Badge */}
+          {level && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '2mm', background: '#087f83', color: 'white', borderRadius: '99px', padding: '1.5mm 5mm', fontSize: '9pt', fontWeight: 900, marginBottom: '4mm' }}>
+              <span>{level.icon}</span>
+              <span>Level {level.level} – {level.title}</span>
+            </div>
+          )}
 
           {/* Name */}
           <div style={{ fontSize: '20pt', fontWeight: 900, color: '#16495b', margin: '0 auto 5mm', borderBottom: '2px solid #ffda76', maxWidth: '140mm', paddingBottom: '3mm', minHeight: '12mm', overflowWrap: 'anywhere' }}>
@@ -250,15 +281,28 @@ function Certificate({ studentName, merksatz, levelCode, today, achievements, ba
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: '15mm', alignItems: 'flex-end' }}>
 
             {/* Datum */}
-            <div style={{ minWidth: '45mm' }}>
-              <div style={{ fontSize: '9pt', color: '#536f7c', marginBottom: '2mm' }}>Datum</div>
-              <div style={{ fontWeight: 700, fontSize: '11pt', marginBottom: '2mm' }}>{today}</div>
-              <div style={{ borderTop: '1px solid #7196a7', paddingTop: '1mm' }}></div>
+            <div style={{ flex: 1 }}>
+              <div style={{ borderTop: '1.5px solid #7196a7', paddingTop: '2mm', marginTop: '8mm' }}>
+                <div style={{ fontWeight: 700, fontSize: '10pt' }}>{today}</div>
+                <div style={{ fontSize: '8pt', color: '#536f7c', marginTop: '1mm' }}>Datum</div>
+              </div>
             </div>
 
-            
+            {/* Unterschrift Lehrkraft */}
+            <div style={{ flex: 1 }}>
+              <div style={{ borderTop: '1.5px solid #7196a7', paddingTop: '2mm', marginTop: '8mm' }}>
+                <div style={{ fontSize: '8pt', color: '#536f7c', marginTop: '1mm' }}>Unterschrift Lehrkraft</div>
+              </div>
+            </div>
 
-            {/* Logo unten rechts (Wiederholung für Druck) */}
+            {/* Stempel */}
+            <div style={{ flex: 1 }}>
+              <div style={{ borderTop: '1.5px solid #7196a7', paddingTop: '2mm', marginTop: '8mm' }}>
+                <div style={{ fontSize: '8pt', color: '#536f7c', marginTop: '1mm' }}>Stempel</div>
+              </div>
+            </div>
+
+            {/* Logo unten rechts */}
             <div style={{ minWidth: '20mm', textAlign: 'right' }}>
               <img
                 src={base + 'slzb-ki-logo.png'}
