@@ -165,7 +165,10 @@ export default function Station1({ done, onComplete }) {
   const [animCount,    setAnimCount]    = useState(0)
   const [p1Choice,     setP1Choice]     = useState([])
   const [p1Checked,    setP1Checked]    = useState(false)
-  const [firstSolved,  setFirstSolved]  = useState(false)
+  const [solvedLevels, setSolvedLevels] = useState([])  // welche Trainingsstufen wurden gelöst
+  // firstSolved = Stufe 1 gelöst (für Rückwärtskompatibilität)
+  const firstSolved = solvedLevels.includes(1)
+  const allLevelsSolved = solvedLevels.includes(3)  // alle 3 Stufen gelöst
   const [expanded,     setExpanded]     = useState(false)
   const [expandAnim,   setExpandAnim]   = useState(false)
   const [expandCount,  setExpandCount]  = useState(0)
@@ -180,6 +183,9 @@ export default function Station1({ done, onComplete }) {
   // Training animieren (3 Stufen)
   function animateTrain() {
     if (animating || trained >= 3) return
+    // Test zurücksetzen für neue Stufe
+    setP1Choice([])
+    setP1Checked(false)
     setAnimating(true)
     const next = trained + 1
     const goal = TRAIN_GOALS[next]
@@ -200,7 +206,7 @@ export default function Station1({ done, onComplete }) {
 
   // Phase 1 Auswahl
   function toggleP1(key) {
-    if (firstSolved) return
+    if (solvedLevels.includes(trained)) return
     setP1Choice(p => p.includes(key) ? p.filter(x => x !== key) : [...p, key])
     setP1Checked(false)
   }
@@ -210,7 +216,7 @@ export default function Station1({ done, onComplete }) {
     setP1Checked(true)
     // Korrekt: genau d UND e (beide braunen Pferde), NICHT white
     const correct = p1Choice.length === 2 && p1Choice.includes('d') && p1Choice.includes('e')
-    if (correct) setFirstSolved(true)
+    if (correct) setSolvedLevels(prev => prev.includes(trained) ? prev : [...prev, trained])
   }
 
   // Erweitertes Training
@@ -318,6 +324,7 @@ export default function Station1({ done, onComplete }) {
   // ── Lernaufgaben ─────────────────────────────────────────────
 
   // Phase 1 Feedback
+  const currentLevelSolved = solvedLevels.includes(trained)
   const firstCorrect = p1Choice.length === 2 && p1Choice.includes('d') && p1Choice.includes('e')
   const p1Feedback = p1Checked ? (
     firstCorrect
@@ -393,7 +400,7 @@ export default function Station1({ done, onComplete }) {
           </div>
 
           {/* Beobachtungsfrage nach jeder Stufe */}
-          {trained === 1 && !animating && !firstSolved && (
+          {trained === 1 && !animating && !solvedLevels.includes(1) && (
             <div style={{ background: '#fffbeb', border: '2px solid #f59e0b', borderRadius: 'var(--r-md)', padding: '0.75rem', marginBottom: 'var(--sp-md)' }}>
               <p style={{ margin: 0, fontWeight: 700, fontSize: 'var(--fs-sm)', color: '#92400e' }}>
                 🤔 Beobachtung: Die Mini-KI hat 100 braune Pferdefotos gesehen.
@@ -404,7 +411,7 @@ export default function Station1({ done, onComplete }) {
               </p>
             </div>
           )}
-          {trained === 2 && !animating && !firstSolved && (
+          {trained === 2 && !animating && !solvedLevels.includes(2) && (
             <div style={{ background: '#fffbeb', border: '2px solid #f59e0b', borderRadius: 'var(--r-md)', padding: '0.75rem', marginBottom: 'var(--sp-md)' }}>
               <p style={{ margin: 0, fontWeight: 700, fontSize: 'var(--fs-sm)', color: '#92400e' }}>
                 🤔 Jetzt hat die KI 10.000 braune Pferdefotos gesehen – 100× mehr!
@@ -412,7 +419,7 @@ export default function Station1({ done, onComplete }) {
               </p>
             </div>
           )}
-          {trained === 3 && !animating && !firstSolved && (
+          {trained === 3 && !animating && !solvedLevels.includes(3) && (
             <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 'var(--r-md)', padding: '0.75rem', marginBottom: 'var(--sp-md)' }}>
               <p style={{ margin: 0, fontWeight: 700, fontSize: 'var(--fs-sm)', color: '#991b1b' }}>
                 💡 1.000.000 braune Pferdefotos – und der Schimmel wird immer noch nicht erkannt!
@@ -436,7 +443,7 @@ export default function Station1({ done, onComplete }) {
 
           <div className="actions">
             {trained < 3 ? (
-              <button className="btn btn-primary" onClick={animateTrain} disabled={animating || (trained === 0 ? false : !firstSolved)} style={{ background: MOD_COLOR }}>
+              <button className="btn btn-primary" onClick={animateTrain} disabled={animating || (trained > 0 && !solvedLevels.includes(trained))} style={{ background: MOD_COLOR }}>
                 {animating
                   ? `⏳ Die KI lernt … ${animCount.toLocaleString('de-DE')} Bilder`
                   : trained === 0 ? '▶ Training starten (100 Bilder)'
@@ -446,7 +453,7 @@ export default function Station1({ done, onComplete }) {
             ) : (
               <div className="done-badge">✓ 1.000.000 Bilder gesehen – aber nur braune Pferde!</div>
             )}
-            {trained > 0 && trained < 3 && !firstSolved && !animating && (
+            {trained > 0 && trained < 3 && !solvedLevels.includes(trained) && !animating && (
               <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', margin: '0.5rem 0 0' }}>
                 💡 Löse erst den Test unten, dann kannst du weiter trainieren.
               </p>
@@ -455,7 +462,7 @@ export default function Station1({ done, onComplete }) {
         </div>
 
         {/* Stufe 3: Test */}
-        {trained >= 1 && (
+        {trained >= 1 && !animating && (
           <div style={{ background: '#f0fafb', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)' }}>
             <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               3 · Test: Was erkennt die Mini-KI nach {trained === 1 ? '100' : trained === 2 ? '10.000' : '1.000.000'} Bildern?
@@ -472,14 +479,14 @@ export default function Station1({ done, onComplete }) {
                 <HorsePhoto key={key} photoKey={key} label={label}
                   size="130px"
                   selected={p1Choice.includes(key)}
-                  onSelect={firstSolved ? null : toggleP1}
-                  disabled={firstSolved}
-                  showResult={p1Checked && firstSolved}
+                  onSelect={solvedLevels.includes(trained) ? null : toggleP1}
+                  disabled={solvedLevels.includes(trained)}
+                  showResult={p1Checked && solvedLevels.includes(trained)}
                   isCorrect={key !== 'white'}
                 />
               ))}
             </div>
-            {!firstSolved && (
+            {!solvedLevels.includes(trained) && (
               <div className="actions">
                 <button className="btn btn-primary" onClick={checkP1} disabled={p1Choice.length === 0} style={{ background: MOD_COLOR }}>
                   ✓ Antwort prüfen
@@ -492,7 +499,7 @@ export default function Station1({ done, onComplete }) {
       </div>
 
       {/* ── Phase 1.5: Kaputte KI ── */}
-      {firstSolved && !brokenDone && (
+      {allLevelsSolved && !brokenDone && (
         <div className="card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: 'var(--sp-md)' }}>
             <div style={{ fontSize: '2.5rem' }}>🤖💥</div>
@@ -594,7 +601,7 @@ export default function Station1({ done, onComplete }) {
       )}
 
       {/* ── Phase 2: Erweitertes Training ── */}
-      {firstSolved && brokenDone && (
+      {allLevelsSolved && brokenDone && (
         <div className="card">
           <h2 style={{ color: MOD_COLOR }}>🔑 Der entscheidende Unterschied: Vielfalt!</h2>
           <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
