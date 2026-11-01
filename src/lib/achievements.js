@@ -57,6 +57,19 @@ export function addXP(amount) {
   return current + amount
 }
 
+// Bonus-XP für Zwischenerfolge (verhindert Doppelvergabe per bonusId)
+const BONUS_KEY = 'ki_bonus_xp'
+export function addBonusXP(amount, bonusId) {
+  try {
+    const existing = JSON.parse(localStorage.getItem(BONUS_KEY) || '{}')
+    if (existing[bonusId]) return false
+    existing[bonusId] = true
+    localStorage.setItem(BONUS_KEY, JSON.stringify(existing))
+    addXP(amount)
+    return true
+  } catch { return false }
+}
+
 export function getLevel(xp) {
   // Klasse 7: 4 Module × 250 XP = 1000 XP → Level 2
   // Klasse 8+: weitere Module schalten Level 3-5 frei

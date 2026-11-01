@@ -1,7 +1,8 @@
 // GameHeader - Gamification-Navigation mit XP und Level
 
-import React, { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import React, { useState, useEffect, useRef } from 'react'
+import LevelUpOverlay from '../ui/LevelUpOverlay.jsx'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { studentLogout } from '../../lib/auth.js'
 import { getXP, getLevel } from '../../lib/achievements.js'
 
@@ -11,7 +12,25 @@ export default function GameHeader({ student, onLogout }) {
   const level = getLevel(xp)
   const prevXP = level.level === 1 ? 0 : level.level === 2 ? 400 : level.level === 3 ? 900 : 1600
   const pct   = level.next ? Math.round(((xp - prevXP) / (level.next - prevXP)) * 100) : 100
-  const [showConfirm, setShowConfirm] = useState(false)
+  const [showConfirm,  setShowConfirm]  = useState(false)
+  const [levelUpShow,  setLevelUpShow]  = useState(null)  // newLevel wenn Level-Up
+  const [xpGain,       setXpGain]       = useState(null)  // "+250 XP" Anzeige
+  const prevXpRef = useRef(xp)
+
+  // Level-Up erkennen
+  useEffect(() => {
+    const prevLevel = getLevel(prevXpRef.current).level
+    const currLevel = getLevel(xp).level
+    if (currLevel > prevLevel && prevXpRef.current > 0) {
+      setLevelUpShow(currLevel)
+    }
+    if (xp > prevXpRef.current && prevXpRef.current > 0) {
+      const gained = xp - prevXpRef.current
+      setXpGain('+' + gained + ' XP')
+      setTimeout(() => setXpGain(null), 2500)
+    }
+    prevXpRef.current = xp
+  }, [xp])
 
   function handleLogout() { studentLogout(); onLogout() }
 
@@ -40,7 +59,17 @@ export default function GameHeader({ student, onLogout }) {
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>⭐ {xp} XP</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 700, position: 'relative' }}>
+                ⭐ {xp} XP
+                {xpGain && (
+                  <span style={{
+                    position: 'absolute', top: '-1.2rem', left: '50%', transform: 'translateX(-50%)',
+                    color: '#4ade80', fontWeight: 900, fontSize: '0.75rem', whiteSpace: 'nowrap',
+                    animation: 'xpFloat 2.5s ease forwards', pointerEvents: 'none',
+                  }}>{xpGain}</span>
+                )}
+              </span>
+              <style>{`@keyframes xpFloat { 0% { opacity:0; transform:translateX(-50%) translateY(0) } 20% { opacity:1 } 80% { opacity:1; transform:translateX(-50%) translateY(-16px) } 100% { opacity:0; transform:translateX(-50%) translateY(-24px) } }`}</style>
               {level.next
                 ? <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)' }}>
                     Ziel: {level.next} XP
@@ -115,6 +144,12 @@ export default function GameHeader({ student, onLogout }) {
             </div>
           </div>
         </div>
+      )}
+      {levelUpShow && (
+        <LevelUpOverlay
+          newLevel={levelUpShow}
+          onClose={() => setLevelUpShow(null)}
+        />
       )}
     </>
   )
