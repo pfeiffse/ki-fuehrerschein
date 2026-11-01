@@ -6,7 +6,7 @@ export const MODULES = [
     subtitle: 'Trainingsdaten · Mustererkennung · Sprach-KI',
     icon: '🤖', color: '#2859d8', colorLight: '#e6f4ff',
     path: '/modul/01', optional: false,
-    xp: 400,
+    xp: 250,
     achievement: { id: 'ki-verstehen', title: 'KI-Versteher:in', icon: '🔍',
       description: 'Du weißt, wie KI aus Daten lernt.' },
   },
@@ -15,7 +15,7 @@ export const MODULES = [
     subtitle: 'Fehler erkennen · Prompts · Verantwortung',
     icon: '🕵️', color: '#087f83', colorLight: '#dff5f1',
     path: '/modul/02', optional: false,
-    xp: 500,
+    xp: 250,
     achievement: { id: 'ki-checker', title: 'KI-Checker:in', icon: '✅',
       description: 'Du kannst KI-Antworten kritisch prüfen.' },
   },
@@ -24,7 +24,7 @@ export const MODULES = [
     subtitle: 'Wann kennzeichnen · Daten schützen',
     icon: '🛡️', color: '#1a6b7a', colorLight: '#e0f4f6',
     path: '/modul/03', optional: false,
-    xp: 300,
+    xp: 250,
     achievement: { id: 'ki-verantwortlich', title: 'KI-Verantwortliche:r', icon: '🏷️',
       description: 'Du kennst die Regeln zur Kennzeichnung.' },
   },
@@ -33,7 +33,7 @@ export const MODULES = [
     subtitle: 'Ressourcen · Energie · Bewusster Einsatz',
     icon: '🌍', color: '#087f83', colorLight: '#dff5f1',
     path: '/modul/04', optional: false,
-    xp: 400,
+    xp: 250,
     achievement: { id: 'ki-nachhaltig', title: 'KI-Nachhaltigkeits-Profi', icon: '🌱',
       description: 'Du kennst die Ressourcen hinter KI.' },
   },
@@ -58,10 +58,13 @@ export function addXP(amount) {
 }
 
 export function getLevel(xp) {
-  if (xp >= 1600) return { level: 4, title: 'KI-Experte',    icon: '🏆', next: null }
-  if (xp >= 900)  return { level: 3, title: 'KI-Profi',      icon: '⭐', next: 1600 }
-  if (xp >= 400)  return { level: 2, title: 'KI-Lernende:r', icon: '🌿', next: 900  }
-  return                  { level: 1, title: 'KI-Einsteiger:in', icon: '🌱', next: 400 }
+  // Klasse 7: 4 Module × 250 XP = 1000 XP → Level 2
+  // Klasse 8+: weitere Module schalten Level 3-5 frei
+  if (xp >= 7000) return { level: 5, title: 'KI-Expert:in',      icon: '🏆', next: null, class: 10, desc: 'Klasse 10 abgeschlossen' }
+  if (xp >= 4500) return { level: 4, title: 'KI-Gestalter:in',   icon: '💡', next: 7000, class: 9,  desc: 'Klasse 9 abgeschlossen' }
+  if (xp >= 2500) return { level: 3, title: 'KI-Anwender:in',    icon: '⭐', next: 4500, class: 8,  desc: 'Klasse 8 abgeschlossen' }
+  if (xp >= 1000) return { level: 2, title: 'KI-Grundlagen ✓',   icon: '🎓', next: 2500, class: 7,  desc: 'Klasse 7 abgeschlossen' }
+  return                  { level: 1, title: 'KI-Einsteiger:in',  icon: '🌱', next: 1000, class: 7,  desc: 'Klasse 7 in Bearbeitung' }
 }
 
 // Achievements

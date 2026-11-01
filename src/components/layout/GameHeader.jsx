@@ -32,17 +32,24 @@ export default function GameHeader({ student, onLogout }) {
 
         {/* XP + Level */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '12rem', maxWidth: '20rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: 'rgba(124,58,237,0.3)', border: '1px solid rgba(124,58,237,0.6)', borderRadius: '99px', padding: '0.25rem 0.625rem', whiteSpace: 'nowrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: level.level >= 2 ? 'rgba(22,163,74,0.3)' : 'rgba(124,58,237,0.3)', border: `1px solid ${level.level >= 2 ? 'rgba(22,163,74,0.6)' : 'rgba(124,58,237,0.6)'}`, borderRadius: '99px', padding: '0.25rem 0.625rem', whiteSpace: 'nowrap' }}>
             <span style={{ fontSize: '0.9rem' }}>{level.icon}</span>
-            <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#c4b5fd' }}>Lv.{level.level}</span>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, color: level.level >= 2 ? '#4ade80' : '#c4b5fd' }}>
+              {level.level >= 2 ? level.title : `Lv.${level.level}`}
+            </span>
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
               <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>⭐ {xp} XP</span>
-              {level.next && <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)' }}>{level.next} XP</span>}
+              {level.next
+                ? <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)' }}>
+                    Ziel: {level.next} XP
+                  </span>
+                : <span style={{ fontSize: '0.65rem', color: '#4ade80', fontWeight: 800 }}>MAX ✓</span>
+              }
             </div>
             <div style={{ height: '0.3rem', background: 'rgba(255,255,255,0.15)', borderRadius: '99px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, #f59e0b, #fbbf24)', borderRadius: '99px', transition: 'width 0.5s ease' }} />
+              <div style={{ height: '100%', width: `${pct}%`, background: level.level >= 2 ? 'linear-gradient(90deg, #4ade80, #22c55e)' : 'linear-gradient(90deg, #f59e0b, #fbbf24)', borderRadius: '99px', transition: 'width 0.5s ease' }} />
             </div>
           </div>
         </div>

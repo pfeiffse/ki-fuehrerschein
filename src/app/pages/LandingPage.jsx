@@ -33,8 +33,8 @@ export default function LandingPage({ onJoin }) {
   }
 
   const STUFEN = [
-    { grade: 7,  icon: '🌱', title: 'Grundlagen',  sub: 'KI verstehen & verantwortungsvoll nutzen', available: true  },
-    { grade: 8,  icon: '🌿', title: 'Vertiefung',  sub: 'KI kritisch einordnen & gestalten',        available: false },
+    { grade: 7,  icon: '🌱', title: 'Grundlagen',  sub: 'KI verstehen & verantwortungsvoll nutzen', available: true,  level: 2, levelTitle: 'KI-Grundlagen ✓'    },
+    { grade: 8,  icon: '🌿', title: 'Vertiefung',  sub: 'KI kritisch einordnen & gestalten',        available: false, level: 3, levelTitle: 'KI-Anwender:in'     },
     { grade: 9,  icon: '🌳', title: 'Anwendung',   sub: 'KI-Projekte entwickeln & reflektieren',    available: false },
     { grade: 10, icon: '🌲', title: 'Reflexion',   sub: 'KI & Gesellschaft – Zukunft mitgestalten', available: false },
   ]
@@ -153,6 +153,11 @@ export default function LandingPage({ onJoin }) {
                   {!s.available && <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>In Entwicklung</span>}
                 </div>
                 <p style={{ margin: '0.25rem 0 0', color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>{s.sub}</p>
+                {s.level && (
+                  <div style={{ marginTop: '0.375rem', display: 'inline-block', background: s.available ? 'rgba(8,127,131,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${s.available ? 'rgba(8,127,131,0.5)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '99px', padding: '2px 10px', fontSize: '0.65rem', fontWeight: 800, color: s.available ? '#7dd3fc' : 'rgba(255,255,255,0.3)' }}>
+                    🎓 Ziel: Level {s.level} – {s.levelTitle}
+                  </div>
+                )}
               </div>
             </div>
           ))}

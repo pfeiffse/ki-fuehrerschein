@@ -70,26 +70,52 @@ export default function Dashboard({ student }) {
             </div>
 
             {/* Level-Card */}
-            <div style={{ background: 'rgba(124,58,237,0.2)', border: '2px solid rgba(124,58,237,0.5)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-md)', minWidth: '10rem', textAlign: 'center' }}>
+            <div style={{ background: level.level >= 2 ? 'rgba(22,163,74,0.2)' : 'rgba(124,58,237,0.2)', border: `2px solid ${level.level >= 2 ? 'rgba(22,163,74,0.5)' : 'rgba(124,58,237,0.5)'}`, borderRadius: 'var(--r-xl)', padding: 'var(--sp-md)', minWidth: '10rem', textAlign: 'center' }}>
               <div style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>{level.icon}</div>
-              <div style={{ fontWeight: 900, color: '#c4b5fd', fontSize: 'var(--fs-sm)' }}>Level {level.level}</div>
+              <div style={{ fontWeight: 900, color: level.level >= 2 ? '#4ade80' : '#c4b5fd', fontSize: 'var(--fs-sm)' }}>Level {level.level}</div>
               <div style={{ fontWeight: 700, color: 'rgba(255,255,255,0.8)', fontSize: 'var(--fs-xs)' }}>{level.title}</div>
               <div style={{ marginTop: '0.5rem', fontWeight: 900, color: '#f59e0b', fontSize: 'var(--fs-lg)' }}>⭐ {xp} XP</div>
             </div>
           </div>
 
-          {/* XP-Fortschrittsbalken */}
-          {level.next && (
-            <div style={{ marginTop: 'var(--sp-lg)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem', fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.6)' }}>
-                <span>Fortschritt zu Level {level.level + 1}</span>
-                <span>{pct}%</span>
+          {/* Level-Bedeutung + XP-Fortschrittsbalken */}
+          <div style={{ marginTop: 'var(--sp-lg)' }}>
+            {/* Ziel-Erklärung */}
+            {level.level === 1 && (
+              <div style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.4)', borderRadius: 'var(--r-lg)', padding: '0.75rem var(--sp-md)', marginBottom: 'var(--sp-md)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ fontSize: '1.5rem' }}>🎯</div>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#fbbf24', fontSize: 'var(--fs-sm)' }}>Dein Ziel: KI-Grundlagen ✓</div>
+                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'var(--fs-xs)', marginTop: '2px' }}>
+                    Schließe alle 4 Module ab → Level 2 erreicht → KI-Führerschein Klasse 7!
+                  </div>
+                </div>
               </div>
-              <div className="xp-bar-track">
-                <div className="xp-bar-fill" style={{ width: `${pct}%` }} />
+            )}
+            {level.level >= 2 && (
+              <div style={{ background: 'rgba(22,163,74,0.15)', border: '1px solid rgba(22,163,74,0.4)', borderRadius: 'var(--r-lg)', padding: '0.75rem var(--sp-md)', marginBottom: 'var(--sp-md)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ fontSize: '1.5rem' }}>🎓</div>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#4ade80', fontSize: 'var(--fs-sm)' }}>KI-Grundlagen abgeschlossen! ✓</div>
+                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'var(--fs-xs)', marginTop: '2px' }}>
+                    {level.level === 2 ? 'In Klasse 8 geht es weiter – dann erreichst du Level 3: KI-Anwender:in!' : `Level ${level.level} erreicht – weiter so!`}
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+            {/* Fortschrittsbalken */}
+            {level.next && (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem', fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.6)' }}>
+                  <span>{level.level === 1 ? `Noch ${level.next - xp} XP bis KI-Grundlagen ✓` : `Fortschritt zu Level ${level.level + 1}`}</span>
+                  <span>{pct}%</span>
+                </div>
+                <div className="xp-bar-track">
+                  <div className="xp-bar-fill" style={{ width: `${pct}%`, background: level.level >= 2 ? 'linear-gradient(90deg, #4ade80, #22c55e)' : undefined }} />
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Zertifikat-Banner */}
