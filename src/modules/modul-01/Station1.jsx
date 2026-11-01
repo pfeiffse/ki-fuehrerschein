@@ -326,36 +326,87 @@ export default function Station1({ done, onComplete }) {
             2 · Training starten
           </div>
           <p style={{ margin: '0 0 var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
-            Eine echte KI sieht nicht nur 3 Bilder – sie sieht Millionen! Starte das Training und schau, wie viele Bilder die Mini-KI verarbeitet.
+            Eine echte KI sieht nicht nur 3 Bilder – sie sieht Millionen! Starte das Training und beobachte, was sich verändert.
           </p>
 
+          {/* Trainings-Stufen als visuelle Timeline */}
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--sp-md)', alignItems: 'stretch' }}>
+            {[
+              { n: 1, count: '100',       label: 'Erste Schritte',    question: 'Erkennt die KI jetzt alle Pferde?' },
+              { n: 2, count: '10.000',    label: 'Mehr Daten',        question: 'Was ändert sich bei mehr Bildern?' },
+              { n: 3, count: '1.000.000', label: 'Sehr viele Daten',  question: 'Reicht Menge allein?' },
+            ].map(s => (
+              <div key={s.n} style={{ flex: 1, borderRadius: 'var(--r-md)', padding: '0.625rem', textAlign: 'center',
+                background: trained >= s.n ? (trained === s.n && animating ? 'rgba(40,89,216,0.15)' : 'rgba(40,89,216,0.1)') : 'rgba(0,0,0,0.04)',
+                border: `2px solid ${trained >= s.n ? MOD_COLOR : 'var(--c-border)'}`,
+                opacity: trained < s.n - 1 ? 0.4 : 1, transition: 'all 0.3s' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: trained >= s.n ? MOD_COLOR : 'var(--c-muted)', marginBottom: '2px' }}>
+                  {trained >= s.n ? '✓' : s.n + '.'}
+                </div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: trained >= s.n ? MOD_COLOR : 'var(--c-dark)' }}>{s.count}</div>
+                <div style={{ fontSize: '0.6rem', color: 'var(--c-muted)' }}>Bilder</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Beobachtungsfrage nach jeder Stufe */}
+          {trained === 1 && !animating && !firstSolved && (
+            <div style={{ background: '#fffbeb', border: '2px solid #f59e0b', borderRadius: 'var(--r-md)', padding: '0.75rem', marginBottom: 'var(--sp-md)' }}>
+              <p style={{ margin: 0, fontWeight: 700, fontSize: 'var(--fs-sm)', color: '#92400e' }}>
+                🤔 Beobachtung: Die Mini-KI hat 100 braune Pferdefotos gesehen.
+                Glaubst du, sie erkennt jetzt auch einen Schimmel oder ein Pony?
+              </p>
+              <p style={{ margin: '0.5rem 0 0', fontSize: 'var(--fs-xs)', color: '#78350f' }}>
+                → Teste es unten! Dann trainieren wir weiter und schauen ob mehr Bilder helfen.
+              </p>
+            </div>
+          )}
+          {trained === 2 && !animating && !firstSolved && (
+            <div style={{ background: '#fffbeb', border: '2px solid #f59e0b', borderRadius: 'var(--r-md)', padding: '0.75rem', marginBottom: 'var(--sp-md)' }}>
+              <p style={{ margin: 0, fontWeight: 700, fontSize: 'var(--fs-sm)', color: '#92400e' }}>
+                🤔 Jetzt hat die KI 10.000 braune Pferdefotos gesehen – 100× mehr!
+                Hat sich etwas verändert? Teste es nochmal unten.
+              </p>
+            </div>
+          )}
+          {trained === 3 && !animating && !firstSolved && (
+            <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 'var(--r-md)', padding: '0.75rem', marginBottom: 'var(--sp-md)' }}>
+              <p style={{ margin: 0, fontWeight: 700, fontSize: 'var(--fs-sm)', color: '#991b1b' }}>
+                💡 1.000.000 braune Pferdefotos – und der Schimmel wird immer noch nicht erkannt!
+                Warum? Weil <strong>Menge allein nicht reicht</strong> – die KI braucht auch <strong>Vielfalt</strong>.
+              </p>
+            </div>
+          )}
+
           {/* Trainings-Fortschritt */}
-          {trained > 0 && (
+          {trained > 0 && animating && (
             <div style={{ marginBottom: 'var(--sp-md)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: 'var(--fs-sm)', fontWeight: 700 }}>
                 <span>Trainingsbilder gesehen:</span>
-                <span style={{ color: MOD_COLOR }}>{(animating ? animCount : TRAIN_GOALS[trained]).toLocaleString('de-DE')}</span>
+                <span style={{ color: MOD_COLOR }}>{animCount.toLocaleString('de-DE')}</span>
               </div>
               <div className="progress-shell dark">
-                <div className="progress-bar green" style={{ width: `${(trained / 3) * 100}%`, transition: 'width 0.3s' }} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', marginTop: '4px' }}>
-                <span>100</span><span>10.000</span><span>1.000.000</span>
+                <div className="progress-bar green" style={{ width: `${(animCount / TRAIN_GOALS[trained]) * 100}%`, transition: 'width 0.1s' }} />
               </div>
             </div>
           )}
 
           <div className="actions">
             {trained < 3 ? (
-              <button className="btn btn-primary" onClick={animateTrain} disabled={animating} style={{ background: MOD_COLOR }}>
+              <button className="btn btn-primary" onClick={animateTrain} disabled={animating || (trained === 0 ? false : !firstSolved)} style={{ background: MOD_COLOR }}>
                 {animating
-                  ? `⏳ Die KI sieht viele Bilder … ${animCount.toLocaleString('de-DE')}`
+                  ? `⏳ Die KI lernt … ${animCount.toLocaleString('de-DE')} Bilder`
                   : trained === 0 ? '▶ Training starten (100 Bilder)'
-                  : trained === 1 ? '▶ Mehr trainieren (10.000 Bilder)'
-                  : '▶ Noch mehr trainieren (1.000.000 Bilder)'}
+                  : trained === 1 ? '▶ Weiter trainieren – 10.000 Bilder (ändert das etwas?)'
+                  : '▶ Noch mehr – 1.000.000 Bilder (reicht Menge allein?)'}
               </button>
             ) : (
-              <div className="done-badge">✓ Training abgeschlossen · 1.000.000 Bilder gesehen (vereinfachte Darstellung)</div>
+              <div className="done-badge">✓ 1.000.000 Bilder gesehen – aber nur braune Pferde!</div>
+            )}
+            {trained > 0 && trained < 3 && !firstSolved && !animating && (
+              <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', margin: '0.5rem 0 0' }}>
+                💡 Löse erst den Test unten, dann kannst du weiter trainieren.
+              </p>
             )}
           </div>
         </div>
@@ -364,11 +415,14 @@ export default function Station1({ done, onComplete }) {
         {trained >= 1 && (
           <div style={{ background: '#f0fafb', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)' }}>
             <div style={{ fontWeight: 800, color: MOD_COLOR, marginBottom: '8px', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              3 · Test: Was erkennt die Mini-KI?
+              3 · Test: Was erkennt die Mini-KI nach {trained === 1 ? '100' : trained === 2 ? '10.000' : '1.000.000'} Bildern?
             </div>
             <p style={{ margin: '0 0 var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
-              Hier sind drei neue Bilder. Welche davon würde die Mini-KI als Pferd erkennen?
-              Klicke alle Bilder an, die sie erkennen würde.
+              {trained === 1
+                ? 'Die Mini-KI hat 100 braune Pferdefotos gesehen. Welche dieser neuen Bilder würde sie als Pferd erkennen?'
+                : trained === 2
+                ? 'Jetzt mit 10.000 Bildern – hat sich etwas verändert? Teste es nochmal!'
+                : '1.000.000 Bilder – immer noch nur braune Pferde. Was erkennt die KI jetzt?'}
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: 'var(--sp-md)' }}>
               {TEST1.map(({ key, label }) => (
@@ -397,8 +451,14 @@ export default function Station1({ done, onComplete }) {
       {/* ── Phase 2: Erweitertes Training ── */}
       {firstSolved && (
         <div className="card">
-          <h2 style={{ color: MOD_COLOR }}>Mehr Vielfalt beim Training</h2>
-          <p className="lead">Jetzt bekommt die KI <strong>weitere Trainingsbilder</strong>: auch Schimmel, Ponys und kräftige Kaltblüter.</p>
+          <h2 style={{ color: MOD_COLOR }}>🔑 Der entscheidende Unterschied: Vielfalt!</h2>
+          <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
+            <p style={{ margin: 0, fontWeight: 700, color: '#991b1b', fontSize: 'var(--fs-sm)' }}>
+              Du hast gerade gesehen: Auch 1.000.000 braune Pferdefotos helfen nicht,
+              wenn die KI einen Schimmel erkennen soll. <strong>Menge allein reicht nicht.</strong>
+            </p>
+          </div>
+          <p className="lead">Jetzt bekommt die KI <strong>vielfältigere Trainingsbilder</strong>: auch Schimmel, Ponys und kräftige Kaltblüter.</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: 'var(--sp-md) 0' }}>
             {EXPANDED.map(key => <HorsePhoto key={key} photoKey={key} label={PHOTOS[key].label} size="120px" />)}
