@@ -167,7 +167,7 @@ export default function Modul03Page() {
                 style={{ fontSize: '0.7rem', padding: '0.375rem 0.625rem', minHeight: '2rem',
                   background: isDone ? 'rgba(22,163,74,0.2)' : isCurrent ? `rgba(208,18,26,0.6)` : isUnlocked ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
                   border: isDone ? '1px solid rgba(22,163,74,0.5)' : isCurrent ? `1px solid rgba(208,18,26,0.8)` : '1px solid rgba(255,255,255,0.15)',
-                  color: isDone ? '#4ade80' : isUnlocked ? 'white' : 'rgba(255,255,255,0.25)',
+                  color: isDone ? 'var(--c-success)' : isUnlocked ? 'white' : 'rgba(255,255,255,0.25)',
                   borderRadius: 'var(--r-md)', cursor: isUnlocked ? 'pointer' : 'not-allowed', fontFamily: 'inherit', fontWeight: 700 }}>
                 {isDone ? '✓' : !isUnlocked ? '🔒' : m.icon} {m.label}
               </button>
@@ -295,25 +295,25 @@ function BenChatMission({ done, onComplete, color }) {
           <p className="lead">Schau Ben über die Schulter: Auf seinem Handy läuft ein Chat mit einer KI. <strong>Achte darauf, was Ben nebenbei über sich verrät.</strong></p>
 
           {/* Handy */}
-          <div style={{ maxWidth: '340px', margin: '0 auto var(--sp-lg)', background: '#1a1a2e', borderRadius: '2rem', padding: '0.75rem', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
-            <div style={{ background: '#0f0f1a', borderRadius: '1.5rem', overflow: 'hidden' }}>
+          <div style={{ maxWidth: '340px', margin: '0 auto var(--sp-lg)', background: 'var(--slzb-navy)', borderRadius: '2rem', padding: '0.75rem', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+            <div style={{ background: 'var(--slzb-navy)', borderRadius: '1.5rem', overflow: 'hidden' }}>
               {/* Status */}
-              <div style={{ background: '#0f0f1a', color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', padding: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ background: 'var(--slzb-navy)', color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', padding: '0.5rem 1rem', display: 'flex', justifyContent: 'space-between' }}>
                 <span>19:24</span><span>▰▰▰ ▯ ◂</span>
               </div>
               {/* Header */}
-              <div style={{ background: '#1a1a2e', color: 'white', padding: '0.625rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ background: 'var(--slzb-navy)', color: 'white', padding: '0.625rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                 <span style={{ fontSize: '1.25rem' }}>🤖</span>
                 <div>
                   <div style={{ fontWeight: 800, fontSize: '0.875rem' }}>KI-Assistent</div>
-                  <div style={{ fontSize: '0.65rem', color: '#4ade80' }}>● Online</div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--c-success)' }}>● Online</div>
                 </div>
               </div>
               {/* Chat */}
-              <div ref={chatRef} style={{ height: '280px', overflowY: 'auto', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: '#0d0d1a' }}>
+              <div ref={chatRef} style={{ height: '280px', overflowY: 'auto', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'rgba(0,0,0,0.85)' }}>
                 {CHAT_MSGS.slice(0, msgShown).map((msg, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: msg[0] === 'Ben' ? 'flex-end' : 'flex-start' }}>
-                    <div style={{ maxWidth: '80%', background: msg[0] === 'Ben' ? '#2859d8' : '#1e1e3a', color: 'white', borderRadius: msg[0] === 'Ben' ? '1rem 1rem 0.25rem 1rem' : '1rem 1rem 1rem 0.25rem', padding: '0.5rem 0.75rem', fontSize: '0.8rem', lineHeight: 1.4 }}>
+                    <div style={{ maxWidth: '80%', background: msg[0] === 'Ben' ? 'var(--slzb-blue)' : 'rgba(6,59,129,0.8)', color: 'white', borderRadius: msg[0] === 'Ben' ? '1rem 1rem 0.25rem 1rem' : '1rem 1rem 1rem 0.25rem', padding: '0.5rem 0.75rem', fontSize: '0.8rem', lineHeight: 1.4 }}>
                       {msg[1]}
                     </div>
                   </div>
@@ -330,7 +330,7 @@ function BenChatMission({ done, onComplete, color }) {
 
           {msgShown >= CHAT_MSGS.length && (
             <>
-              <button className="btn btn-ghost" onClick={() => setMsgShown(0)} style={{ marginBottom: 'var(--sp-md)' }}>↺ Chat noch einmal ansehen</button>
+              <button className="btn btn-ghost" onClick={() => setMsgShown(0)}>↺ Chat noch einmal ansehen</button>
               <div className="actions">
                 <button className="btn btn-primary" onClick={() => setPhase('clues')} style={{ background: color }}>
                   Jetzt Daten-Detektiv werden →
@@ -346,7 +346,7 @@ function BenChatMission({ done, onComplete, color }) {
         <div className="card">
           <div className="station-counter">Mission 1 · Teil 2 von 4 · Ermittlungsakte</div>
           <h2 style={{ color }}>🔍 Teil 2 · Deine Ermittlungsakte</h2>
-          <p className="lead">Stell dir vor, jemand Unbefugtes bekommt Zugriff auf diesen Chat. Welche Informationen über Ben könnte diese Person herausfinden? <strong>Klicke alle fünf Spuren an.</strong></p>
+          <div className="box-task"><strong>Aufgabe:</strong> Stell dir vor, jemand Unbefugtes bekommt Zugriff auf diesen Chat. Welche Informationen über Ben könnte diese Person herausfinden? <strong>Klicke alle fünf Spuren an.</strong></div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.75rem', margin: 'var(--sp-md) 0' }}>
             {CLUES.map((c, i) => {
@@ -362,17 +362,19 @@ function BenChatMission({ done, onComplete, color }) {
             })}
           </div>
 
-          <p style={{ fontWeight: 700, color: foundClues.size === CLUES.length ? 'var(--c-success)' : 'var(--c-muted)' }}>
-            {foundClues.size} von {CLUES.length} Spuren entdeckt
-          </p>
+          <div style={{ marginBottom: 'var(--sp-md)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem', fontSize: 'var(--fs-xs)', color: foundClues.size === CLUES.length ? 'var(--c-success)' : 'var(--c-muted)', fontWeight: 700 }}>
+              <span>{foundClues.size} von {CLUES.length} Spuren entdeckt</span>
+              <span>{Math.round((foundClues.size / CLUES.length) * 100)}%</span>
+            </div>
+            <div className="progress-track">
+              <div className="progress-fill green" style={{ width: `${(foundClues.size / CLUES.length) * 100}%` }} />
+            </div>
+          </div>
 
           {allClues && (
             <>
-              <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
-                <p style={{ margin: 0, fontWeight: 700, color: '#991b1b' }}>
-                  💡 Aus vielen kleinen Angaben entsteht ein erstaunlich genaues Bild von Ben.
-                </p>
-              </div>
+              <div className="box-info">💡 Aus vielen kleinen Angaben entsteht ein erstaunlich genaues Bild von Ben.</div>
               <div className="actions">
                 <button className="btn btn-primary" onClick={() => setPhase('consequences')} style={{ background: color }}>
                   Welche Folgen könnte das haben? →
@@ -433,16 +435,16 @@ function BenChatMission({ done, onComplete, color }) {
           <h2 style={{ color }}>🤖 Teil 4 · Die KI fragt weiter …</h2>
           <p className="lead">Nach der Detektivarbeit schauen wir noch einmal auf Bens Handy. Seine Party ist geplant – aber der Chat geht weiter.</p>
 
-          <div style={{ maxWidth: '340px', margin: '0 auto var(--sp-lg)', background: '#1a1a2e', borderRadius: '2rem', padding: '0.75rem', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
-            <div style={{ background: '#0f0f1a', borderRadius: '1.5rem', overflow: 'hidden' }}>
-              <div style={{ background: '#1a1a2e', color: 'white', padding: '0.625rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ maxWidth: '340px', margin: '0 auto var(--sp-lg)', background: 'var(--slzb-navy)', borderRadius: '2rem', padding: '0.75rem', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+            <div style={{ background: 'var(--slzb-navy)', borderRadius: '1.5rem', overflow: 'hidden' }}>
+              <div style={{ background: 'var(--slzb-navy)', color: 'white', padding: '0.625rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                 <span style={{ fontSize: '1.25rem' }}>🤖</span>
-                <div><div style={{ fontWeight: 800, fontSize: '0.875rem' }}>KI-Assistent</div><div style={{ fontSize: '0.65rem', color: '#4ade80' }}>● Online</div></div>
+                <div><div style={{ fontWeight: 800, fontSize: '0.875rem' }}>KI-Assistent</div><div style={{ fontSize: '0.65rem', color: 'var(--c-success)' }}>● Online</div></div>
               </div>
-              <div style={{ height: '200px', overflowY: 'auto', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: '#0d0d1a' }}>
+              <div style={{ height: '200px', overflowY: 'auto', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'rgba(0,0,0,0.85)' }}>
                 {HUMAN_MSGS.slice(0, humanStep + 1).map((msg, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: msg[0] === 'Ben' ? 'flex-end' : 'flex-start' }}>
-                    <div style={{ maxWidth: '80%', background: msg[0] === 'Ben' ? '#2859d8' : '#1e1e3a', color: 'white', borderRadius: msg[0] === 'Ben' ? '1rem 1rem 0.25rem 1rem' : '1rem 1rem 1rem 0.25rem', padding: '0.5rem 0.75rem', fontSize: '0.8rem', lineHeight: 1.4 }}>
+                    <div style={{ maxWidth: '80%', background: msg[0] === 'Ben' ? 'var(--slzb-blue)' : 'rgba(6,59,129,0.8)', color: 'white', borderRadius: msg[0] === 'Ben' ? '1rem 1rem 0.25rem 1rem' : '1rem 1rem 1rem 0.25rem', padding: '0.5rem 0.75rem', fontSize: '0.8rem', lineHeight: 1.4 }}>
                       {msg[1]}
                     </div>
                   </div>
@@ -459,12 +461,7 @@ function BenChatMission({ done, onComplete, color }) {
             </div>
           ) : (
             <>
-              <div style={{ background: '#fef2f2', border: '2px solid #fca5a5', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
-                <h3 style={{ margin: '0 0 0.5rem', color: '#991b1b' }}>🤖 Klingt wie ein Freund – ist aber keiner!</h3>
-                <p style={{ margin: 0, fontSize: 'var(--fs-sm)', color: '#7f1d1d' }}>
-                  Eine KI kann freundlich antworten und immer weitere Fragen stellen. Aber sie ist kein Mensch: Sie hat keine eigenen Gefühle und kann menschliches Mitgefühl nicht ersetzen. Wenn dich etwas belastet, sprich mit Freunden, Familie oder einer Vertrauensperson.
-                </p>
-              </div>
+              <WarningBox title="🤖 Klingt wie ein Freund – ist aber keiner!">Eine KI kann freundlich antworten und immer weitere Fragen stellen. Aber sie ist kein Mensch: Sie hat keine eigenen Gefühle und kann menschliches Mitgefühl nicht ersetzen. Wenn dich etwas belastet, sprich mit Freunden, Familie oder einer Vertrauensperson.</WarningBox>
               <MemoryBox>Eine KI kann wie ein Freund schreiben. Sie ist aber kein Mensch und kein Ersatz für echte Vertrauenspersonen.</MemoryBox>
               <div className="actions">
                 <button className="btn btn-success" onClick={onComplete}>Mission 1 abschließen →</button>
@@ -497,9 +494,7 @@ function FilmMission({ done, onComplete, color }) {
       <h2 style={{ color }}>🎬 Filmstation: Deine Spuren im Netz</h2>
       <p className="lead">Was bedeuten <strong>digitale Privatsphäre</strong> und <strong>digitaler Fußabdruck</strong>? Erst denkst du selbst nach, dann schaust du „Without Consent" und ergänzt deine Gedanken.</p>
 
-      <div style={{ background: 'var(--c-pale2)', border: '1px solid var(--c-border)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)', fontSize: 'var(--fs-sm)' }}>
-        <strong>Dein Lernweg:</strong> ① Vorwissen aufschreiben → ② Film ansehen → ③ Fragen zu Ella beantworten → ④ Antworten ergänzen
-      </div>
+      <InfoBox title="Dein Lernweg:">① Vorwissen aufschreiben → ② Film ansehen → ③ Fragen zu Ella beantworten → ④ Antworten ergänzen</InfoBox>
 
       {/* Schritt 1: Vor dem Film */}
       {phase === 'before' && (
@@ -531,7 +526,7 @@ function FilmMission({ done, onComplete, color }) {
             <video controls style={{ width: '100%', height: '100%', display: 'block' }}
               src={BASE + 'without-consent.mp4'}>
               <p style={{ color: 'white', padding: '1rem' }}>
-                Dein Browser unterstützt kein Video. <a href={BASE + 'without-consent.mp4'} style={{ color: '#60a5fa' }}>Video herunterladen</a>
+                Dein Browser unterstützt kein Video. <a href={BASE + 'without-consent.mp4'} style={{ color: 'var(--slzb-sky)' }}>Video herunterladen</a>
               </p>
             </video>
           </div>
@@ -680,7 +675,7 @@ function ReferatMission({ done, onComplete, color }) {
           const sel = selected.has(i)
           const showResult = checked
           return (
-            <label key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', borderRadius: 'var(--r-lg)', border: `2px solid ${showResult ? (isCorrect && sel ? 'var(--c-success)' : !isCorrect && sel ? 'var(--c-error)' : isCorrect && !sel ? 'var(--c-warn)' : 'var(--c-border)') : sel ? color : 'var(--c-border)'}`, background: showResult ? (isCorrect && sel ? 'var(--c-success-bg)' : !isCorrect && sel ? 'var(--c-error-bg)' : isCorrect && !sel ? 'var(--c-warn-bg)' : 'white') : sel ? '#e7eeff' : 'white', cursor: checked ? 'default' : 'pointer', transition: 'all 0.2s' }}>
+            <label key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', borderRadius: 'var(--r-lg)', border: `2px solid ${showResult ? (isCorrect && sel ? 'var(--c-success)' : !isCorrect && sel ? 'var(--c-error)' : isCorrect && !sel ? 'var(--c-warn)' : 'var(--c-border)') : sel ? color : 'var(--c-border)'}`, background: showResult ? (isCorrect && sel ? 'var(--c-success-bg)' : !isCorrect && sel ? 'var(--c-error-bg)' : isCorrect && !sel ? 'var(--c-warn-bg)' : 'white') : sel ? 'var(--c-info-bg)' : 'white', cursor: checked ? 'default' : 'pointer', transition: 'all 0.2s' }}>
               <input type="checkbox" checked={sel} disabled={checked}
                 onChange={() => setSelected(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n })}
                 style={{ marginTop: '3px', accentColor: color, width: '1rem', height: '1rem' }} />
