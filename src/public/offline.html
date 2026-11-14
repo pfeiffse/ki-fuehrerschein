@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KI-Führerschein · Offline-Modus</title>
 <style>
-@font-face { font-family: 'Fira Sans'; font-weight: 400; src: url('./fonts/fira-sans-400.ttf') format('truetype'); }
-@font-face { font-family: 'Fira Sans'; font-weight: 700; src: url('./fonts/fira-sans-700.ttf') format('truetype'); }
-@font-face { font-family: 'Fira Sans'; font-weight: 800; src: url('./fonts/fira-sans-800.ttf') format('truetype'); }
+@font-face { font-family: 'Fira Sans'; font-weight: 400; src: url('fonts/fira-sans-400.ttf') format('truetype'); }
+@font-face { font-family: 'Fira Sans'; font-weight: 700; src: url('fonts/fira-sans-700.ttf') format('truetype'); }
+@font-face { font-family: 'Fira Sans'; font-weight: 800; src: url('fonts/fira-sans-800.ttf') format('truetype'); }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Fira Sans', system-ui, sans-serif; background: #f4f8fd; color: #17243b; font-size: 16px; line-height: 1.5; }
 .topbar { background: #00295f; color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
@@ -77,6 +77,7 @@ textarea.f { resize: vertical; }
     <input type="text" id="login-name" class="f" placeholder="z. B. Lena oder Lena7a" maxlength="40" autocomplete="off"
       onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">Los geht's →</button>
+    <div id="debug-msg" style="margin-top:8px;font-size:12px;color:#56667c;"></div>
   </div>
 </div>
 
@@ -294,6 +295,11 @@ textarea.f { resize: vertical; }
 </div><!-- /wrap -->
 
 <script>
+// Sofort-Test beim Laden
+console.log('[offline] Script geladen ✓')
+try { localStorage.setItem('_test', '1'); localStorage.removeItem('_test'); console.log('[offline] localStorage OK') } 
+catch(e) { console.warn('[offline] localStorage nicht verfügbar:', e) }
+
 const MODS = [
   { id:'m1', title:'Was ist KI?',               sub:'Trainingsdaten · Mustererkennung · Sprach-KI', icon:'🤖', color:'#1d77bd' },
   { id:'m2', title:'KI sinnvoll nutzen',         sub:'Fehler erkennen · Prompts · Verantwortung',   icon:'✅', color:'#c26a00' },
@@ -301,15 +307,31 @@ const MODS = [
   { id:'m4', title:'KI & Nachhaltigkeit',         sub:'Ressourcen · Energie · Bewusster Einsatz',   icon:'🌱', color:'#2b8a2b' },
 ]
 
-function getP() { try { return JSON.parse(localStorage.getItem('ki_off_prog')||'{}') } catch { return {} } }
-function saveP(p) { localStorage.setItem('ki_off_prog', JSON.stringify(p)) }
-function getName() { return localStorage.getItem('ki_off_name')||'' }
+function getP() { 
+  try { 
+    return JSON.parse(localStorage.getItem('ki_off_prog') || sessionStorage.getItem('ki_off_prog') || '{}') 
+  } catch { return {} } 
+}
+function saveP(p) { 
+  const s = JSON.stringify(p)
+  try { localStorage.setItem('ki_off_prog', s) } catch(e) {}
+  try { sessionStorage.setItem('ki_off_prog', s) } catch(e) {}
+}
+function getName() { return localStorage.getItem('ki_off_name') || sessionStorage.getItem('ki_off_name') || '' }
 
 function doLogin() {
   const n = document.getElementById('login-name').value.trim()
+  const dbg = document.getElementById('debug-msg')
   if (!n) { alert('Bitte deinen Namen eingeben.'); return }
-  localStorage.setItem('ki_off_name', n)
-  showDash()
+  if (dbg) dbg.textContent = 'Anmeldung läuft...'
+  try {
+    localStorage.setItem('ki_off_name', n)
+    if (dbg) dbg.textContent = 'localStorage OK'
+  } catch(e) {
+    sessionStorage.setItem('ki_off_name', n)
+    if (dbg) dbg.textContent = 'sessionStorage Fallback'
+  }
+  setTimeout(() => showDash(), 100)
 }
 
 function logout() {
@@ -349,7 +371,12 @@ function showDash() {
       </div>
     </div>`
   }).join('')
-  show('s-dash')
+  try {
+    show('s-dash')
+  } catch(e) {
+    console.error('[offline] showDash Fehler:', e)
+    document.getElementById('debug-msg').textContent = 'Fehler: ' + e.message
+  }
 }
 
 function openMod(id) { show('s-'+id) }

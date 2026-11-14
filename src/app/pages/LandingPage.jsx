@@ -257,7 +257,7 @@ export default function LandingPage({ onJoin }) {
         </div>
 
         {/* Footer */}
-        <div style={{ marginTop: '32px', display: 'flex', gap: '18px', flexWrap: 'wrap' }}>
+        <div style={{ marginTop: '32px', display: 'flex', gap: '18px', flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={() => navigate('/datenschutz')}
             style={{ background: 'none', border: 'none', color: '#baddff', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>
             Datenschutz
@@ -266,6 +266,10 @@ export default function LandingPage({ onJoin }) {
             style={{ background: 'none', border: 'none', color: '#baddff', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>
             Lehrkraft-Bereich
           </button>
+          <a href={BASE + 'offline.html'}
+            style={{ color: 'rgba(186,221,255,0.6)', fontSize: '13px', textDecoration: 'none' }}>
+            📴 Offline-Modus
+          </a>
         </div>
       </div>
     </div>
