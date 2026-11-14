@@ -13,6 +13,8 @@ export default function CertificatePage() {
   const [eligible,  setEligible]  = useState(allRequiredPassed)
   const [merksatz,  setMerksatz]  = useState(getMerksatz)
   const [saved,     setSaved]     = useState(false)
+  const [fussabdruck, setFussabdruck] = useState(() => localStorage.getItem('ki_fussabdruck') || '')
+  const [kiKompass,   setKiKompass]   = useState(() => localStorage.getItem('ki_kompass') || '')
   const [levelCode, setLevelCode] = useState('')
   const [klasse,    setKlasse]    = useState(() => localStorage.getItem('ki_cert_klasse') || '')
   const [schule,    setSchule]    = useState(() => localStorage.getItem('ki_cert_schule') || 'SLZB')
@@ -25,12 +27,16 @@ export default function CertificatePage() {
   useEffect(() => {
     const passedIds = REQUIRED_MODULE_IDS.filter(id => achievements[id])
     if (passedIds.length > 0) setLevelCode(generateCode(7, passedIds))
+    // Punkt 3: Sicherstellen dass alle Achievements gespeichert sind
+    passedIds.forEach(id => saveAchievementLocal(id))
   }, [])
 
   function handleSave() {
     saveMerksatz(merksatz)
     localStorage.setItem('ki_cert_klasse', klasse)
     localStorage.setItem('ki_cert_schule', schule)
+    localStorage.setItem('ki_fussabdruck', fussabdruck)
+    localStorage.setItem('ki_kompass', kiKompass)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -90,20 +96,35 @@ export default function CertificatePage() {
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ fontWeight: 800, display: 'block', marginBottom: '0.375rem' }}>💬 Dein persönlicher Merksatz</label>
-              <p style={{ margin: '0 0 0.5rem', fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>
-                Was nimmst du aus dem KI-Führerschein mit? Dieser Satz erscheint auf deiner Urkunde.
-              </p>
+              <label style={{ fontWeight: 800, display: 'block', marginBottom: '0.375rem' }}>💬 Dein persönlicher Merksatz (erscheint auf der Urkunde)</label>
               <textarea value={merksatz} onChange={e => setMerksatz(e.target.value)}
                 placeholder="z. B. KI ist ein Werkzeug – ich entscheide, wie ich es einsetze."
-                rows={3} maxLength={200}
+                rows={2} maxLength={200}
                 style={{ width: '100%', padding: '0.75rem', border: '2px solid var(--c-border)', borderRadius: 'var(--r-lg)', font: 'inherit', resize: 'vertical' }} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.5rem' }}>
-                <button className="btn btn-success" onClick={handleSave}>
-                  {saved ? '✓ Gespeichert!' : 'Merksatz speichern'}
-                </button>
-                <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>{merksatz.length}/200 · Nur lokal gespeichert</span>
-              </div>
+              <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>{merksatz.length}/200</span>
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ fontWeight: 800, display: 'block', marginBottom: '0.375rem' }}>🌐 Digitaler Fußabdruck (für Rückseite)</label>
+              <textarea value={fussabdruck} onChange={e => setFussabdruck(e.target.value)}
+                placeholder="Ein digitaler Fußabdruck ist für mich …"
+                rows={2} maxLength={200}
+                style={{ width: '100%', padding: '0.75rem', border: '2px solid var(--c-border)', borderRadius: 'var(--r-lg)', font: 'inherit', resize: 'vertical' }} />
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ fontWeight: 800, display: 'block', marginBottom: '0.375rem' }}>🧭 Mein KI-Kompass (für Rückseite)</label>
+              <textarea value={kiKompass} onChange={e => setKiKompass(e.target.value)}
+                placeholder="Bevor ich KI nutze, frage ich mich …"
+                rows={2} maxLength={200}
+                style={{ width: '100%', padding: '0.75rem', border: '2px solid var(--c-border)', borderRadius: 'var(--r-lg)', font: 'inherit', resize: 'vertical' }} />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <button className="btn btn-success" onClick={handleSave}>
+                {saved ? '✓ Gespeichert!' : 'Alles speichern'}
+              </button>
+              <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>Nur lokal gespeichert · Kein Upload</span>
             </div>
 
             {levelCode && (
@@ -143,6 +164,8 @@ export default function CertificatePage() {
           level={level}
           klasse={klasse}
           schule={schule}
+          fussabdruck={fussabdruck}
+          kiKompass={kiKompass}
         />
       </div>
 
@@ -174,8 +197,11 @@ export default function CertificatePage() {
             padding: 12mm !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            page-break-after: avoid !important;
+            page-break-after: always !important;
             page-break-inside: avoid !important;
+          }
+          .cert-back {
+            margin-top: 0 !important;
           }
           .cert-inner {
             height: calc(297mm - 24mm) !important;
@@ -187,7 +213,7 @@ export default function CertificatePage() {
 }
 
 // Urkunden-Komponente (separat für saubere Drucklogik)
-function Certificate({ studentName, merksatz, levelCode, today, achievements, base, level, klasse, schule }) {
+function Certificate({ studentName, merksatz, levelCode, today, achievements, base, level, klasse, schule, fussabdruck, kiKompass }) {
   return (
     <div className="cert-page" style={{
       width: '210mm',
@@ -314,6 +340,57 @@ function Certificate({ studentName, merksatz, levelCode, today, achievements, ba
           </div>
 
           <div style={{ textAlign: 'center', fontSize: '7pt', color: '#547080', marginTop: '4mm' }}>
+            KI-Führerschein · Klasse 7 · Alle vier Pflichtmodule bestanden · SLZB
+          </div>
+        </div>
+      </div>
+
+
+{/* ── Rückseite (nur beim Drucken) ── */}
+      <div className="cert-page cert-back" style={{
+        width: '210mm', maxWidth: '100%', background: 'white',
+        boxShadow: '0 8px 40px rgba(0,0,0,0.2)', borderRadius: '8px',
+        padding: '12mm', boxSizing: 'border-box', marginTop: '1rem',
+      }}>
+        <div style={{ border: '4px solid #087f83', outline: '2px solid #ffda76', outlineOffset: '-10px', padding: '8mm 10mm', boxSizing: 'border-box', height: 'calc(297mm - 24mm)', display: 'flex', flexDirection: 'column', gap: '6mm', background: 'radial-gradient(ellipse at 50% 0%, #e8f7f4 0%, white 60%)' }}>
+          
+          {/* Header Rückseite */}
+          <div style={{ textAlign: 'center', borderBottom: '2px solid #087f83', paddingBottom: '4mm' }}>
+            <div style={{ fontWeight: 800, letterSpacing: '2px', color: '#087f83', fontSize: '9pt', textTransform: 'uppercase' }}>
+              KI-Führerschein · Klasse {klasse || '7'} · Rückseite
+            </div>
+            <div style={{ fontWeight: 900, fontSize: '16pt', color: '#095c6b', marginTop: '2mm' }}>Meine Erkenntnisse</div>
+            <div style={{ fontSize: '10pt', color: '#536f7c' }}>{studentName || 'Name'}</div>
+          </div>
+
+          {/* Merksatz-Felder */}
+          {[
+            { label: '💬 Mein persönlicher Merksatz', value: merksatz, placeholder: 'KI ist ein Werkzeug – ich entscheide, wie ich es einsetze.' },
+            { label: '🌐 Digitaler Fußabdruck', value: fussabdruck, placeholder: 'Ein digitaler Fußabdruck ist für mich …' },
+            { label: '🧭 Mein KI-Kompass', value: kiKompass, placeholder: 'Bevor ich KI nutze, frage ich mich …' },
+          ].map((field, i) => (
+            <div key={i} style={{ flex: 1 }}>
+              <div style={{ fontWeight: 800, fontSize: '9pt', color: '#087f83', marginBottom: '2mm', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{field.label}</div>
+              <div style={{ borderLeft: '4px solid #ffda76', paddingLeft: '4mm', minHeight: '16mm', background: '#f0fafb', borderRadius: '0 6px 6px 0', padding: '3mm 4mm', fontSize: '10pt', color: field.value ? '#163348' : '#aaa', fontStyle: field.value ? 'normal' : 'italic' }}>
+                {field.value || field.placeholder}
+              </div>
+            </div>
+          ))}
+
+          {/* Reflexionsfragen */}
+          <div style={{ flex: 2 }}>
+            <div style={{ fontWeight: 800, fontSize: '9pt', color: '#087f83', marginBottom: '3mm', textTransform: 'uppercase', letterSpacing: '0.05em' }}>📝 Reflexion</div>
+            {['Was war meine überraschendste Erkenntnis?', 'Wie werde ich KI in Zukunft anders nutzen?'].map((q, i) => (
+              <div key={i} style={{ marginBottom: '4mm' }}>
+                <div style={{ fontSize: '8pt', fontWeight: 700, color: '#536f7c', marginBottom: '1mm' }}>{q}</div>
+                <div style={{ borderBottom: '1px solid #7196a7', height: '8mm' }} />
+                <div style={{ borderBottom: '1px solid #7196a7', height: '8mm' }} />
+              </div>
+            ))}
+          </div>
+
+          {/* Footer */}
+          <div style={{ textAlign: 'center', fontSize: '7pt', color: '#547080', borderTop: '1px solid #7196a7', paddingTop: '3mm' }}>
             KI-Führerschein · Klasse 7 · Alle vier Pflichtmodule bestanden · SLZB
           </div>
         </div>

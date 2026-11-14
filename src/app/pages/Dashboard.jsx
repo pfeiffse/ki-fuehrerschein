@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+const BASE = import.meta.env.BASE_URL
 import { MODULES, REQUIRED_MODULE_IDS, getAchievementsLocal, allRequiredPassed, getXP, getLevel, saveAchievementLocal } from '../../lib/achievements.js'
 import { loadAllProgress } from '../../lib/progress.js'
 import { applyCode } from '../../lib/levelCode.js'
@@ -241,6 +242,34 @@ export default function Dashboard({ student }) {
               </div>
             )
           })}
+        </div>
+
+        {/* Arbeitsblatt + Feedback */}
+        <div style={{ marginTop: 'var(--sp-lg)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', maxWidth: '780px' }}>
+          <a href={BASE + 'arbeitsblatt.html'} target="_blank" rel="noopener"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', color: 'white', textDecoration: 'none' }}>
+            <span style={{ fontSize: '1.5rem' }}>📋</span>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 'var(--fs-sm)' }}>Arbeitsblatt</div>
+              <div style={{ fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.6)' }}>Merksätze & Reflexion drucken</div>
+            </div>
+          </a>
+          {eligible && (
+            <a href="https://forms.gle/feedback-ki-fuehrerschein" target="_blank" rel="noopener"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,178,37,0.15)', border: '1px solid rgba(255,178,37,0.4)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', color: 'white', textDecoration: 'none' }}>
+              <span style={{ fontSize: '1.5rem' }}>💬</span>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 'var(--fs-sm)' }}>Feedback geben</div>
+                <div style={{ fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.6)' }}>Was hat dir gefallen?</div>
+              </div>
+            </a>
+          )}
+        </div>
+
+        {/* Footer-Links */}
+        <div style={{ marginTop: 'var(--sp-lg)', paddingBottom: 'var(--sp-xl)', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <button onClick={() => navigate('/datenschutz')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 'var(--fs-xs)', cursor: 'pointer', fontFamily: 'inherit' }}>Datenschutz</button>
+          <button onClick={() => navigate('/meine-daten')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 'var(--fs-xs)', cursor: 'pointer', fontFamily: 'inherit' }}>Meine Daten</button>
         </div>
       </div>
     </div>

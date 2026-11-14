@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KI-Führerschein · Arbeitsblatt</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700;800&display=swap');
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Fira Sans', system-ui, sans-serif;
+    color: #17243b;
+    background: white;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 15mm 15mm 15mm 15mm;
+  }
+
+  @media print {
+    body { font-size: 10pt; }
+    .no-print { display: none !important; }
+    .page-break { page-break-before: always; }
+  }
+
+  .page {
+    max-width: 180mm;
+    margin: 0 auto;
+    padding: 10mm;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 4px solid #00295f;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+  .header-left h1 {
+    font-size: 18pt;
+    font-weight: 800;
+    color: #00295f;
+  }
+  .header-left p {
+    font-size: 10pt;
+    color: #56667c;
+    margin-top: 2px;
+  }
+  .stripe {
+    height: 4px;
+    background: linear-gradient(90deg, #ffb225 0 25%, #e70c14 25% 50%, #1b1b1b 50% 75%, #3aa533 75%);
+    margin-bottom: 16px;
+  }
+
+  /* Schüler-Info */
+  .student-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1.5px solid #d5e0ee;
+    border-radius: 8px;
+    background: #f4f8fd;
+  }
+  .field label {
+    display: block;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #56667c;
+    margin-bottom: 4px;
+  }
+  .field .line {
+    border-bottom: 1.5px solid #17243b;
+    height: 22px;
+  }
+
+  /* Modul-Abschnitte */
+  .modul {
+    margin-bottom: 20px;
+    border: 1.5px solid #d5e0ee;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .modul-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    color: white;
+    font-weight: 800;
+    font-size: 11pt;
+  }
+  .modul-body {
+    padding: 12px;
+  }
+
+  /* Merksatz-Box */
+  .merksatz-box {
+    border: 1.5px solid #d5e0ee;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    background: #f4f8fd;
+  }
+  .merksatz-box .label {
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #56667c;
+    margin-bottom: 6px;
+  }
+  .merksatz-box .lines {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .merksatz-box .line {
+    border-bottom: 1px solid #b0bfcd;
+    height: 20px;
+  }
+
+  /* Achievement */
+  .achievement {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 9pt;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+  .achievement .icon { font-size: 16pt; }
+  .achievement .check {
+    margin-left: auto;
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  /* Notizen */
+  .notizen {
+    margin-top: 8px;
+  }
+  .notizen .label {
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #56667c;
+    margin-bottom: 4px;
+  }
+  .notizen .line {
+    border-bottom: 1px solid #d5e0ee;
+    height: 20px;
+    margin-bottom: 4px;
+  }
+
+  /* Zertifikat-Bereich */
+  .cert-section {
+    border: 2px solid #ffb225;
+    border-radius: 10px;
+    padding: 12px;
+    background: #fffbeb;
+    margin-top: 16px;
+  }
+  .cert-section h3 {
+    color: #92400e;
+    font-size: 11pt;
+    margin-bottom: 8px;
+  }
+
+  /* Rückseite */
+  .rueckseite {
+    margin-top: 20px;
+  }
+  .rueckseite h2 {
+    font-size: 14pt;
+    color: #00295f;
+    border-bottom: 2px solid #00295f;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+  }
+  .reflexion-box {
+    border: 1.5px solid #d5e0ee;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+  .reflexion-box h4 {
+    font-size: 10pt;
+    color: #00295f;
+    margin-bottom: 8px;
+  }
+  .big-line {
+    border-bottom: 1px solid #b0bfcd;
+    height: 24px;
+    margin-bottom: 6px;
+  }
+
+  .print-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #00295f;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .print-btn:hover { background: #063b81; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>🤖 KI-Führerschein</h1>
+      <p>Klasse 7 · SLZB · Arbeitsblatt</p>
+    </div>
+    <div style="text-align:right; font-size:9pt; color:#56667c;">
+      <div style="font-weight:800; color:#00295f;">KI am SLZB</div>
+      <div>Schuljahr 2026/27</div>
+    </div>
+  </div>
+  <div class="stripe"></div>
+
+  <!-- Schüler-Info -->
+  <div class="student-info">
+    <div class="field">
+      <label>Name</label>
+      <div class="line"></div>
+    </div>
+    <div class="field">
+      <label>Klasse</label>
+      <div class="line"></div>
+    </div>
+    <div class="field">
+      <label>Datum</label>
+      <div class="line"></div>
+    </div>
+  </div>
+
+  <!-- Modul 1 -->
+  <div class="modul">
+    <div class="modul-header" style="background:#1d77bd;">
+      <span style="font-size:18pt;">🤖</span>
+      <div>
+        <div>Modul 1 · Was ist KI?</div>
+        <div style="font-size:9pt; font-weight:400; opacity:0.85;">Trainingsdaten · Mustererkennung · Sprach-KI</div>
+      </div>
+    </div>
+    <div class="modul-body">
+      <div class="merksatz-box">
+        <div class="label">📌 Mein Merksatz zu Trainingsdaten</div>
+        <div class="lines">
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="merksatz-box">
+        <div class="label">📌 Mein Merksatz zu Mustererkennung / Bias</div>
+        <div class="lines">
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="merksatz-box">
+        <div class="label">📌 Mein Merksatz zu Sprach-KI</div>
+        <div class="lines">
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="achievement" style="background:#e6f0ff; color:#1d77bd;">
+        <span class="icon">🔍</span>
+        <span>Achievement: KI-Versteher:in</span>
+        <div class="check"></div>
+      </div>
+      <div class="notizen">
+        <div class="label">Notizen</div>
+        <div class="line"></div>
+        <div class="line"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modul 2 -->
+  <div class="modul">
+    <div class="modul-header" style="background:#c26a00;">
+      <span style="font-size:18pt;">✅</span>
+      <div>
+        <div>Modul 2 · KI sinnvoll nutzen</div>
+        <div style="font-size:9pt; font-weight:400; opacity:0.85;">Fehler erkennen · Prompts · Verantwortung</div>
+      </div>
+    </div>
+    <div class="modul-body">
+      <div class="merksatz-box">
+        <div class="label">📌 Die 5 Grundsätze (in eigenen Worten)</div>
+        <div class="lines">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="merksatz-box">
+        <div class="label">📌 Mein KI-Kompass (persönliche Regel)</div>
+        <div class="lines">
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="achievement" style="background:#fff4dc; color:#c26a00;">
+        <span class="icon">✅</span>
+        <span>Achievement: KI-Checker:in</span>
+        <div class="check"></div>
+      </div>
+      <div class="notizen">
+        <div class="label">Notizen</div>
+        <div class="line"></div>
+        <div class="line"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modul 3 -->
+  <div class="modul">
+    <div class="modul-header" style="background:#d0121a;">
+      <span style="font-size:18pt;">🛡️</span>
+      <div>
+        <div>Modul 3 · Kennzeichnung & Datenschutz</div>
+        <div style="font-size:9pt; font-weight:400; opacity:0.85;">Ben plant eine Party · Spuren im Netz · Kennzeichnungspflicht</div>
+      </div>
+    </div>
+    <div class="modul-body">
+      <div class="merksatz-box">
+        <div class="label">📌 Was habe ich über digitale Privatsphäre gelernt?</div>
+        <div class="lines">
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="merksatz-box">
+        <div class="label">📌 Mein digitaler Fußabdruck – was bedeutet das für mich?</div>
+        <div class="lines">
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="merksatz-box">
+        <div class="label">📌 Wann muss ich KI-Nutzung kennzeichnen?</div>
+        <div class="lines">
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="achievement" style="background:#fdeaea; color:#d0121a;">
+        <span class="icon">🏷️</span>
+        <span>Achievement: KI-Verantwortliche:r</span>
+        <div class="check"></div>
+      </div>
+      <div class="notizen">
+        <div class="label">Notizen</div>
+        <div class="line"></div>
+        <div class="line"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modul 4 -->
+  <div class="modul">
+    <div class="modul-header" style="background:#2b8a2b;">
+      <span style="font-size:18pt;">🌱</span>
+      <div>
+        <div>Modul 4 · KI & Nachhaltigkeit</div>
+        <div style="font-size:9pt; font-weight:400; opacity:0.85;">Ressourcen · Energie · Bewusster Einsatz</div>
+      </div>
+    </div>
+    <div class="modul-body">
+      <div class="merksatz-box">
+        <div class="label">📌 Was kostet eine KI-Anfrage? (Energie & Wasser)</div>
+        <div class="lines">
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="merksatz-box">
+        <div class="label">📌 Meine persönliche KI-Nachhaltigkeitsregel</div>
+        <div class="lines">
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+      <div class="achievement" style="background:#e6f5e4; color:#2b8a2b;">
+        <span class="icon">🌱</span>
+        <span>Achievement: KI-Nachhaltigkeits-Profi</span>
+        <div class="check"></div>
+      </div>
+      <div class="notizen">
+        <div class="label">Notizen</div>
+        <div class="line"></div>
+        <div class="line"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zertifikat-Bereich -->
+  <div class="cert-section">
+    <h3>🏆 KI-Führerschein – Abschluss</h3>
+    <p style="font-size:9pt; color:#78350f; margin-bottom:10px;">Nach Abschluss aller vier Module erhältst du deinen KI-Führerschein. Trage hier deinen persönlichen Merksatz ein:</p>
+    <div class="merksatz-box" style="background:white; border-color:#fde68a;">
+      <div class="label">🌟 Mein persönlicher Merksatz für den KI-Führerschein</div>
+      <div class="lines">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;">
+      <div class="field">
+        <label>Vorleistungs-Code (für Klasse 8)</label>
+        <div class="line" style="font-family:monospace; font-size:14pt; font-weight:900; color:#00295f; border-bottom:2px solid #00295f; height:28px;"></div>
+      </div>
+      <div class="field">
+        <label>Punkte erreicht</label>
+        <div class="line" style="height:28px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rückseite -->
+  <div class="page-break"></div>
+  <div class="rueckseite">
+    <div class="header">
+      <div class="header-left">
+        <h1>🤖 KI-Führerschein · Rückseite</h1>
+        <p>Reflexion & Vertiefung</p>
+      </div>
+    </div>
+    <div class="stripe"></div>
+
+    <h2>Reflexionsfragen</h2>
+
+    <div class="reflexion-box">
+      <h4>1. Was war für dich die überraschendste Erkenntnis aus dem KI-Führerschein?</h4>
+      <div class="big-line"></div>
+      <div class="big-line"></div>
+      <div class="big-line"></div>
+    </div>
+
+    <div class="reflexion-box">
+      <h4>2. In welcher Situation wirst du KI in Zukunft anders nutzen als bisher?</h4>
+      <div class="big-line"></div>
+      <div class="big-line"></div>
+      <div class="big-line"></div>
+    </div>
+
+    <div class="reflexion-box">
+      <h4>3. Was würdest du einem Freund / einer Freundin über KI erklären?</h4>
+      <div class="big-line"></div>
+      <div class="big-line"></div>
+      <div class="big-line"></div>
+    </div>
+
+    <div class="reflexion-box">
+      <h4>4. Digitaler Fußabdruck: Welche Daten hinterlässt du täglich im Netz?</h4>
+      <div class="big-line"></div>
+      <div class="big-line"></div>
+      <div class="big-line"></div>
+    </div>
+
+    <div class="reflexion-box">
+      <h4>5. Mein KI-Kompass – Bevor ich KI nutze, frage ich mich …</h4>
+      <div class="big-line"></div>
+      <div class="big-line"></div>
+      <div class="big-line"></div>
+    </div>
+
+    <div style="margin-top:20px; padding:12px; border:2px dashed #d5e0ee; border-radius:8px; text-align:center; color:#56667c; font-size:9pt;">
+      <strong>Feedback:</strong> Was hat dir am KI-Führerschein gut gefallen? Was würdest du verbessern?<br>
+      <div style="margin-top:8px;">
+        <div class="big-line"></div>
+        <div class="big-line"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ Drucken / PDF</button>
+
+</body>
+</html>

@@ -396,9 +396,9 @@ function BenChatMission({ done, onComplete, color }) {
             <div key={i} style={{ border: `2px solid ${conChecked[i] ? (conAnswers[i] === c.correct ? 'var(--c-success)' : 'var(--c-error)') : 'var(--c-border)'}`, borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-md)', background: conChecked[i] ? (conAnswers[i] === c.correct ? 'var(--c-success-bg)' : 'var(--c-error-bg)') : 'white' }}>
               <p style={{ fontWeight: 700, marginBottom: '0.75rem' }}>{c.q}</p>
               {c.a.map((opt, j) => (
-                <label key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.5rem', cursor: conChecked[i] ? 'default' : 'pointer', fontWeight: conAnswers[i] === j ? 700 : 400 }}>
+                <label key={j} className="option" style={{ cursor: conChecked[i] ? 'default' : 'pointer' }}>
                   <input type="radio" name={`con${i}`} checked={conAnswers[i] === j} disabled={!!conChecked[i]}
-                    onChange={() => setConAnswers(a => ({ ...a, [i]: j }))} style={{ marginTop: '3px', accentColor: color }} />
+                    onChange={() => setConAnswers(a => ({ ...a, [i]: j }))} style={{ accentColor: color }} />
                   {opt}
                 </label>
               ))}
@@ -522,7 +522,7 @@ function FilmMission({ done, onComplete, color }) {
       {phase === 'film' && (
         <>
           <h3 style={{ color }}>▶️ 2. Schau dir „Without Consent" an</h3>
-          <div style={{ background: '#000', borderRadius: 'var(--r-lg)', overflow: 'hidden', marginBottom: 'var(--sp-md)', aspectRatio: '16/9' }}>
+          <div style={{ background: '#111827', borderRadius: 'var(--r-lg)', overflow: 'hidden', marginBottom: 'var(--sp-md)', aspectRatio: '16/9' }}>
             <video controls style={{ width: '100%', height: '100%', display: 'block' }}
               src={BASE + 'without-consent.mp4'}>
               <p style={{ color: 'white', padding: '1rem' }}>
@@ -616,10 +616,10 @@ function RedaktionMission({ done, onComplete, color }) {
           <h3 style={{ margin: '0 0 0.5rem', color: 'var(--c-dark)' }}>{item.headline}</h3>
           <p style={{ color: 'var(--c-muted)', fontSize: 'var(--fs-sm)', marginBottom: '0.75rem' }}>{item.text}</p>
           {item.opts.map((opt, j) => (
-            <label key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.5rem', cursor: checked[i] ? 'default' : 'pointer' }}>
+            <label key={j} className="option" style={{ cursor: checked[i] ? 'default' : 'pointer' }}>
               <input type="radio" name={`news${i}`} checked={answers[i] === j} disabled={!!checked[i]}
-                onChange={() => setAnswers(a => ({ ...a, [i]: j }))} style={{ marginTop: '3px', accentColor: color }} />
-              <span style={{ fontSize: 'var(--fs-sm)' }}>{opt}</span>
+                onChange={() => setAnswers(a => ({ ...a, [i]: j }))} style={{ accentColor: color }} />
+              {opt}
             </label>
           ))}
           {!checked[i] && answers[i] !== undefined && (
