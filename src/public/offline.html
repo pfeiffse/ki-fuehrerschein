@@ -8,70 +8,46 @@
 @font-face { font-family: 'Fira Sans'; font-weight: 400; src: url('./fonts/fira-sans-400.ttf') format('truetype'); }
 @font-face { font-family: 'Fira Sans'; font-weight: 700; src: url('./fonts/fira-sans-700.ttf') format('truetype'); }
 @font-face { font-family: 'Fira Sans'; font-weight: 800; src: url('./fonts/fira-sans-800.ttf') format('truetype'); }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Fira Sans', system-ui, sans-serif; background: #f4f8fd; color: #17243b; font-size: 16px; line-height: 1.5; }
-
-/* Header */
-.topbar { background: #00295f; color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 100; }
-.topbar h1 { font-size: 18px; font-weight: 800; }
-.topbar .sub { font-size: 12px; opacity: 0.7; }
-.stripe { height: 4px; background: linear-gradient(90deg, #ffb225 0 25%, #e70c14 25% 50%, #1b1b1b 50% 75%, #3aa533 75%); }
-.offline-badge { background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.5); color: #fbbf24; border-radius: 99px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
-
-/* Layout */
-.wrap { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
-
-/* Anmeldung */
-.login-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,41,95,0.1); margin-bottom: 24px; }
-.login-card h2 { color: #00295f; margin-bottom: 8px; }
-.login-card p { color: #56667c; font-size: 14px; margin-bottom: 16px; }
-input.f { width: 100%; padding: 11px 14px; border: 2px solid #d5e0ee; border-radius: 10px; font: inherit; font-size: 16px; margin-bottom: 12px; }
-input.f:focus { border-color: #3c9dd7; outline: none; box-shadow: 0 0 0 3px rgba(60,157,215,0.2); }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: inherit; font-weight: 700; border: none; border-radius: 99px; padding: 11px 20px; cursor: pointer; font-size: 15px; }
+.topbar { background: #00295f; color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.stripe { height: 4px; background: linear-gradient(90deg,#ffb225 0 25%,#e70c14 25% 50%,#1b1b1b 50% 75%,#3aa533 75%); }
+.offline-badge { background: rgba(245,158,11,0.25); border: 1px solid rgba(245,158,11,0.5); color: #fbbf24; border-radius: 99px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
+.wrap { max-width: 800px; margin: 0 auto; padding: 20px 16px; }
+.card { background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 4px 14px rgba(0,41,95,0.08); margin-bottom: 16px; }
+.card h2 { margin-bottom: 12px; font-size: 20px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-weight: 700; border: none; border-radius: 99px; padding: 10px 20px; cursor: pointer; font-size: 15px; text-decoration: none; }
 .btn-primary { background: #00295f; color: white; }
 .btn-primary:hover { background: #063b81; }
 .btn-ghost { background: white; color: #00295f; border: 2px solid #d5e0ee; }
 .btn-success { background: #2b8a2b; color: white; }
-.btn-full { width: 100%; }
-
-/* Modul-Karten */
-.module-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
-.module-card { background: white; border-radius: 16px; padding: 16px 20px; box-shadow: 0 4px 14px rgba(0,41,95,0.08); display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
-.module-card:hover { border-color: var(--c); box-shadow: 0 6px 20px rgba(0,41,95,0.15); }
-.module-card.done { border-color: #2b8a2b; background: #f0fdf4; }
-.module-card.locked { opacity: 0.5; cursor: not-allowed; }
-.mod-icon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; font-weight: 900; color: white; background: var(--c); box-shadow: 0 0 0 4px white, 0 0 0 6px var(--c); }
-.mod-icon.done-icon { background: #2b8a2b; box-shadow: 0 0 0 4px white, 0 0 0 6px #2b8a2b; }
-.mod-title { font-size: 17px; font-weight: 800; color: #17243b; margin-bottom: 2px; }
-.mod-sub { font-size: 13px; color: #56667c; }
-.mod-status { font-size: 12px; font-weight: 700; }
-
-/* Info-Box */
-.info-box { background: #eef5fc; border-left: 4px solid #063b81; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 14px; }
-.warn-box { background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 14px; }
-
-/* Fortschritt */
-.progress-bar { height: 8px; background: #e5edf5; border-radius: 99px; overflow: hidden; margin: 8px 0; }
-.progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #ffb225, #f59e0b); transition: width 0.5s ease; }
-
-/* Screens */
-.screen { display: none; }
-.screen.active { display: block; }
-
-/* Modul-Inhalt */
-.card { background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 4px 14px rgba(0,41,95,0.08); margin-bottom: 16px; }
-.card h2 { color: #00295f; margin-bottom: 12px; font-size: 20px; }
+.btn-xp { background: #f59e0b; color: #0f2a3d; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+input.f, textarea.f { width: 100%; padding: 11px 14px; border: 2px solid #d5e0ee; border-radius: 10px; font: inherit; font-size: 15px; margin-bottom: 8px; }
+input.f:focus, textarea.f:focus { border-color: #3c9dd7; outline: none; }
+textarea.f { resize: vertical; }
 .merksatz { background: #fffbeb; border: 2px solid #f59e0b; border-left: 6px solid #f59e0b; border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; }
 .merksatz::before { content: "📋 Auf Arbeitsblatt übertragen!"; display: block; font-size: 11px; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
-.merksatz p { font-weight: 700; color: #78350f; }
-.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-textarea.f { width: 100%; padding: 11px 14px; border: 2px solid #d5e0ee; border-radius: 10px; font: inherit; font-size: 15px; resize: vertical; }
-textarea.f:focus { border-color: #3c9dd7; outline: none; }
+.merksatz p { font-weight: 700; color: #78350f; line-height: 1.5; }
 .done-badge { display: inline-flex; align-items: center; gap: 6px; background: #dcfce7; color: #166534; border: 1px solid #4ade80; border-radius: 99px; padding: 6px 14px; font-weight: 800; font-size: 14px; margin: 8px 0; }
-
-/* Zertifikat */
-.cert-preview { border: 6px solid #087f83; outline: 2px solid #ffda76; outline-offset: -12px; padding: 24px; text-align: center; background: radial-gradient(ellipse at 50% 0%, #e8f7f4, white 60%); border-radius: 4px; margin: 16px 0; }
+.info-box { background: #eef5fc; border-left: 4px solid #063b81; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 14px; }
+.warn-box { background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 14px; }
+.progress-bar { height: 8px; background: #e5edf5; border-radius: 99px; overflow: hidden; margin: 8px 0; }
+.progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg,#ffb225,#f59e0b); transition: width 0.5s; }
+.module-card { background: white; border-radius: 14px; padding: 14px 18px; box-shadow: 0 4px 14px rgba(0,41,95,0.08); display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; margin-bottom: 10px; border: 2px solid transparent; transition: all 0.2s; }
+.module-card.clickable { cursor: pointer; }
+.module-card.clickable:hover { border-color: var(--c); }
+.module-card.done { border-color: #2b8a2b; background: #f0fdf4; }
+.module-card.locked { opacity: 0.5; }
+.mod-circle { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-size: 20px; color: white; background: var(--c); box-shadow: 0 0 0 3px white, 0 0 0 5px var(--c); }
+.screen { display: none; }
+.screen.active { display: block; }
+.option { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 2px solid #d5e0ee; border-radius: 10px; margin-bottom: 8px; cursor: pointer; }
+.option input { margin-top: 2px; width: 18px; height: 18px; accent-color: #063b81; flex-shrink: 0; }
+.option:has(input:checked) { border-color: #063b81; background: #eef5fc; }
+.feedback-correct { background: #dcfce7; border: 2px solid #4ade80; border-radius: 10px; padding: 10px 14px; color: #166534; font-weight: 700; margin-top: 8px; }
+.feedback-wrong { background: #fee2e2; border: 2px solid #fca5a5; border-radius: 10px; padding: 10px 14px; color: #991b1b; font-weight: 700; margin-top: 8px; }
+.step-indicator { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #56667c; margin-bottom: 8px; }
 </style>
 </head>
 <body>
@@ -79,156 +55,354 @@ textarea.f:focus { border-color: #3c9dd7; outline: none; }
 <header class="topbar">
   <div>
     <div style="font-weight:900;font-size:18px;">🤖 KI-Führerschein</div>
-    <div style="font-size:12px;opacity:0.7;">Klasse 7 · SLZB</div>
+    <div style="font-size:12px;opacity:0.7;" id="topbar-name">Offline-Modus</div>
   </div>
-  <div class="offline-badge">📴 Offline-Modus</div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="offline-badge">📴 Offline</div>
+    <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px;" onclick="logout()">Abmelden</button>
+  </div>
 </header>
 <div class="stripe"></div>
 
 <div class="wrap">
 
-  <!-- ANMELDUNG -->
-  <div id="screen-login" class="screen active">
-    <div class="login-card">
-      <h2>🤖 Willkommen zum KI-Führerschein</h2>
-      <p>Du arbeitest im <strong>Offline-Modus</strong>. Deine Daten bleiben ausschließlich auf diesem Gerät – es werden keine Informationen an externe Server übertragen.</p>
-      <div class="warn-box">
-        ⚠️ <strong>Hinweis:</strong> Im Offline-Modus wird dein Fortschritt nur auf diesem Gerät gespeichert. Bei einem Gerätewechsel oder wenn der Browser-Cache geleert wird, geht der Stand verloren. Kein Zertifikat-Druck durch die Lehrkraft möglich.
-      </div>
-      <label style="font-weight:700;display:block;margin-bottom:6px;">Dein Vorname (oder Pseudonym)</label>
-      <input type="text" id="offline-name" class="f" placeholder="z. B. Lena oder Lena7a" maxlength="40" autocomplete="off">
-      <button class="btn btn-primary btn-full" onclick="offlineLogin()">Los geht's →</button>
+<!-- ═══ LOGIN ═══ -->
+<div id="s-login" class="screen active">
+  <div class="card">
+    <h2 style="color:#00295f;">🤖 KI-Führerschein · Offline-Modus</h2>
+    <div class="warn-box" style="margin-bottom:16px;">
+      <strong>📴 Offline-Modus:</strong> Deine Daten bleiben ausschließlich auf diesem Gerät. Kein Server, keine Anmeldung mit Code nötig. Dein Fortschritt geht verloren wenn du den Browser-Cache leerst oder das Gerät wechselst.
     </div>
+    <label style="font-weight:700;display:block;margin-bottom:6px;">Dein Vorname (oder Pseudonym)</label>
+    <input type="text" id="login-name" class="f" placeholder="z. B. Lena oder Lena7a" maxlength="40" autocomplete="off"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">Los geht's →</button>
   </div>
-
-  <!-- DASHBOARD -->
-  <div id="screen-dashboard" class="screen">
-    <div style="margin-bottom:20px;">
-      <div style="font-size:13px;color:#56667c;margin-bottom:4px;">Hallo, <strong id="dash-name"></strong>! 👋</div>
-      <h2 style="color:#00295f;margin-bottom:8px;">Deine Missionen</h2>
-      <div class="progress-bar"><div class="progress-fill" id="dash-progress" style="width:0%"></div></div>
-      <div style="font-size:13px;color:#56667c;" id="dash-progress-text">0 von 4 Modulen abgeschlossen</div>
-    </div>
-
-    <div class="module-grid" id="module-list"></div>
-
-    <div class="info-box">
-      📋 <strong>Arbeitsblätter:</strong> Notiere deine Merksätze auf dem Arbeitsblatt deiner Lehrkraft.
-    </div>
-
-    <div style="margin-top:16px;padding-top:12px;border-top:1px solid #e5edf5;display:flex;gap:12px;flex-wrap:wrap;">
-      <button class="btn btn-ghost" onclick="showScreen('screen-login');localStorage.removeItem('ki_offline_name');" style="font-size:13px;">Abmelden</button>
-      <a href="./datenschutz" style="color:#56667c;font-size:13px;align-self:center;">Datenschutz</a>
-    </div>
-  </div>
-
-  <!-- MODULE (Platzhalter – verlinkt zur Haupt-App) -->
-  <div id="screen-module" class="screen">
-    <div class="card">
-      <div id="module-content"></div>
-    </div>
-    <div class="actions">
-      <button class="btn btn-ghost" onclick="showScreen('screen-dashboard')">← Zurück</button>
-    </div>
-  </div>
-
 </div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="s-dash" class="screen">
+  <div class="card" style="margin-bottom:16px;">
+    <div style="font-size:13px;color:#56667c;margin-bottom:4px;">Hallo, <strong id="dash-name"></strong>! 👋</div>
+    <div class="progress-bar"><div class="progress-fill" id="dash-bar" style="width:0%"></div></div>
+    <div style="font-size:13px;color:#56667c;" id="dash-text">0 von 4 Modulen abgeschlossen</div>
+  </div>
+  <div id="dash-modules"></div>
+  <div class="info-box">📋 Trage deine Merksätze auf dem Arbeitsblatt ein, das du von deiner Lehrkraft bekommst.</div>
+</div>
+
+<!-- ═══ MODUL 1 ═══ -->
+<div id="s-m1" class="screen">
+  <div class="card">
+    <div class="step-indicator">Modul 1 · Was ist KI?</div>
+    <h2 style="color:#1d77bd;">🤖 Was ist KI?</h2>
+    <p style="color:#56667c;margin-bottom:16px;">Trainingsdaten · Mustererkennung · Sprach-KI</p>
+
+    <div id="m1-s1">
+      <h3 style="margin-bottom:8px;">Station 1: Trainingsdaten</h3>
+      <p>Eine KI lernt aus Beispielen. Je mehr und vielfältigere Beispiele sie sieht, desto besser kann sie Muster erkennen.</p>
+      <div class="info-box">🐴 Stell dir vor: Eine KI soll Pferde erkennen. Sie bekommt 100 Fotos von braunen Pferden. Was passiert, wenn sie dann ein weißes Pferd sieht?</div>
+      <div class="merksatz"><p>KI lernt Muster aus Beispielen. Wichtig sind viele und <strong>vielfältige</strong> Trainingsdaten – nicht nur viele ähnliche.</p></div>
+      <div class="actions"><button class="btn btn-xp" onclick="m1Next(2)">Weiter → Station 2</button></div>
+    </div>
+
+    <div id="m1-s2" style="display:none;">
+      <h3 style="margin-bottom:8px;">Station 2: Falsche Muster (Bias)</h3>
+      <p>Eine KI kann auch <strong>falsche Muster</strong> lernen. Wenn alle Trainingsfotos ein Wasserzeichen „R" haben, lernt die KI: „R = Pferd".</p>
+      <div class="info-box">💡 Das nennt man <strong>Bias</strong>: Die KI hat ein falsches Merkmal gelernt. Dann erkennt sie sogar ein Auto als Pferd – wenn es das „R" trägt!</div>
+      <div class="merksatz"><p>KI kann unbeabsichtigt falsche Merkmale lernen. Das nennt man <strong>Bias</strong>. Deshalb ist die sorgfältige Auswahl von Trainingsdaten so wichtig.</p></div>
+      <div class="actions"><button class="btn btn-xp" onclick="m1Next(3)">Weiter → Station 3</button></div>
+    </div>
+
+    <div id="m1-s3" style="display:none;">
+      <h3 style="margin-bottom:8px;">Station 3: Kontext & Wahrscheinlichkeiten</h3>
+      <p>Sprach-KI schaut auf den bisherigen Text und berechnet, welches Wort als nächstes wahrscheinlich kommt.</p>
+      <div class="info-box">🥪 „In der Pause esse ich ein ___" → Sandwich: 65%, Croissant: 30%, Fahrrad: 5%<br>⚽ „Auf dem Sportplatz entdecke ich ein ___" → Ball: 50%, Fahrrad: 45%, Kühlschrank: 5%</div>
+      <p style="margin-top:8px;"><strong>Wahrscheinlich ≠ Richtig!</strong> KI kann auch falsch liegen – sie wählt das häufigste Wort, nicht das korrekte.</p>
+      <div class="merksatz"><p>Der Kontext beeinflusst, welche Wörter wahrscheinlich als nächstes kommen. Wahrscheinlich bedeutet aber nicht richtig – KI kann auch falsch liegen.</p></div>
+      <div class="actions"><button class="btn btn-xp" onclick="m1Next(4)">Weiter → Station 4</button></div>
+    </div>
+
+    <div id="m1-s4" style="display:none;">
+      <h3 style="margin-bottom:8px;">Station 4: Satzwerkstatt</h3>
+      <p>Sprach-KI baut Sätze Schritt für Schritt. Jedes Wort beeinflusst, welche Wörter danach wahrscheinlich sind.</p>
+      <div class="info-box">🧱 Beispiel: „Der Hund ___" → läuft, schläft, bellt (alle passen)<br>„Der Hund läuft ___" → schnell, durch den Park, nach Hause (jetzt sind andere Wörter wahrscheinlich)</div>
+      <div class="merksatz"><p>Eine Sprach-KI erzeugt Texte Schritt für Schritt. Was schon dasteht, beeinflusst, welche Wörter als nächstes wahrscheinlich sind.</p></div>
+      <div class="actions"><button class="btn btn-success" onclick="completeModule('m1')">✓ Modul 1 abschließen</button></div>
+    </div>
+  </div>
+  <div class="actions"><button class="btn btn-ghost" onclick="showDash()">← Zurück</button></div>
+</div>
+
+<!-- ═══ MODUL 2 ═══ -->
+<div id="s-m2" class="screen">
+  <div class="card">
+    <div class="step-indicator">Modul 2 · KI sinnvoll nutzen</div>
+    <h2 style="color:#c26a00;">✅ KI sinnvoll nutzen</h2>
+    <p style="color:#56667c;margin-bottom:16px;">Fehler erkennen · Prompts · Verantwortung</p>
+
+    <div id="m2-s1">
+      <h3 style="margin-bottom:8px;">Die 5 Grundsätze</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div style="background:#fff7ed;border:2px solid #c26a00;border-radius:10px;padding:12px;">
+          <strong style="color:#92400e;">1. Werkzeug</strong><br>
+          <span style="font-size:14px;">KI unterstützt dich. Sie übernimmt weder dein Denken noch deine Verantwortung.</span>
+        </div>
+        <div style="background:#fff7ed;border:2px solid #c26a00;border-radius:10px;padding:12px;">
+          <strong style="color:#92400e;">2. Prüfen</strong><br>
+          <span style="font-size:14px;">Klingt richtig bedeutet nicht automatisch: ist richtig.</span>
+        </div>
+        <div style="background:#fff7ed;border:2px solid #c26a00;border-radius:10px;padding:12px;">
+          <strong style="color:#92400e;">3. Lernen</strong><br>
+          <span style="font-size:14px;">Nutze KI zum Erklären, Üben und Verbessern, nicht zum bloßen Abschreiben.</span>
+        </div>
+        <div style="background:#fff7ed;border:2px solid #c26a00;border-radius:10px;padding:12px;">
+          <strong style="color:#92400e;">4. Genau fragen</strong><br>
+          <span style="font-size:14px;">Nenne Thema, Ziel, Klassenstufe und gewünschte Form.</span>
+        </div>
+        <div style="background:#fff7ed;border:2px solid #c26a00;border-radius:10px;padding:12px;grid-column:1/-1;">
+          <strong style="color:#92400e;">5. Kritisch bleiben</strong><br>
+          <span style="font-size:14px;">KI-Ergebnisse können einseitig, unfair oder unvollständig sein.</span>
+        </div>
+      </div>
+      <div class="merksatz"><p>KI unterstützt dich – sie übernimmt weder dein Denken noch deine Verantwortung. Prüfe KI-Antworten immer kritisch.</p></div>
+      <div class="actions"><button class="btn btn-xp" onclick="m2Next(2)">Weiter</button></div>
+    </div>
+
+    <div id="m2-s2" style="display:none;">
+      <h3 style="margin-bottom:8px;">KI-Fehler erkennen</h3>
+      <p>KI kann Fehler machen – auch wenn die Antwort überzeugend klingt. Das nennt man <strong>Halluzination</strong>.</p>
+      <div class="info-box">🕵️ Aufgabe: Öffne <a href="https://app.ais-chat.de" target="_blank" style="color:#063b81;">app.ais-chat.de</a> und stelle der KI eine Frage zu einem Thema, das du kennst. Prüfe die Antwort: Was stimmt? Was ist falsch?</div>
+      <div class="merksatz"><p>KI-Antworten klingen oft überzeugend – aber sie können falsch sein. Prüfe immer mit verlässlichen Quellen.</p></div>
+      <div class="actions"><button class="btn btn-xp" onclick="m2Next(3)">Weiter</button></div>
+    </div>
+
+    <div id="m2-s3" style="display:none;">
+      <h3 style="margin-bottom:8px;">Mein KI-Kompass</h3>
+      <p>Formuliere deine persönliche Regel für den Umgang mit KI:</p>
+      <label style="font-weight:700;display:block;margin:8px 0 4px;">Bevor ich KI nutze, frage ich mich …</label>
+      <textarea class="f" id="m2-kompass" rows="3" placeholder="z. B. … ob ich das auch selbst herausfinden könnte und ob KI hier wirklich hilft."></textarea>
+      <div class="merksatz"><p>Mein KI-Kompass: Bevor ich KI nutze, frage ich mich, ob sie wirklich notwendig ist und ob ich die Antwort selbst überprüfen kann.</p></div>
+      <div class="actions"><button class="btn btn-success" onclick="completeModule('m2')">✓ Modul 2 abschließen</button></div>
+    </div>
+  </div>
+  <div class="actions"><button class="btn btn-ghost" onclick="showDash()">← Zurück</button></div>
+</div>
+
+<!-- ═══ MODUL 3 ═══ -->
+<div id="s-m3" class="screen">
+  <div class="card">
+    <div class="step-indicator">Modul 3 · Kennzeichnung & Datenschutz</div>
+    <h2 style="color:#d0121a;">🛡️ Kennzeichnung & Datenschutz</h2>
+    <p style="color:#56667c;margin-bottom:16px;">Ben plant eine Party · Digitale Privatsphäre · Kennzeichnungspflicht</p>
+
+    <div id="m3-s1">
+      <h3 style="margin-bottom:8px;">Ben plant eine Party</h3>
+      <p>Ben chattet mit einer KI und verrät dabei viele persönliche Informationen:</p>
+      <div style="background:#1a1a2e;border-radius:12px;padding:16px;margin:12px 0;">
+        <div style="color:#4ade80;font-size:12px;margin-bottom:8px;">🤖 KI-Assistent · Online</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:#2859d8;color:white;border-radius:10px 10px 3px 10px;padding:8px 12px;align-self:flex-end;max-width:80%;font-size:14px;">Hey, ich werde nächste Woche 13! Wir feiern in der Lindenstraße 18 in Berlin.</div>
+          <div style="background:#1e1e3a;color:white;border-radius:10px 10px 10px 3px;padding:8px 12px;max-width:80%;font-size:14px;">Klingt toll! Wie viele Gäste kommen?</div>
+          <div style="background:#2859d8;color:white;border-radius:10px 10px 3px 10px;padding:8px 12px;align-self:flex-end;max-width:80%;font-size:14px;">Ungefähr zwölf. Meine Eltern sind freitags bis 19 Uhr arbeiten.</div>
+        </div>
+      </div>
+      <p><strong>Was hat Ben verraten?</strong> Adresse, Alter, Schule, Tagesablauf, wann Eltern weg sind...</p>
+      <div class="merksatz"><p>Einzelne Informationen wirken harmlos. Zusammen können sie verraten, wo du wohnst, wann du allein bist und wie man dich findet. Teile nur Daten, die für deine Frage wirklich nötig sind.</p></div>
+      <div class="actions"><button class="btn btn-xp" onclick="m3Next(2)">Weiter</button></div>
+    </div>
+
+    <div id="m3-s2" style="display:none;">
+      <h3 style="margin-bottom:8px;">Digitale Privatsphäre</h3>
+      <p>Was bedeutet digitale Privatsphäre für dich?</p>
+      <textarea class="f" id="m3-privacy" rows="3" placeholder="Ich denke, digitale Privatsphäre bedeutet, dass …"></textarea>
+      <div class="info-box">🎬 Tipp: Schau dir den Film „Without Consent" an – er zeigt, was passiert wenn persönliche Bilder ohne Zustimmung weitergegeben werden.</div>
+      <div class="merksatz"><p>Deine Bilder und Informationen gehören zu deiner Privatsphäre. Du hast das Recht mitzubestimmen, wer sie sieht und verwendet.</p></div>
+      <div class="actions"><button class="btn btn-xp" onclick="m3Next(3)">Weiter</button></div>
+    </div>
+
+    <div id="m3-s3" style="display:none;">
+      <h3 style="margin-bottom:8px;">Kennzeichnungspflicht</h3>
+      <p>Wann muss ich KI-Nutzung kennzeichnen?</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin:12px 0;">
+        <label class="option"><input type="radio" name="m3q" value="a"> Nur wenn die Lehrkraft es ausdrücklich verlangt.</label>
+        <label class="option"><input type="radio" name="m3q" value="b"> Immer wenn KI-generierte Inhalte als eigene Arbeit ausgegeben werden könnten.</label>
+        <label class="option"><input type="radio" name="m3q" value="c"> Nie – KI ist nur ein Werkzeug wie ein Taschenrechner.</label>
+      </div>
+      <div id="m3-feedback"></div>
+      <div class="actions">
+        <button class="btn btn-xp" onclick="checkM3()">Antwort prüfen</button>
+      </div>
+    </div>
+  </div>
+  <div class="actions"><button class="btn btn-ghost" onclick="showDash()">← Zurück</button></div>
+</div>
+
+<!-- ═══ MODUL 4 ═══ -->
+<div id="s-m4" class="screen">
+  <div class="card">
+    <div class="step-indicator">Modul 4 · KI & Nachhaltigkeit</div>
+    <h2 style="color:#2b8a2b;">🌱 KI & Nachhaltigkeit</h2>
+    <p style="color:#56667c;margin-bottom:16px;">Ressourcen · Energie · Bewusster Einsatz</p>
+
+    <div id="m4-s1">
+      <h3 style="margin-bottom:8px;">Was kostet eine KI-Anfrage?</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;">
+        <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:4px;">💧</div>
+          <strong style="color:#166534;">Wasser</strong><br>
+          <span style="font-size:13px;color:#56667c;">Eine KI-Anfrage verbraucht ca. 0,5 ml Wasser zur Kühlung der Server</span>
+        </div>
+        <div style="background:#fefce8;border:2px solid #eab308;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:4px;">⚡</div>
+          <strong style="color:#713f12;">Energie</strong><br>
+          <span style="font-size:13px;color:#56667c;">Ca. 0,3 Wh pro Anfrage – 50 Anfragen ≈ 1 Handy-Akkuladung</span>
+        </div>
+        <div style="background:#f5f3ff;border:2px solid #8b5cf6;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:4px;">🖥️</div>
+          <strong style="color:#4c1d95;">Rechenzentren</strong><br>
+          <span style="font-size:13px;color:#56667c;">Riesige Serverfarmen mit leistungsstarken Chips – Kühlung verbraucht bis zu 30% der Energie</span>
+        </div>
+        <div style="background:#ecfdf5;border:2px solid #10b981;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:4px;">🌍</div>
+          <strong style="color:#064e3b;">Rohstoffe</strong><br>
+          <span style="font-size:13px;color:#56667c;">KI-Chips brauchen seltene Metalle – deren Abbau belastet die Umwelt</span>
+        </div>
+      </div>
+      <div class="merksatz"><p>KI-Anfragen verbrauchen Energie und Wasser. Viele kleine Anfragen summieren sich. Überlege vor jeder Anfrage, ob sie wirklich notwendig ist.</p></div>
+      <div class="actions"><button class="btn btn-xp" onclick="m4Next(2)">Weiter</button></div>
+    </div>
+
+    <div id="m4-s2" style="display:none;">
+      <h3 style="margin-bottom:8px;">Meine Nachhaltigkeitsregel</h3>
+      <p>In welchen Situationen würdest du auf KI verzichten?</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin:12px 0;" id="m4-situations">
+        <label class="option"><input type="checkbox" value="s1"> Wenn ich eine einfache Frage auch selbst beantworten kann</label>
+        <label class="option"><input type="checkbox" value="s2"> Wenn ich nur ein kurzes Bild generieren möchte</label>
+        <label class="option"><input type="checkbox" value="s3"> Wenn ich Hausaufgaben komplett von KI schreiben lassen würde</label>
+        <label class="option"><input type="checkbox" value="s4"> Wenn ich etwas aus Neugier frage, das ich auch googeln könnte</label>
+      </div>
+      <label style="font-weight:700;display:block;margin:8px 0 4px;">Meine persönliche Nachhaltigkeitsregel:</label>
+      <textarea class="f" id="m4-regel" rows="2" placeholder="Ich nutze KI bewusst, indem ich …"></textarea>
+      <div class="merksatz"><p>Überlege vor jeder KI-Anfrage, ob sie wirklich notwendig und sinnvoll ist. Bewusster Einsatz schont Ressourcen und fördert eigenes Denken.</p></div>
+      <div class="actions"><button class="btn btn-success" onclick="completeModule('m4')">✓ Modul 4 abschließen</button></div>
+    </div>
+  </div>
+  <div class="actions"><button class="btn btn-ghost" onclick="showDash()">← Zurück</button></div>
+</div>
+
+</div><!-- /wrap -->
 
 <script>
 const MODS = [
-  { id:'m1', title:'Was ist KI?',              sub:'Trainingsdaten · Mustererkennung · Sprach-KI', icon:'🤖', color:'#1d77bd',
-    merksatz:'KI lernt Muster aus Beispielen. Wichtig sind viele und vielfältige Trainingsdaten.',
-    link: window.location.origin + '/ki-fuehrerschein/#/modul/01' },
-  { id:'m2', title:'KI sinnvoll nutzen',        sub:'Fehler erkennen · Prompts · Verantwortung',   icon:'✅', color:'#c26a00',
-    merksatz:'KI unterstützt dich – sie übernimmt weder dein Denken noch deine Verantwortung.',
-    link: window.location.origin + '/ki-fuehrerschein/#/modul/02' },
-  { id:'m3', title:'Kennzeichnung & Datenschutz',sub:'Digitale Privatsphäre · Kennzeichnungspflicht',icon:'🛡️',color:'#d0121a',
-    merksatz:'Einzelne Informationen wirken harmlos. Zusammen können sie verraten, wer du bist.',
-    link: window.location.origin + '/ki-fuehrerschein/#/modul/03' },
-  { id:'m4', title:'KI & Nachhaltigkeit',        sub:'Ressourcen · Energie · Bewusster Einsatz',   icon:'🌱', color:'#2b8a2b',
-    merksatz:'Überlege vor jeder KI-Anfrage, ob sie wirklich notwendig und sinnvoll ist.',
-    link: window.location.origin + '/ki-fuehrerschein/#/modul/04' },
+  { id:'m1', title:'Was ist KI?',               sub:'Trainingsdaten · Mustererkennung · Sprach-KI', icon:'🤖', color:'#1d77bd' },
+  { id:'m2', title:'KI sinnvoll nutzen',         sub:'Fehler erkennen · Prompts · Verantwortung',   icon:'✅', color:'#c26a00' },
+  { id:'m3', title:'Kennzeichnung & Datenschutz',sub:'Digitale Privatsphäre · Kennzeichnungspflicht',icon:'🛡️',color:'#d0121a' },
+  { id:'m4', title:'KI & Nachhaltigkeit',         sub:'Ressourcen · Energie · Bewusster Einsatz',   icon:'🌱', color:'#2b8a2b' },
 ]
 
-function getProgress() {
-  try { return JSON.parse(localStorage.getItem('ki_offline_progress') || '{}') } catch { return {} }
-}
-function saveProgress(p) { localStorage.setItem('ki_offline_progress', JSON.stringify(p)) }
+function getP() { try { return JSON.parse(localStorage.getItem('ki_off_prog')||'{}') } catch { return {} } }
+function saveP(p) { localStorage.setItem('ki_off_prog', JSON.stringify(p)) }
+function getName() { return localStorage.getItem('ki_off_name')||'' }
 
-function offlineLogin() {
-  const name = document.getElementById('offline-name').value.trim()
-  if (!name) { alert('Bitte deinen Namen eingeben.'); return }
-  localStorage.setItem('ki_offline_name', name)
-  showDashboard()
+function doLogin() {
+  const n = document.getElementById('login-name').value.trim()
+  if (!n) { alert('Bitte deinen Namen eingeben.'); return }
+  localStorage.setItem('ki_off_name', n)
+  showDash()
 }
 
-function showScreen(id) {
+function logout() {
+  if (confirm('Wirklich abmelden? Dein Fortschritt bleibt gespeichert.')) {
+    localStorage.removeItem('ki_off_name')
+    show('s-login')
+  }
+}
+
+function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
   document.getElementById(id).classList.add('active')
   window.scrollTo(0,0)
 }
 
-function showDashboard() {
-  const name = localStorage.getItem('ki_offline_name')
-  if (!name) { showScreen('screen-login'); return }
+function showDash() {
+  const name = getName()
+  if (!name) { show('s-login'); return }
+  document.getElementById('topbar-name').textContent = name
   document.getElementById('dash-name').textContent = name
-  const prog = getProgress()
-  const done = MODS.filter(m => prog[m.id]).length
-  document.getElementById('dash-progress').style.width = (done/4*100) + '%'
-  document.getElementById('dash-progress-text').textContent = done + ' von 4 Modulen abgeschlossen'
-
-  const list = document.getElementById('module-list')
-  list.innerHTML = MODS.map((m, i) => {
-    const isDone = !!prog[m.id]
-    const isLocked = i > 0 && !prog[MODS[i-1].id]
-    return `<div class="module-card ${isDone?'done':''} ${isLocked?'locked':''}"
-      style="--c:${m.color}" onclick="${isLocked ? '' : `openModule('${m.id}')`}">
-      <div class="mod-icon ${isDone?'done-icon':''}">${isDone ? '✓' : isLocked ? '🔒' : m.icon}</div>
+  const p = getP()
+  const done = MODS.filter(m => p[m.id]).length
+  document.getElementById('dash-bar').style.width = (done/4*100)+'%'
+  document.getElementById('dash-text').textContent = done+' von 4 Modulen abgeschlossen'
+  document.getElementById('dash-modules').innerHTML = MODS.map((m,i) => {
+    const isDone = !!p[m.id]
+    const isLocked = i > 0 && !p[MODS[i-1].id]
+    return `<div class="module-card ${isDone?'done':''} ${isLocked?'locked':'clickable'}"
+      style="--c:${m.color}" ${isLocked?'':'onclick="openMod(''+m.id+'')"'}>
+      <div class="mod-circle" style="${isDone?'background:#2b8a2b;box-shadow:0 0 0 3px white,0 0 0 5px #2b8a2b':''}">${isDone?'✓':isLocked?'🔒':m.icon}</div>
       <div>
-        <div class="mod-title">${m.title}</div>
-        <div class="mod-sub">${m.sub}</div>
+        <div style="font-weight:800;font-size:16px;">${m.title}</div>
+        <div style="font-size:13px;color:#56667c;">${m.sub}</div>
       </div>
-      <div class="mod-status" style="color:${isDone?'#2b8a2b':isLocked?'#9aa9bf':'#56667c'}">
-        ${isDone ? '✓ Fertig' : isLocked ? 'Gesperrt' : 'Starten →'}
+      <div style="font-size:13px;font-weight:700;color:${isDone?'#2b8a2b':isLocked?'#9aa9bf':'#56667c'}">
+        ${isDone?'✓ Fertig':isLocked?'Gesperrt':'Starten →'}
       </div>
     </div>`
   }).join('')
-  showScreen('screen-dashboard')
+  show('s-dash')
 }
 
-function openModule(id) {
-  const m = MODS.find(x => x.id === id)
-  const prog = getProgress()
-  const isDone = !!prog[id]
+function openMod(id) { show('s-'+id) }
 
-  document.getElementById('module-content').innerHTML = `
-    <h2 style="color:${m.color}">${m.icon} ${m.title}</h2>
-    <p style="color:#56667c;margin-bottom:16px;">${m.sub}</p>
-    <div class="info-box">
-      ℹ️ Im Offline-Modus öffnet sich das Modul in der Haupt-App (neues Fenster).
-      Komm danach hierher zurück und markiere das Modul als abgeschlossen.
-    </div>
-    <div class="merksatz"><p>${m.merksatz}</p></div>
-    ${isDone ? '<div class="done-badge">✓ Modul abgeschlossen</div>' : ''}
-    <div class="actions">
-      <a href="${m.link}" target="_blank" class="btn btn-primary">Modul öffnen →</a>
-      ${!isDone ? `<button class="btn btn-success" onclick="markDone('${id}')">✓ Als abgeschlossen markieren</button>` : ''}
-    </div>
-  `
-  showScreen('screen-module')
+function completeModule(id) {
+  const p = getP(); p[id] = true; saveP(p)
+  alert('✅ Modul abgeschlossen! Trage den Merksatz auf dein Arbeitsblatt ein.')
+  showDash()
 }
 
-function markDone(id) {
-  const prog = getProgress()
-  prog[id] = true
-  saveProgress(prog)
-  showDashboard()
+// Modul 1 Navigation
+function m1Next(step) {
+  document.querySelectorAll('[id^="m1-s"]').forEach(el => el.style.display='none')
+  document.getElementById('m1-s'+step).style.display='block'
+  window.scrollTo(0,0)
+}
+
+// Modul 2 Navigation
+function m2Next(step) {
+  document.querySelectorAll('[id^="m2-s"]').forEach(el => el.style.display='none')
+  document.getElementById('m2-s'+step).style.display='block'
+  window.scrollTo(0,0)
+}
+
+// Modul 3 Navigation
+function m3Next(step) {
+  document.querySelectorAll('[id^="m3-s"]').forEach(el => el.style.display='none')
+  document.getElementById('m3-s'+step).style.display='block'
+  window.scrollTo(0,0)
+}
+
+function checkM3() {
+  const val = document.querySelector('input[name="m3q"]:checked')?.value
+  const fb = document.getElementById('m3-feedback')
+  if (!val) { fb.innerHTML='<div class="feedback-wrong">Bitte wähle eine Antwort aus.</div>'; return }
+  if (val === 'b') {
+    fb.innerHTML='<div class="feedback-correct">✅ Richtig! Kennzeichne KI-Inhalte immer dann, wenn andere wissen müssen, dass eine KI beteiligt war.</div>'
+    setTimeout(() => { completeModule('m3') }, 1500)
+  } else {
+    fb.innerHTML='<div class="feedback-wrong">❌ Nicht ganz. Kennzeichnung ist immer dann wichtig, wenn andere wissen müssen, dass KI beteiligt war – unabhängig von der Schulregel.</div>'
+  }
+}
+
+// Modul 4 Navigation
+function m4Next(step) {
+  document.querySelectorAll('[id^="m4-s"]').forEach(el => el.style.display='none')
+  document.getElementById('m4-s'+step).style.display='block'
+  window.scrollTo(0,0)
 }
 
 // Init
 window.addEventListener('load', () => {
-  const name = localStorage.getItem('ki_offline_name')
-  if (name) showDashboard()
+  if (getName()) showDash()
 })
 </script>
 </body>
