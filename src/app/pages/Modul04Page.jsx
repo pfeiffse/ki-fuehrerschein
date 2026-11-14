@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import ModuleStamp from '../../components/ui/ModuleStamp.jsx'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
 import { startModuleLocal, passModule } from '../../lib/progress.js'
 import Station1 from '../../modules/modul-04/Station1.jsx'
@@ -48,7 +47,6 @@ export default function Modul04Page() {
   const navigate = useNavigate()
   const [state,    setState]    = useState(loadState)
   const [achieved, setAchieved] = useState(() => hasAchievement(MOD.id))
-  const [showStamp,  setShowStamp]  = useState(false)
   const [showAch,  setShowAch]  = useState(null)
 
   useEffect(() => { startModuleLocal(MOD.id) }, [])
@@ -74,7 +72,6 @@ export default function Modul04Page() {
         passModule(MOD.id, 100, 100)
         saveAchievementLocal(MOD.id)
         setAchieved(true)
-        setShowStamp(true)
       }
       return next
     })

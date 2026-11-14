@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import ModuleStamp from '../../components/ui/ModuleStamp.jsx'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
 import { startModuleLocal, passModule, getLocalProgress } from '../../lib/progress.js'
 import Station1 from '../../modules/modul-01/Station1.jsx'
@@ -31,7 +30,6 @@ export default function Modul01Page() {
   const navigate = useNavigate()
   const [state,    setState]    = useState(loadState)
   const [achieved, setAchieved] = useState(() => hasAchievement(MOD.id))
-  const [showStamp,  setShowStamp]  = useState(false)
   const [showAch,  setShowAch]  = useState(null)
 
   useEffect(() => { startModuleLocal(MOD.id) }, [])
@@ -52,7 +50,6 @@ export default function Modul01Page() {
       passModule(MOD.id, 100, 100)
       saveAchievementLocal(MOD.id)
       setAchieved(true)
-      setShowStamp(true)
     }
   }
 
@@ -63,13 +60,6 @@ export default function Modul01Page() {
     <div style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', minHeight: '100vh' }}>
 
       {/* Achievement-Overlay */}
-      {showStamp && (
-        <ModuleStamp
-          moduleName={MOD.title}
-          moduleIcon="🤖"
-          onClose={() => setShowStamp(false)}
-        />
-      )}
       {showAch && (
         <div className="achievement-overlay" onClick={() => setShowAch(null)}>
           <div className="achievement-popup" onClick={e => e.stopPropagation()}>

@@ -119,38 +119,29 @@ export function studentLogout() { clearLocalData() }
 
 export async function teacherLogin(username, password) {
   try {
-    const hash = await sha256(password)
-
-    // Erster Login: prüfen ob Passwort noch nicht gesetzt
-    const { data: existing } = await supabase
+    const { data, error } = await supabase
       .from('teachers')
       .select('id, display_name, role, school_id, pw_hash')
       .eq('username', username.trim().toLowerCase())
       .single()
 
-    if (!existing) return { error: 'Benutzername nicht gefunden.' }
+    if (error || !data) return { error: 'Benutzername nicht gefunden.' }
 
-    // Erster Login: Passwort noch nicht gesetzt → Hash serverseitig speichern
-    if (!existing.pw_hash) {
-      const { error: updateErr } = await supabase
-        .from('teachers')
-        .update({ pw_hash: hash })
-        .eq('id', existing.id)
-      if (updateErr) return { error: 'Fehler beim Setzen des Passworts.' }
-      const teacher = { id: existing.id, display_name: existing.display_name, role: existing.role, school_id: existing.school_id }
+    const hash = await sha256(password)
+
+    // Erster Login: noch kein Passwort gesetzt → Hash speichern
+    if (!data.pw_hash) {
+      await Promise.resolve(
+        supabase.from('teachers').update({ pw_hash: hash }).eq('id', data.id)
+      )
+      const teacher = { id: data.id, display_name: data.display_name, role: data.role, school_id: data.school_id }
       localStorage.setItem(TEACHER_KEY, JSON.stringify(teacher))
       return { teacher }
     }
 
-    // Passwort-Prüfung über Datenbankfunktion (Hash verlässt nie den Browser ungeprüft)
-    const { data, error } = await supabase.rpc('verify_teacher_login', {
-      p_username: username.trim().toLowerCase(),
-      p_pw_hash: hash
-    })
+    if (data.pw_hash !== hash) return { error: 'Falsches Passwort.' }
 
-    if (error || !data || data.length === 0) return { error: 'Falsches Passwort.' }
-
-    const teacher = { id: data[0].id, display_name: data[0].display_name, role: data[0].role, school_id: data[0].school_id }
+    const teacher = { id: data.id, display_name: data.display_name, role: data.role, school_id: data.school_id }
     localStorage.setItem(TEACHER_KEY, JSON.stringify(teacher))
     return { teacher }
   } catch (err) {

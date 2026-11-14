@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import LevelUpOverlay from '../ui/LevelUpOverlay.jsx'
+import { SLZBArcs, SLZBStripe } from '../ui/SLZBArcs.jsx'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { studentLogout } from '../../lib/auth.js'
 import { getXP, getLevel } from '../../lib/achievements.js'
@@ -37,20 +38,22 @@ export default function GameHeader({ student, onLogout }) {
   return (
     <>
       <header style={{
-        background: 'linear-gradient(135deg, #0f2a3d, #1a4a6b)',
+        background: 'linear-gradient(135deg, var(--slzb-navy), var(--slzb-blue))',
+        position: 'relative', overflow: 'hidden',
         color: 'white', padding: '0.625rem 1rem',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         gap: '0.75rem', flexWrap: 'wrap', position: 'sticky', top: 0, zIndex: 100,
         boxShadow: '0 4px 20px rgba(15,42,61,0.4)',
       }}>
+        <SLZBArcs small />
         {/* Logo */}
-        <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 900, fontSize: '1rem' }}>
+        <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 900, fontSize: '1rem', position: 'relative', zIndex: 1 }}>
           🤖 <span>KI-Führerschein</span>
           <span style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '99px', padding: '0.125rem 0.5rem', fontSize: '0.7rem', fontWeight: 700 }}>Klasse 7</span>
         </Link>
 
         {/* XP + Level */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '12rem', maxWidth: '20rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '12rem', maxWidth: '20rem', position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: level.level >= 2 ? 'rgba(22,163,74,0.3)' : 'rgba(124,58,237,0.3)', border: `1px solid ${level.level >= 2 ? 'rgba(22,163,74,0.6)' : 'rgba(124,58,237,0.6)'}`, borderRadius: '99px', padding: '0.25rem 0.625rem', whiteSpace: 'nowrap' }}>
             <span style={{ fontSize: '0.9rem' }}>{level.icon}</span>
             <span style={{ fontSize: '0.7rem', fontWeight: 800, color: level.level >= 2 ? '#4ade80' : '#c4b5fd' }}>
@@ -84,7 +87,7 @@ export default function GameHeader({ student, onLogout }) {
         </div>
 
         {/* Rechte Seite */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', position: 'relative', zIndex: 1 }}>
           {location.pathname !== '/dashboard' && (
             <Link to="/dashboard" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontSize: '0.8rem', fontWeight: 700, padding: '0.375rem 0.75rem', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '99px' }}>
               ← Übersicht
@@ -145,6 +148,7 @@ export default function GameHeader({ student, onLogout }) {
           </div>
         </div>
       )}
+      <SLZBStripe />
       {levelUpShow && (
         <LevelUpOverlay
           newLevel={levelUpShow}

@@ -1,11 +1,22 @@
 /* KI-Fuehrerschein - Design Tokens (Gamification) */
+/* SLZB-Hausfarben (aus slzb.de, übernommen vom Kollegen) */
 :root {
-  /* Plattform */
-  --c-dark:    #0f2a3d;
-  --c-teal:    #087f83;
-  --c-teal2:   #0a9ea3;
-  --c-pale:    #eaf5f6;
-  --c-pale2:   #f0fafb;
+  /* SLZB-Primärfarben */
+  --slzb-navy:   #00295f;
+  --slzb-blue:   #063b81;
+  --slzb-sky:    #3c9dd7;
+  --slzb-ice:    #baddff;
+  --slzb-yellow: #ffb225;
+  --slzb-green:  #3aa533;
+  --slzb-red:    #e70c14;
+  --slzb-black:  #1b1b1b;
+
+  /* Plattform (auf SLZB-Farben abgestimmt) */
+  --c-dark:    #00295f;   /* SLZB Navy */
+  --c-teal:    #063b81;   /* SLZB Blue */
+  --c-teal2:   #3c9dd7;   /* SLZB Sky */
+  --c-pale:    #eef5fc;
+  --c-pale2:   #f4f8fd;
 
   /* Gamification */
   --c-xp:      #f59e0b;   /* Gold/XP */
@@ -36,7 +47,7 @@
   --c-border: #c9e3e8;
 
   /* Typografie */
-  --font: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --font: 'Fira Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
   --fs-xs:  0.75rem;
   --fs-sm:  0.875rem;
   --fs-md:  1rem;

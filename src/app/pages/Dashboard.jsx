@@ -118,47 +118,6 @@ export default function Dashboard({ student }) {
           </div>
         </div>
 
-        {/* Führerscheinkarte */}
-        <div style={{ background: 'linear-gradient(135deg, #0f2a3d 0%, #103d54 50%, #087f83 100%)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', marginBottom: 'var(--sp-lg)', border: '2px solid rgba(255,218,118,0.4)', boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)', position: 'relative', overflow: 'hidden' }}>
-          {/* Hintergrund-Muster */}
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} />
-
-          <div style={{ position: 'relative' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--sp-md)', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <div>
-                <div style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#ffda76', marginBottom: '4px' }}>KI-Führerschein · Klasse 7</div>
-                <div style={{ fontWeight: 900, color: 'white', fontSize: '1.1rem' }}>{student?.display_name || '–'}</div>
-              </div>
-              <div style={{ fontSize: '2rem' }}>🤖</div>
-            </div>
-
-            {/* 4 Abzeichen-Felder */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: 'var(--sp-md)' }}>
-              {MODULES.filter(m => !m.optional).map(mod => {
-                const earned = !!achievements[mod.id]
-                return (
-                  <div key={mod.id} style={{ background: earned ? 'rgba(255,218,118,0.2)' : 'rgba(255,255,255,0.05)', border: `2px solid ${earned ? '#ffda76' : 'rgba(255,255,255,0.1)'}`, borderRadius: 'var(--r-lg)', padding: '0.5rem', textAlign: 'center', transition: 'all 0.3s', position: 'relative' }}>
-                    <div style={{ fontSize: '1.25rem', marginBottom: '2px', filter: earned ? 'none' : 'grayscale(1) opacity(0.3)' }}>{mod.achievement.icon}</div>
-                    <div style={{ fontSize: '0.55rem', fontWeight: 800, color: earned ? '#ffda76' : 'rgba(255,255,255,0.3)', lineHeight: 1.2 }}>{mod.achievement.title}</div>
-                    {earned && (
-                      <div style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#4ade80', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: 900, color: '#0f2a3d' }}>✓</div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Fortschrittsbalken */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>
-              <span>{Object.keys(achievements).filter(id => REQUIRED_MODULE_IDS.includes(id)).length} von 4 Modulen</span>
-              <span>{xp} / 1000 XP</span>
-            </div>
-            <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '99px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${Math.min(100, (xp / 1000) * 100)}%`, background: 'linear-gradient(90deg, #ffda76, #f59e0b)', borderRadius: '99px', transition: 'width 0.5s ease' }} />
-            </div>
-          </div>
-        </div>
-
         {/* Zertifikat-Banner */}
         {eligible ? (
           <div style={{ background: 'linear-gradient(135deg, #92400e, #b8860b)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', marginBottom: 'var(--sp-lg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--sp-md)', boxShadow: '0 0 30px rgba(184,134,11,0.4)', color: 'white' }}>
@@ -201,54 +160,84 @@ export default function Dashboard({ student }) {
           )}
         </div>
 
-        {/* Modul-Karten */}
-        <h2 style={{ color: 'white', marginBottom: 'var(--sp-md)' }}>Deine Missionen</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-md)' }}>
+        {/* Lernpfad – versetzt wie beim Kollegen */}
+        <div style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--slzb-ice)', marginBottom: '0.875rem' }}>
+          Dein Lernpfad
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', maxWidth: '780px' }}>
           {MODULES.map((mod, idx) => {
-            const earned = !!achievements[mod.id]
+            const earned    = !!achievements[mod.id]
+            const isEven    = idx % 2 === 1
+            const modColors = ['#1d77bd','#c26a00','#d0121a','#2b8a2b']
+            const modColor  = modColors[idx] || mod.color
+            const isLocked  = !earned && idx > 0 && !achievements[MODULES[idx-1]?.id]
             return (
               <div key={mod.id} style={{
-                background: earned ? 'rgba(22,163,74,0.15)' : 'rgba(255,255,255,0.06)',
-                border: `2px solid ${earned ? 'rgba(22,163,74,0.5)' : 'rgba(255,255,255,0.12)'}`,
-                borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)',
-                display: 'flex', alignItems: 'center', gap: 'var(--sp-md)', flexWrap: 'wrap',
+                position: 'relative',
+                display: 'grid',
+                gridTemplateColumns: '68px 1fr auto',
+                gap: '1rem',
+                alignItems: 'center',
+                background: 'white',
+                color: '#17243b',
+                borderRadius: '18px',
+                padding: '1rem 1.25rem',
+                boxShadow: '0 10px 24px rgba(0,20,60,0.25)',
+                marginLeft: isEven ? '3.5rem' : '0',
+                opacity: isLocked ? 0.75 : 1,
                 transition: 'all 0.2s',
               }}>
-                {/* Nummer */}
-                <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', flexShrink: 0, background: earned ? 'var(--c-success)' : mod.color, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 'var(--fs-lg)' }}>
-                  {earned ? '✓' : idx + 1}
-                </div>
+                {/* BESTANDEN-Stempel */}
+                {earned && (
+                  <div style={{
+                    position: 'absolute', right: '1rem', top: '-0.75rem',
+                    transform: 'rotate(-9deg)',
+                    border: '3px solid #2b7a26', color: '#2b7a26',
+                    background: 'white', fontWeight: 900, fontSize: '0.75rem',
+                    letterSpacing: '0.12em', padding: '3px 10px',
+                    borderRadius: '7px', textTransform: 'uppercase',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  }}>BESTANDEN</div>
+                )}
 
-                {/* Icon */}
-                <div style={{ fontSize: '2rem', flexShrink: 0, background: earned ? 'rgba(22,163,74,0.2)' : 'rgba(255,255,255,0.1)', borderRadius: 'var(--r-md)', width: '3.5rem', height: '3.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {mod.icon}
+                {/* Nummer-Kreis */}
+                <div style={{
+                  width: '64px', height: '64px', borderRadius: '50%',
+                  display: 'grid', placeItems: 'center',
+                  fontSize: '1.5rem', fontWeight: 900, color: 'white',
+                  background: earned ? '#2b7a26' : modColor,
+                  boxShadow: `0 0 0 4px white, 0 0 0 7px ${earned ? '#2b7a26' : modColor}`,
+                  flexShrink: 0,
+                }}>
+                  {earned ? '✓' : isLocked ? '🔒' : mod.icon}
                 </div>
 
                 {/* Info */}
-                <div style={{ flex: 1, minWidth: '10rem' }}>
-                  <h3 style={{ margin: '0 0 0.125rem', color: earned ? '#4ade80' : 'white', fontSize: 'var(--fs-md)' }}>
-                    {mod.title}
-                  </h3>
-                  <p style={{ margin: '0 0 0.375rem', color: 'rgba(255,255,255,0.6)', fontSize: 'var(--fs-sm)' }}>
-                    {mod.subtitle}
-                  </p>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <span style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', borderRadius: '99px', padding: '0.125rem 0.5rem', fontSize: 'var(--fs-xs)', fontWeight: 800 }}>
-                      ⭐ +{mod.xp} XP
-                    </span>
-                    {earned && (
-                      <span style={{ background: 'rgba(22,163,74,0.2)', color: '#4ade80', borderRadius: '99px', padding: '0.125rem 0.5rem', fontSize: 'var(--fs-xs)', fontWeight: 800 }}>
-                        {mod.achievement.icon} {mod.achievement.title}
-                      </span>
-                    )}
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: earned ? '#2b7a26' : '#56667c', marginBottom: '2px' }}>
+                    {earned ? '✓ Bestanden' : isLocked ? 'Gesperrt' : `Etappe ${idx + 1}`}
                   </div>
+                  <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.1rem', color: '#17243b' }}>{mod.title}</h3>
+                  <p style={{ margin: 0, fontSize: '0.875rem', color: '#56667c' }}>{mod.subtitle}</p>
+                  {earned && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '6px', background: '#e6f5e4', color: '#2b7a26', fontWeight: 700, fontSize: '0.8rem', borderRadius: '99px', padding: '3px 10px' }}>
+                      {mod.achievement.icon} {mod.achievement.title}
+                    </div>
+                  )}
+                  {!earned && (
+                    <div style={{ display: 'inline-block', marginTop: '6px', fontSize: '0.75rem', fontWeight: 700, color: '#a86a00' }}>
+                      ⭐ +{mod.xp} XP
+                    </div>
+                  )}
                 </div>
 
                 {/* Button */}
-                <button className="btn" onClick={() => navigate(mod.path)}
-                  style={{ background: earned ? 'var(--c-success)' : mod.color, color: 'white', flexShrink: 0 }}>
-                  {earned ? 'Wiederholen' : 'Starten →'}
-                </button>
+                {!isLocked && (
+                  <button onClick={() => navigate(mod.path)}
+                    style={{ background: earned ? '#2b7a26' : modColor, color: 'white', border: 'none', borderRadius: '99px', padding: '0.625rem 1.25rem', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    {earned ? 'Wiederholen' : 'Starten →'}
+                  </button>
+                )}
               </div>
             )
           })}
