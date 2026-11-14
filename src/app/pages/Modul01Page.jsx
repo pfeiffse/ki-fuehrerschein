@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
-import { startModuleLocal, passModule, getLocalProgress } from '../../lib/progress.js'
+import { startModuleLocal, passModule, saveNotesToSupabase, getLocalProgress } from '../../lib/progress.js'
 import Station1 from '../../modules/modul-01/Station1.jsx'
 import Station2 from '../../modules/modul-01/Station2.jsx'
 import Station3 from '../../modules/modul-01/Station3.jsx'
@@ -49,6 +49,7 @@ export default function Modul01Page() {
     if (n === 4) {
       passModule(MOD.id, 100, 100)
       saveAchievementLocal(MOD.id)
+      saveNotesToSupabase()
       setAchieved(true)
     }
   }

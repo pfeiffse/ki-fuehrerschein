@@ -32,7 +32,17 @@ export function WarningBox({ children, title = 'Wichtig:' }) {
   )
 }
 
-export function MemoryBox({ children }) {
+export function MemoryBox({ children, arbeitsblatt = true }) {
+  if (arbeitsblatt) {
+    return (
+      <div className="merksatz-highlight" role="note" aria-label="Merksatz – auf Arbeitsblatt übertragen">
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+          <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>💡</span>
+          <div style={{ fontWeight: 700, color: '#78350f', lineHeight: 1.5 }}>{children}</div>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="box-memory" role="note" aria-label="Merksatz">
       💡 {children}

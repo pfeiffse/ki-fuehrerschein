@@ -255,7 +255,7 @@ export default function Dashboard({ student }) {
             </div>
           </a>
           {eligible && (
-            <a href="https://forms.gle/feedback-ki-fuehrerschein" target="_blank" rel="noopener"
+            <a href="https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?subpage=design&FormId=Hu4TuZlhDkyzozIG7ZRtpkactxD1NGxJjGpkgOG5fdpUOEczVDRIVE5NT1RMQzZHSDc4MVA2VzIxVS4u&Token=4b0aaf8eab004846af8c5083f5ce5a25" target="_blank" rel="noopener"
               style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,178,37,0.15)', border: '1px solid rgba(255,178,37,0.4)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', color: 'white', textDecoration: 'none' }}>
               <span style={{ fontSize: '1.5rem' }}>💬</span>
               <div>

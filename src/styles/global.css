@@ -344,3 +344,46 @@ input[type="range"]::-webkit-slider-thumb {
 .actions { display: flex; gap: var(--sp-sm); flex-wrap: wrap; margin-top: var(--sp-lg); align-items: center; }
 .eyebrow { font-weight: 800; letter-spacing: 0.1em; font-size: var(--fs-xs); text-transform: uppercase; color: rgba(255,255,255,0.7); }
 .lead { font-size: var(--fs-lg); line-height: var(--lh); }
+/* ── Merksatz-Box mit Arbeitsblatt-Hinweis ──────────────────────────────────── */
+.merksatz-highlight {
+  position: relative;
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 2px solid #f59e0b;
+  border-left: 6px solid #f59e0b;
+  border-radius: var(--r-lg);
+  padding: var(--sp-md) var(--sp-md) var(--sp-md) calc(var(--sp-md) + 4px);
+  margin: var(--sp-md) 0;
+  box-shadow: 0 2px 8px rgba(245,158,11,0.15);
+}
+.merksatz-highlight::before {
+  content: '📋 Auf Arbeitsblatt übertragen!';
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #92400e;
+  margin-bottom: 6px;
+  opacity: 0.8;
+}
+.merksatz-highlight .merksatz-icon {
+  font-size: 1.5rem;
+  margin-right: 8px;
+}
+.merksatz-highlight strong {
+  color: #78350f;
+  font-size: var(--fs-md);
+  line-height: 1.5;
+}
+.merksatz-highlight p {
+  margin: 4px 0 0;
+  color: #92400e;
+  font-size: var(--fs-sm);
+}
+@keyframes merksatzPulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(245,158,11,0.15) }
+  50%       { box-shadow: 0 4px 16px rgba(245,158,11,0.35) }
+}
+.merksatz-highlight {
+  animation: merksatzPulse 3s ease-in-out infinite;
+}

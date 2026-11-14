@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MODULES, REQUIRED_MODULE_IDS, getAchievementsLocal, allRequiredPassed, saveMerksatz, getMerksatz, getStudentName, getXP, getLevel } from '../../lib/achievements.js'
 import { generateCode } from '../../lib/levelCode.js'
+import { saveNotesToSupabase, loadNotesFromSupabase } from '../../lib/progress.js'
 
 const REQUIRED = MODULES.filter(m => !m.optional)
 const BASE = import.meta.env.BASE_URL
@@ -27,16 +28,23 @@ export default function CertificatePage() {
   useEffect(() => {
     const passedIds = REQUIRED_MODULE_IDS.filter(id => achievements[id])
     if (passedIds.length > 0) setLevelCode(generateCode(7, passedIds))
-    // Punkt 3: Sicherstellen dass alle Achievements gespeichert sind
     passedIds.forEach(id => saveAchievementLocal(id))
+    // Merksätze aus Supabase laden (falls Gerät gewechselt)
+    loadNotesFromSupabase().then(() => {
+      setMerksatz(localStorage.getItem('ki_merksatz') || '')
+      setFussabdruck(localStorage.getItem('ki_fussabdruck') || '')
+      setKiKompass(localStorage.getItem('ki_kompass') || '')
+    })
   }, [])
 
-  function handleSave() {
+  async function handleSave() {
     saveMerksatz(merksatz)
     localStorage.setItem('ki_cert_klasse', klasse)
     localStorage.setItem('ki_cert_schule', schule)
     localStorage.setItem('ki_fussabdruck', fussabdruck)
     localStorage.setItem('ki_kompass', kiKompass)
+    // In Supabase sichern
+    await saveNotesToSupabase()
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }

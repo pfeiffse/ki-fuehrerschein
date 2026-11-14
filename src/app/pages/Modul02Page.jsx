@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
-import { startModuleLocal, passModule } from '../../lib/progress.js'
+import { startModuleLocal, passModule, saveNotesToSupabase } from '../../lib/progress.js'
 
 const MOD = getModule('modul-02')
 const MOD_COLOR = '#087f83'

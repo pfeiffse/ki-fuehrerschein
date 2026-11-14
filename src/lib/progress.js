@@ -124,3 +124,35 @@ export async function debugSync() {
   console.log('[debug] upsert result:', res)
   return res
 }
+
+// ── Merksätze in Supabase speichern ──────────────────────────────────────────
+
+export async function saveNotesToSupabase() {
+  const student = getStudentLocal()
+  if (!student || !student.id || !navigator.onLine) return
+  try {
+    const notes = {
+      student_id:  student.id,
+      merksatz:    localStorage.getItem('ki_merksatz')    || '',
+      fussabdruck: localStorage.getItem('ki_fussabdruck') || '',
+      ki_kompass:  localStorage.getItem('ki_kompass')     || '',
+      updated_at:  new Date().toISOString(),
+    }
+    await supabase.from('student_notes').upsert(notes, { onConflict: 'student_id' })
+    console.log('[notes] Merksätze gespeichert ✓')
+  } catch(err) { console.warn('[notes] Fehler:', err) }
+}
+
+export async function loadNotesFromSupabase() {
+  const student = getStudentLocal()
+  if (!student || !student.id || !navigator.onLine) return
+  try {
+    const { data } = await supabase.from('student_notes').select('*').eq('student_id', student.id).single()
+    if (data) {
+      if (data.merksatz)    localStorage.setItem('ki_merksatz',    data.merksatz)
+      if (data.fussabdruck) localStorage.setItem('ki_fussabdruck', data.fussabdruck)
+      if (data.ki_kompass)  localStorage.setItem('ki_kompass',     data.ki_kompass)
+      console.log('[notes] Merksätze geladen ✓')
+    }
+  } catch(err) { console.warn('[notes] Laden fehlgeschlagen:', err) }
+}
