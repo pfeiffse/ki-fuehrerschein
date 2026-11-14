@@ -246,12 +246,12 @@ export default function Dashboard({ student }) {
 
         {/* Arbeitsblatt + Feedback */}
         <div style={{ marginTop: 'var(--sp-lg)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', maxWidth: '780px' }}>
-          <a href={BASE + 'arbeitsblatt.html'} target="_blank" rel="noopener"
+          <a href={BASE + 'ki-fuehrerschein-arbeitsblatt.docx'} target="_blank" rel="noopener"
             style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', color: 'white', textDecoration: 'none' }}>
             <span style={{ fontSize: '1.5rem' }}>📋</span>
             <div>
               <div style={{ fontWeight: 800, fontSize: 'var(--fs-sm)' }}>Arbeitsblatt</div>
-              <div style={{ fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.6)' }}>Merksätze & Reflexion drucken</div>
+              <div style={{ fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.6)' }}>Word-Dokument · 8 Seiten</div>
             </div>
           </a>
           {eligible && (

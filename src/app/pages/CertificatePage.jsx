@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MODULES, REQUIRED_MODULE_IDS, getAchievementsLocal, allRequiredPassed, saveMerksatz, getMerksatz, getStudentName, getXP, getLevel } from '../../lib/achievements.js'
+import { MODULES, REQUIRED_MODULE_IDS, getAchievementsLocal, allRequiredPassed, saveMerksatz, getMerksatz, getStudentName, getXP, getLevel, saveAchievementLocal } from '../../lib/achievements.js'
 import { generateCode } from '../../lib/levelCode.js'
 import { saveNotesToSupabase, loadNotesFromSupabase } from '../../lib/progress.js'
 
