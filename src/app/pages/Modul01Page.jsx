@@ -8,6 +8,8 @@ import Station1 from '../../modules/modul-01/Station1.jsx'
 import Station2 from '../../modules/modul-01/Station2.jsx'
 import Station3 from '../../modules/modul-01/Station3.jsx'
 import Station4 from '../../modules/modul-01/Station4.jsx'
+import ModuleStamp from '../../components/ui/ModuleStamp.jsx'
+import ModuleSkip from '../../components/ui/ModuleSkip.jsx'
 
 const MOD = getModule('modul-01')
 const MOD_COLOR = '#2859d8'
