@@ -19,7 +19,12 @@ export default function ModuleSkip({ onSkip, moduleName, moduleId }) {
       // Logging
       await logSkip(moduleId || moduleName, studentName, code)
       setSuccess(true)
-      setTimeout(() => onSkip(checkMasterCode(code)), 800)
+      setTimeout(() => {
+        setOpen(false)
+        setSuccess(false)
+        setCode('')
+        onSkip(checkMasterCode(code))
+      }, 1200)
     } else {
       setError('Falscher Code.')
       setCode('')

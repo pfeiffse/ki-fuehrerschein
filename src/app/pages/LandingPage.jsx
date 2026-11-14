@@ -38,14 +38,26 @@ export default function LandingPage({ onJoin }) {
     setLoading(true)
     // Offline-Modus: direkt mit Name+Klasse als Pseudonym anmelden
     // Klassencode aus Klasse generieren (z.B. "7b" → "KI7B")
-    const joinCode = code.trim() || ('KI' + klasse.trim().toUpperCase().replace(/\s/g,''))
+    const joinCode = code.trim() || ('KI' + klasse.trim().toUpperCase().replace(/[^A-Z0-9]/g,''))
     const result = await studentJoin(joinCode, name.trim())
     setLoading(false)
     if (result.error) {
-      // Fallback: direkt mit localStorage ohne Supabase
-      const student = { id: crypto.randomUUID(), display_name: name.trim(), class_id: null }
-      localStorage.setItem('ki_student', JSON.stringify(student))
-      onJoin(student)
+      // Zeige Fehler wenn Klassencode nicht gefunden
+      if (code.trim() && result.error.includes('nicht gefunden')) {
+        setError('Klassencode nicht gefunden. Bitte bei der Lehrkraft nachfragen.')
+      } else {
+        // Ohne Klassencode: Demo-Modus mit lokalem Student
+        // Versuche mit DEMO-Code
+        const demoResult = await studentJoin('DEMO7A', name.trim())
+        if (demoResult.student) {
+          onJoin(demoResult.student)
+        } else {
+          // Letzter Fallback: nur lokal (kein Supabase-Sync)
+          const student = { id: crypto.randomUUID(), display_name: name.trim(), class_id: null, _offline: true }
+          localStorage.setItem('ki_student', JSON.stringify(student))
+          onJoin(student)
+        }
+      }
     } else {
       onJoin(result.student)
     }

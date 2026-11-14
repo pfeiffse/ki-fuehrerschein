@@ -30,8 +30,16 @@ async function supabaseUpsert(table, data, conflict) {
   try {
     var res = await supabase.from(table)
       .upsert(payload, { onConflict: conflict })
-    if (res.error) console.error('[progress] upsert error:', res.error.message, payload)
-    else console.log('[progress] upsert ok:', table, payload.module_id || payload.task_id || '', 'status:', res.status)
+    if (res.error) {
+      // FK-Fehler ignorieren (Schüler nur lokal angemeldet, nicht in Supabase)
+      if (res.error.code === '23503') {
+        console.log('[progress] Schüler nicht in DB – nur lokal gespeichert')
+      } else {
+        console.error('[progress] upsert error:', res.error.message, payload)
+      }
+    } else {
+      console.log('[progress] upsert ok:', table, payload.module_id || payload.task_id || '', 'status:', res.status)
+    }
   } catch(err) { console.error('[progress] upsert catch:', err) }
 }
 
