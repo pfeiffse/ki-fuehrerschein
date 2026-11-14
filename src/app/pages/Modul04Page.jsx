@@ -190,7 +190,12 @@ export default function Modul04Page() {
             <div style={{ fontSize: '3rem', marginBottom: 'var(--sp-md)' }}>🔒</div>
             <h2 style={{ color: MOD_COLOR }}>Station noch gesperrt</h2>
             <p>Schließe zuerst Station 1 ab, um diese Station freizuschalten.</p>
-            
+            <div className="actions" style={{ justifyContent: 'center' }}>
+              <button className="btn btn-primary" onClick={() => goStation(1)} style={{ background: MOD_COLOR }}>Zu Station 1 →</button>
+            </div>
+          </div>
+        )}
+
         <ModuleSkip moduleName={MOD.title} moduleId={MOD.id} onSkip={(isMaster) => {
           passModule(MOD.id, 100, 100)
           saveAchievementLocal(MOD.id)
@@ -198,12 +203,6 @@ export default function Modul04Page() {
           setAchieved(true)
           if (isMaster) navigate('/dashboard')
         }} />
-
-<div className="actions" style={{ justifyContent: 'center' }}>
-              <button className="btn btn-primary" onClick={() => goStation(1)} style={{ background: MOD_COLOR }}>Zu Station 1 →</button>
-            </div>
-          </div>
-        )}
 
         <div className="actions no-print" style={{ marginTop: 'var(--sp-lg)' }}>
           {currentStation !== 'home' && <button className="btn btn-ghost" onClick={() => goStation(typeof currentStation === 'number' && currentStation > 1 ? currentStation - 1 : 'home')}>← Zurück</button>}

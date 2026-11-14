@@ -430,6 +430,18 @@ export default function Modul02Page() {
           {mission > 1 && <button className="btn btn-ghost" onClick={() => goMission(mission - 1)}>← Zurück</button>}
           <button className="btn btn-ghost" onClick={() => navigate('/dashboard')}>Zur Übersicht</button>
         </div>
+
+        <ModuleSkip moduleName={MOD.title} moduleId={MOD.id} onSkip={(isMaster) => {
+          const allDone = {}
+          for (let i = 1; i <= 9; i++) allDone['m' + i] = true
+          allDone['m4b'] = true
+          update({ done: allDone, mission: 9 })
+          passModule(MOD.id, 100, 100)
+          saveAchievementLocal(MOD.id)
+          saveNotesToSupabase()
+          setAchieved(true)
+          if (isMaster) navigate('/dashboard')
+        }} />
       </div>
     </div>
   )
@@ -792,20 +804,7 @@ function M1TextFeedback({ text, onSubmit, label }) {
   return (
     <div>
       <TextQualityFeedback text={text} />
-      
-        <ModuleSkip moduleName={MOD.title} moduleId={MOD.id} onSkip={(isMaster) => {
-          const allDone = {}
-          for (let i = 1; i <= 9; i++) allDone['m' + i] = true
-          allDone['m4b'] = true
-          update({ done: allDone, mission: 9 })
-          passModule(MOD.id, 100, 100)
-          saveAchievementLocal(MOD.id)
-          saveNotesToSupabase()
-          setAchieved(true)
-          if (isMaster) navigate('/dashboard')
-        }} />
-
-<div className="actions">
+      <div className="actions">
         <button className="btn btn-xp" disabled={!q.ok} onClick={onSubmit}>
           {label}
         </button>
