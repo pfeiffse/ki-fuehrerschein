@@ -15,6 +15,7 @@ export default function Dashboard({ student }) {
   const [codeInput,    setCodeInput]    = useState('')
   const [codeResult,   setCodeResult]   = useState(null)
   const [showCode,     setShowCode]     = useState(false)
+  const [feedbackDone, setFeedbackDone] = useState(() => !!localStorage.getItem('ki_feedback_done'))
 
 
   const level = getLevel(xp)
@@ -243,6 +244,55 @@ export default function Dashboard({ student }) {
             )
           })}
         </div>
+
+        {/* Feedback als Pflicht-Etappe */}
+        {eligible && (
+          <div style={{
+            position: 'relative',
+            display: 'grid',
+            gridTemplateColumns: '68px 1fr auto',
+            gap: '1rem',
+            alignItems: 'center',
+            background: feedbackDone ? 'white' : 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+            color: '#17243b',
+            borderRadius: '18px',
+            padding: '1rem 1.25rem',
+            boxShadow: feedbackDone ? '0 10px 24px rgba(0,20,60,0.25)' : '0 10px 24px rgba(245,158,11,0.3)',
+            border: feedbackDone ? 'none' : '2px solid #f59e0b',
+            marginTop: '0.875rem',
+            maxWidth: '780px',
+          }}>
+            {!feedbackDone && (
+              <div style={{ position: 'absolute', right: '1rem', top: '-0.75rem', background: '#f59e0b', color: 'white', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.1em', padding: '3px 10px', borderRadius: '7px', textTransform: 'uppercase' }}>
+                Pflicht
+              </div>
+            )}
+            {feedbackDone && (
+              <div style={{ position: 'absolute', right: '1rem', top: '-0.75rem', transform: 'rotate(-9deg)', border: '3px solid #2b7a26', color: '#2b7a26', background: 'white', fontWeight: 900, fontSize: '0.75rem', letterSpacing: '0.12em', padding: '3px 10px', borderRadius: '7px', textTransform: 'uppercase' }}>
+                BESTANDEN
+              </div>
+            )}
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: '1.5rem', fontWeight: 900, color: 'white', background: feedbackDone ? '#2b7a26' : '#f59e0b', boxShadow: `0 0 0 4px white, 0 0 0 7px ${feedbackDone ? '#2b7a26' : '#f59e0b'}`, flexShrink: 0 }}>
+              {feedbackDone ? '✓' : '💬'}
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: feedbackDone ? '#2b7a26' : '#92400e', marginBottom: '2px' }}>
+                {feedbackDone ? '✓ Abgeschlossen' : 'Abschluss-Aufgabe'}
+              </div>
+              <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.1rem', color: '#17243b' }}>Feedback zum KI-Führerschein</h3>
+              <p style={{ margin: 0, fontSize: '0.875rem', color: '#56667c' }}>
+                {feedbackDone ? 'Danke für dein Feedback!' : 'Bitte gib uns kurz Rückmeldung – das dauert nur 2 Minuten.'}
+              </p>
+            </div>
+            {!feedbackDone && (
+              <a href="https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=Hu4TuZlhDkyzozIG7ZRtpkactxD1NGxJjGpkgOG5fdpUOEczVDRIVE5NT1RMQzZHSDc4MVA2VzIxVS4u" target="_blank" rel="noopener"
+                onClick={() => { localStorage.setItem('ki_feedback_done', '1'); setFeedbackDone(true) }}
+                style={{ background: '#f59e0b', color: 'white', border: 'none', borderRadius: '99px', padding: '0.625rem 1.25rem', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0, textDecoration: 'none', display: 'inline-block' }}>
+                Zum Feedback →
+              </a>
+            )}
+          </div>
+        )}
 
         {/* Arbeitsblatt + Feedback */}
         <div style={{ marginTop: 'var(--sp-lg)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', maxWidth: '780px' }}>
