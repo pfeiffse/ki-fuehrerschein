@@ -65,11 +65,11 @@ export default function App() {
         <Route path="/lehrer"
           element={isTeacher ? <Navigate to="/lehrer/dashboard" replace /> : <TeacherLogin onLogin={setTeacher} />} />
         <Route path="/lehrer/dashboard"
-          element={isTeacher ? <TeacherDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
+          element={!teacherChecked ? null : isTeacher ? <TeacherDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
         <Route path="/admin"
-          element={isTeacher ? <AdminDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
+          element={!teacherChecked ? null : isTeacher ? <AdminDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
         <Route path="/lehrer/zertifikate"
-          element={isTeacher ? <AdminCertificates /> : <Navigate to="/lehrer" replace />} />
+          element={!teacherChecked ? null : isTeacher ? <AdminCertificates /> : <Navigate to="/lehrer" replace />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
