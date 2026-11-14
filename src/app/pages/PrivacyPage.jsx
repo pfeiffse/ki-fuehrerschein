@@ -64,13 +64,10 @@ export default function PrivacyPage() {
 
         <div className="card">
           <h2>4. Auftragsverarbeitung (Supabase)</h2>
-          <div className="box-warning">
-            <strong>Wichtiger Hinweis:</strong> Für die Nutzung von Supabase als Datenbankdienstleister ist gemäß Art. 28 DSGVO ein <strong>Auftragsverarbeitungsvertrag (AVV)</strong> erforderlich. Dieser muss vor dem regulären Schulbetrieb abgeschlossen werden.
+          <div className="box-info">
+            <strong>✅ Auftragsverarbeitungsvertrag (AVV) liegt vor:</strong> Supabase stellt ein Data Processing Addendum (DPA) gemäß Art. 28 DSGVO bereit, das automatisch durch die Nutzung der Dienste gilt. Abrufbar unter <a href="https://supabase.com/legal/dpa" target="_blank" rel="noopener" style={{ color: 'var(--c-teal)' }}>supabase.com/legal/dpa</a>.
           </div>
           <p style={{ marginTop: '0.75rem' }}>Supabase Inc. betreibt Server in <strong>Frankfurt (Deutschland / EU)</strong>. Die Datenübertragung erfolgt verschlüsselt (HTTPS/TLS). Supabase ist nach SOC 2 Type II zertifiziert.</p>
-          <p style={{ marginTop: '0.5rem', fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>
-            AVV abschließen: <a href="https://supabase.com/privacy" target="_blank" rel="noopener" style={{ color: 'var(--c-teal)' }}>supabase.com/privacy</a> → „Data Processing Agreement"
-          </p>
         </div>
 
         <div className="card">
@@ -124,7 +121,7 @@ export default function PrivacyPage() {
           <h2>8. Für Eltern</h2>
           <p>Diese Plattform wird im Rahmen des Schulunterrichts eingesetzt. Rechtsgrundlage: Art. 6 Abs. 1 lit. e DSGVO i.V.m. Berliner Schulgesetz. Schüler:innen können Pseudonyme verwenden. Daten werden auf EU-Servern gespeichert.</p>
           <p style={{ marginTop: '0.5rem', fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>
-            <strong>Hinweis:</strong> Ein Auftragsverarbeitungsvertrag mit Supabase wird vor dem regulären Einsatz abgeschlossen. Bei Fragen wenden Sie sich an die Schulleitung oder den Datenschutzbeauftragten.
+            <strong>Auftragsverarbeitung:</strong> Mit Supabase besteht ein Data Processing Addendum (AVV) gemäß Art. 28 DSGVO (abrufbar unter supabase.com/legal/dpa). Bei Fragen wenden Sie sich an die Schulleitung oder den Datenschutzbeauftragten.
           </p>
           <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)', marginTop: '0.5rem' }}>Stand: {stand} · Verantwortliche Stelle: SLZB Berlin</p>
         </div>
