@@ -33,7 +33,9 @@ export default function JoinPage({ onJoin }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, var(--slzb-navy), var(--slzb-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' , position: 'relative', overflow: 'hidden' }}>
+      <SLZBArcs />
+      <SLZBStripe />
       <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2.5rem', maxWidth: '28rem', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🤖</div>

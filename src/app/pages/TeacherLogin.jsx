@@ -30,7 +30,7 @@ export default function TeacherLogin({ onLogin }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, var(--slzb-navy), var(--slzb-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
       <div style={{ width: '100%', maxWidth: '26rem' }}>
 
         <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 'var(--r-2xl)', padding: '2rem', marginBottom: '1rem', textAlign: 'center', color: 'white' }}>

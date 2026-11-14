@@ -40,7 +40,7 @@ export default function LandingPage({ onJoin }) {
   ]
 
   return (
-    <div style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(145deg, var(--slzb-navy), var(--slzb-blue))', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
 
       {/* Hero */}
       <div style={{ maxWidth: '70rem', margin: '0 auto', padding: '4rem 1.5rem 2rem', textAlign: 'center', color: 'white' }}>

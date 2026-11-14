@@ -101,7 +101,7 @@ export default function TeacherDashboard({ teacher, onLogout }) {
   }))
 
   return (
-    <div style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(145deg, var(--slzb-navy), var(--slzb-blue))', minHeight: '100vh' }}>
 
       {/* Toast */}
       {msg && (
@@ -349,7 +349,7 @@ function NewClassForm({ onCreated, onCancel, onError, teacherId }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1.5rem' }}>
       <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '26rem', width: '100%' }}>
-        <h2 style={{ marginTop: 0, color: '#103d54' }}>🏫 Neue Klasse anlegen</h2>
+        <h2 style={{ marginTop: 0, color: 'var(--slzb-navy)' }}>🏫 Neue Klasse anlegen</h2>
         <form onSubmit={handleCreate} noValidate>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div>

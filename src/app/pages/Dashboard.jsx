@@ -51,7 +51,7 @@ export default function Dashboard({ student }) {
   const passedCount = REQUIRED_MODULE_IDS.filter(id => achievements[id]).length
 
   return (
-    <div style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(145deg, var(--slzb-navy), var(--slzb-blue))', minHeight: '100vh' }}>
       <div className="wrap">
 
         {/* Hero mit XP */}

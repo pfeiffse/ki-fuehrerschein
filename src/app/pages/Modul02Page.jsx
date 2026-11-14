@@ -120,7 +120,7 @@ export default function Modul02Page() {
   const progress = Math.round((completedCount / totalMissions) * 100)
 
   return (
-    <div style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(145deg, var(--slzb-navy), var(--slzb-blue))', minHeight: '100vh' }}>
       <AchievementPopup ach={showAch} onClose={() => setShowAch(null)} />
 
       <div className="wrap">

@@ -6,7 +6,7 @@ import { supabase } from '../../lib/supabase.js'
 import { createTeacherAccount } from '../../lib/auth.js'
 import { teacherLogout } from '../../lib/auth.js'
 
-const MOD_COLOR = '#103d54'
+const MOD_COLOR = 'var(--slzb-navy)'
 const SCHOOL_ID = '00000000-0000-0000-0000-000000000001'
 const EDGE_FN   = 'https://tkmdyvlzespnkdzdzuwu.supabase.co/functions/v1/invite-user'
 
@@ -119,7 +119,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
   const darkBox = { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', color: 'white', marginBottom: 'var(--sp-lg)' }
 
   return (
-    <div style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(145deg, var(--slzb-navy), var(--slzb-blue))', minHeight: '100vh' }}>
 
       {msg && (
         <div style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 300,
