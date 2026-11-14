@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KI-Führerschein · Offline-Modus</title>
+<style>
+@font-face { font-family: 'Fira Sans'; font-weight: 400; src: url('./fonts/fira-sans-400.ttf') format('truetype'); }
+@font-face { font-family: 'Fira Sans'; font-weight: 700; src: url('./fonts/fira-sans-700.ttf') format('truetype'); }
+@font-face { font-family: 'Fira Sans'; font-weight: 800; src: url('./fonts/fira-sans-800.ttf') format('truetype'); }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Fira Sans', system-ui, sans-serif; background: #f4f8fd; color: #17243b; font-size: 16px; line-height: 1.5; }
+
+/* Header */
+.topbar { background: #00295f; color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 100; }
+.topbar h1 { font-size: 18px; font-weight: 800; }
+.topbar .sub { font-size: 12px; opacity: 0.7; }
+.stripe { height: 4px; background: linear-gradient(90deg, #ffb225 0 25%, #e70c14 25% 50%, #1b1b1b 50% 75%, #3aa533 75%); }
+.offline-badge { background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.5); color: #fbbf24; border-radius: 99px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
+
+/* Layout */
+.wrap { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
+
+/* Anmeldung */
+.login-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,41,95,0.1); margin-bottom: 24px; }
+.login-card h2 { color: #00295f; margin-bottom: 8px; }
+.login-card p { color: #56667c; font-size: 14px; margin-bottom: 16px; }
+input.f { width: 100%; padding: 11px 14px; border: 2px solid #d5e0ee; border-radius: 10px; font: inherit; font-size: 16px; margin-bottom: 12px; }
+input.f:focus { border-color: #3c9dd7; outline: none; box-shadow: 0 0 0 3px rgba(60,157,215,0.2); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: inherit; font-weight: 700; border: none; border-radius: 99px; padding: 11px 20px; cursor: pointer; font-size: 15px; }
+.btn-primary { background: #00295f; color: white; }
+.btn-primary:hover { background: #063b81; }
+.btn-ghost { background: white; color: #00295f; border: 2px solid #d5e0ee; }
+.btn-success { background: #2b8a2b; color: white; }
+.btn-full { width: 100%; }
+
+/* Modul-Karten */
+.module-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.module-card { background: white; border-radius: 16px; padding: 16px 20px; box-shadow: 0 4px 14px rgba(0,41,95,0.08); display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+.module-card:hover { border-color: var(--c); box-shadow: 0 6px 20px rgba(0,41,95,0.15); }
+.module-card.done { border-color: #2b8a2b; background: #f0fdf4; }
+.module-card.locked { opacity: 0.5; cursor: not-allowed; }
+.mod-icon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; font-weight: 900; color: white; background: var(--c); box-shadow: 0 0 0 4px white, 0 0 0 6px var(--c); }
+.mod-icon.done-icon { background: #2b8a2b; box-shadow: 0 0 0 4px white, 0 0 0 6px #2b8a2b; }
+.mod-title { font-size: 17px; font-weight: 800; color: #17243b; margin-bottom: 2px; }
+.mod-sub { font-size: 13px; color: #56667c; }
+.mod-status { font-size: 12px; font-weight: 700; }
+
+/* Info-Box */
+.info-box { background: #eef5fc; border-left: 4px solid #063b81; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 14px; }
+.warn-box { background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 14px; }
+
+/* Fortschritt */
+.progress-bar { height: 8px; background: #e5edf5; border-radius: 99px; overflow: hidden; margin: 8px 0; }
+.progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #ffb225, #f59e0b); transition: width 0.5s ease; }
+
+/* Screens */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* Modul-Inhalt */
+.card { background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 4px 14px rgba(0,41,95,0.08); margin-bottom: 16px; }
+.card h2 { color: #00295f; margin-bottom: 12px; font-size: 20px; }
+.merksatz { background: #fffbeb; border: 2px solid #f59e0b; border-left: 6px solid #f59e0b; border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 12px 0; }
+.merksatz::before { content: "📋 Auf Arbeitsblatt übertragen!"; display: block; font-size: 11px; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.merksatz p { font-weight: 700; color: #78350f; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+textarea.f { width: 100%; padding: 11px 14px; border: 2px solid #d5e0ee; border-radius: 10px; font: inherit; font-size: 15px; resize: vertical; }
+textarea.f:focus { border-color: #3c9dd7; outline: none; }
+.done-badge { display: inline-flex; align-items: center; gap: 6px; background: #dcfce7; color: #166534; border: 1px solid #4ade80; border-radius: 99px; padding: 6px 14px; font-weight: 800; font-size: 14px; margin: 8px 0; }
+
+/* Zertifikat */
+.cert-preview { border: 6px solid #087f83; outline: 2px solid #ffda76; outline-offset: -12px; padding: 24px; text-align: center; background: radial-gradient(ellipse at 50% 0%, #e8f7f4, white 60%); border-radius: 4px; margin: 16px 0; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div>
+    <div style="font-weight:900;font-size:18px;">🤖 KI-Führerschein</div>
+    <div style="font-size:12px;opacity:0.7;">Klasse 7 · SLZB</div>
+  </div>
+  <div class="offline-badge">📴 Offline-Modus</div>
+</header>
+<div class="stripe"></div>
+
+<div class="wrap">
+
+  <!-- ANMELDUNG -->
+  <div id="screen-login" class="screen active">
+    <div class="login-card">
+      <h2>🤖 Willkommen zum KI-Führerschein</h2>
+      <p>Du arbeitest im <strong>Offline-Modus</strong>. Deine Daten bleiben ausschließlich auf diesem Gerät – es werden keine Informationen an externe Server übertragen.</p>
+      <div class="warn-box">
+        ⚠️ <strong>Hinweis:</strong> Im Offline-Modus wird dein Fortschritt nur auf diesem Gerät gespeichert. Bei einem Gerätewechsel oder wenn der Browser-Cache geleert wird, geht der Stand verloren. Kein Zertifikat-Druck durch die Lehrkraft möglich.
+      </div>
+      <label style="font-weight:700;display:block;margin-bottom:6px;">Dein Vorname (oder Pseudonym)</label>
+      <input type="text" id="offline-name" class="f" placeholder="z. B. Lena oder Lena7a" maxlength="40" autocomplete="off">
+      <button class="btn btn-primary btn-full" onclick="offlineLogin()">Los geht's →</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="screen-dashboard" class="screen">
+    <div style="margin-bottom:20px;">
+      <div style="font-size:13px;color:#56667c;margin-bottom:4px;">Hallo, <strong id="dash-name"></strong>! 👋</div>
+      <h2 style="color:#00295f;margin-bottom:8px;">Deine Missionen</h2>
+      <div class="progress-bar"><div class="progress-fill" id="dash-progress" style="width:0%"></div></div>
+      <div style="font-size:13px;color:#56667c;" id="dash-progress-text">0 von 4 Modulen abgeschlossen</div>
+    </div>
+
+    <div class="module-grid" id="module-list"></div>
+
+    <div class="info-box">
+      📋 <strong>Arbeitsblätter:</strong> Notiere deine Merksätze auf dem Arbeitsblatt deiner Lehrkraft.
+    </div>
+
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid #e5edf5;display:flex;gap:12px;flex-wrap:wrap;">
+      <button class="btn btn-ghost" onclick="showScreen('screen-login');localStorage.removeItem('ki_offline_name');" style="font-size:13px;">Abmelden</button>
+      <a href="./datenschutz" style="color:#56667c;font-size:13px;align-self:center;">Datenschutz</a>
+    </div>
+  </div>
+
+  <!-- MODULE (Platzhalter – verlinkt zur Haupt-App) -->
+  <div id="screen-module" class="screen">
+    <div class="card">
+      <div id="module-content"></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="showScreen('screen-dashboard')">← Zurück</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const MODS = [
+  { id:'m1', title:'Was ist KI?',              sub:'Trainingsdaten · Mustererkennung · Sprach-KI', icon:'🤖', color:'#1d77bd',
+    merksatz:'KI lernt Muster aus Beispielen. Wichtig sind viele und vielfältige Trainingsdaten.',
+    link: window.location.origin + '/ki-fuehrerschein/#/modul/01' },
+  { id:'m2', title:'KI sinnvoll nutzen',        sub:'Fehler erkennen · Prompts · Verantwortung',   icon:'✅', color:'#c26a00',
+    merksatz:'KI unterstützt dich – sie übernimmt weder dein Denken noch deine Verantwortung.',
+    link: window.location.origin + '/ki-fuehrerschein/#/modul/02' },
+  { id:'m3', title:'Kennzeichnung & Datenschutz',sub:'Digitale Privatsphäre · Kennzeichnungspflicht',icon:'🛡️',color:'#d0121a',
+    merksatz:'Einzelne Informationen wirken harmlos. Zusammen können sie verraten, wer du bist.',
+    link: window.location.origin + '/ki-fuehrerschein/#/modul/03' },
+  { id:'m4', title:'KI & Nachhaltigkeit',        sub:'Ressourcen · Energie · Bewusster Einsatz',   icon:'🌱', color:'#2b8a2b',
+    merksatz:'Überlege vor jeder KI-Anfrage, ob sie wirklich notwendig und sinnvoll ist.',
+    link: window.location.origin + '/ki-fuehrerschein/#/modul/04' },
+]
+
+function getProgress() {
+  try { return JSON.parse(localStorage.getItem('ki_offline_progress') || '{}') } catch { return {} }
+}
+function saveProgress(p) { localStorage.setItem('ki_offline_progress', JSON.stringify(p)) }
+
+function offlineLogin() {
+  const name = document.getElementById('offline-name').value.trim()
+  if (!name) { alert('Bitte deinen Namen eingeben.'); return }
+  localStorage.setItem('ki_offline_name', name)
+  showDashboard()
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
+  document.getElementById(id).classList.add('active')
+  window.scrollTo(0,0)
+}
+
+function showDashboard() {
+  const name = localStorage.getItem('ki_offline_name')
+  if (!name) { showScreen('screen-login'); return }
+  document.getElementById('dash-name').textContent = name
+  const prog = getProgress()
+  const done = MODS.filter(m => prog[m.id]).length
+  document.getElementById('dash-progress').style.width = (done/4*100) + '%'
+  document.getElementById('dash-progress-text').textContent = done + ' von 4 Modulen abgeschlossen'
+
+  const list = document.getElementById('module-list')
+  list.innerHTML = MODS.map((m, i) => {
+    const isDone = !!prog[m.id]
+    const isLocked = i > 0 && !prog[MODS[i-1].id]
+    return `<div class="module-card ${isDone?'done':''} ${isLocked?'locked':''}"
+      style="--c:${m.color}" onclick="${isLocked ? '' : `openModule('${m.id}')`}">
+      <div class="mod-icon ${isDone?'done-icon':''}">${isDone ? '✓' : isLocked ? '🔒' : m.icon}</div>
+      <div>
+        <div class="mod-title">${m.title}</div>
+        <div class="mod-sub">${m.sub}</div>
+      </div>
+      <div class="mod-status" style="color:${isDone?'#2b8a2b':isLocked?'#9aa9bf':'#56667c'}">
+        ${isDone ? '✓ Fertig' : isLocked ? 'Gesperrt' : 'Starten →'}
+      </div>
+    </div>`
+  }).join('')
+  showScreen('screen-dashboard')
+}
+
+function openModule(id) {
+  const m = MODS.find(x => x.id === id)
+  const prog = getProgress()
+  const isDone = !!prog[id]
+
+  document.getElementById('module-content').innerHTML = `
+    <h2 style="color:${m.color}">${m.icon} ${m.title}</h2>
+    <p style="color:#56667c;margin-bottom:16px;">${m.sub}</p>
+    <div class="info-box">
+      ℹ️ Im Offline-Modus öffnet sich das Modul in der Haupt-App (neues Fenster).
+      Komm danach hierher zurück und markiere das Modul als abgeschlossen.
+    </div>
+    <div class="merksatz"><p>${m.merksatz}</p></div>
+    ${isDone ? '<div class="done-badge">✓ Modul abgeschlossen</div>' : ''}
+    <div class="actions">
+      <a href="${m.link}" target="_blank" class="btn btn-primary">Modul öffnen →</a>
+      ${!isDone ? `<button class="btn btn-success" onclick="markDone('${id}')">✓ Als abgeschlossen markieren</button>` : ''}
+    </div>
+  `
+  showScreen('screen-module')
+}
+
+function markDone(id) {
+  const prog = getProgress()
+  prog[id] = true
+  saveProgress(prog)
+  showDashboard()
+}
+
+// Init
+window.addEventListener('load', () => {
+  const name = localStorage.getItem('ki_offline_name')
+  if (name) showDashboard()
+})
+</script>
+</body>
+</html>
