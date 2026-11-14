@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Was ist KI? · Arbeitsblatt</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;600;700;800;900&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Fira Sans', system-ui, sans-serif; background: white; color: #17243b; font-size: 11pt; line-height: 1.5; }
+@page { size: A4 portrait; margin: 12mm 14mm; }
+@media print { body { font-size: 10pt; } .no-print { display: none !important; } }
+.sheet-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 12px; }
+.badge { display: inline-block; color: white; font-weight: 800; font-size: 8pt; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border-radius: 99px; margin-bottom: 5px; }
+.sheet-title { font-size: 18pt; font-weight: 900; color: #00295f; line-height: 1.1; margin-bottom: 3px; }
+.sheet-subtitle { display: inline-block; font-weight: 800; font-size: 9pt; color: white; padding: 2px 10px; border-radius: 5px; margin-bottom: 6px; }
+.name-date { display: flex; flex-direction: column; gap: 6px; min-width: 150px; }
+.name-date label { font-size: 7pt; font-weight: 700; color: #56667c; text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 2px; }
+.name-date .field { border-bottom: 1.5px solid #17243b; height: 20px; min-width: 140px; }
+.task-box { border-left: 4px solid; border-radius: 0 8px 8px 0; padding: 7px 11px; margin-bottom: 10px; font-size: 9pt; }
+.bubbles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.bubble { border-radius: 12px; padding: 10px 12px; }
+.bubble-title { font-weight: 800; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.line { border-bottom: 1px solid rgba(0,0,0,0.18); height: 19px; margin-bottom: 3px; }
+.personal { border-radius: 10px; padding: 9px 13px; margin-top: 8px; }
+.personal-title { font-weight: 800; font-size: 9.5pt; margin-bottom: 7px; display: flex; align-items: center; gap: 7px; }
+.personal .line { border-bottom: 1.5px solid rgba(0,0,0,0.2); height: 21px; margin-bottom: 4px; }
+.qr-hint { margin-top: 7px; padding: 5px 9px; background: #f4f8fd; border: 1px solid #d5e0ee; border-radius: 7px; font-size: 7.5pt; color: #56667c; }
+.print-btn { position: fixed; bottom: 20px; right: 20px; background: #00295f; color: white; border: none; border-radius: 99px; padding: 11px 22px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 99; }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ Drucken / PDF</button>
+
+<!-- Header -->
+<div class="sheet-header">
+  <div>
+    <div class="badge" style="background:#1d77bd;">Arbeitsblatt</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <span style="font-size:22pt;">🤖</span>
+      <h1 class="sheet-title">Was ist KI?</h1>
+    </div>
+    <div class="sheet-subtitle" style="background:#1d77bd;">Meine wichtigsten Merksätze</div>
+  </div>
+  <div class="name-date">
+    <div><label>Name</label><div class="field"></div></div>
+    <div><label>Datum</label><div class="field"></div></div>
+  </div>
+</div>
+
+<!-- Aufgabe -->
+<div class="task-box" style="background:#1d77bd15;border-color:#1d77bd;">
+  <strong style="color:#1d77bd;">✏️ Aufgabe:</strong> Bearbeite die vier Stationen in der App. Notiere nach jeder Station den wichtigsten Merksatz in der passenden Sprechblase.
+</div>
+
+<!-- Sprechblasen -->
+<div class="bubbles">
+        <div class="bubble" style="background:#e6f0ff;border:2px solid #1d77bd;">
+          <div class="bubble-title" style="color:#1d4e89;">
+            <span>📊</span> MERKE! – Trainingsdaten
+          </div>
+          <div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div>
+        </div>
+        <div class="bubble" style="background:#fef3c7;border:2px solid #f59e0b;">
+          <div class="bubble-title" style="color:#92400e;">
+            <span>🔍</span> MERKE! – Mustererkennung & Bias
+          </div>
+          <div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div>
+        </div>
+        <div class="bubble" style="background:#f0fdf4;border:2px solid #22c55e;">
+          <div class="bubble-title" style="color:#166534;">
+            <span>💬</span> MERKE! – Kontext & Wahrscheinlichkeiten
+          </div>
+          <div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div>
+        </div>
+        <div class="bubble" style="background:#fdf4ff;border:2px solid #a855f7;">
+          <div class="bubble-title" style="color:#6b21a8;">
+            <span>🧱</span> MERKE! – Sprach-KI & Satzwerkstatt
+          </div>
+          <div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div>
+        </div>
+</div>
+
+<!-- Persönlicher Merksatz -->
+<div class="personal" style="background:#e6f0ff;border:2px solid #1d77bd;">
+  <div class="personal-title" style="color:#1d77bd;">
+    <span>⭐</span> Mein persönlicher Merksatz:
+  </div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+</div>
+
+<!-- QR-Hinweis -->
+<div class="qr-hint">
+  💡 Deine Merksätze kannst du in der App unter <strong>pfeiffse.github.io/ki-fuehrerschein</strong> eingeben – sie erscheinen dann auf deinem Zertifikat.
+</div>
+
+</body>
+</html>

@@ -296,14 +296,21 @@ export default function Dashboard({ student }) {
 
         {/* Arbeitsblatt + Feedback */}
         <div style={{ marginTop: 'var(--sp-lg)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', maxWidth: '780px' }}>
-          <a href={BASE + 'ki-fuehrerschein-arbeitsblatt.docx'} target="_blank" rel="noopener"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', color: 'white', textDecoration: 'none' }}>
-            <span style={{ fontSize: '1.5rem' }}>📋</span>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 'var(--fs-sm)' }}>Arbeitsblatt</div>
-              <div style={{ fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.6)' }}>Word-Dokument · 8 Seiten</div>
-            </div>
-          </a>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+            <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '2px' }}>📋 Arbeitsblätter</div>
+            {[
+              { label: 'Modul 1 · Was ist KI?',          file: 'arbeitsblatt-modul1.html', color: '#1d77bd' },
+              { label: 'Modul 2 · KI sinnvoll nutzen',   file: 'arbeitsblatt-modul2.html', color: '#c26a00' },
+              { label: 'Modul 3 · Datenschutz',          file: 'arbeitsblatt-modul3.html', color: '#d0121a' },
+              { label: 'Modul 4 · Nachhaltigkeit',       file: 'arbeitsblatt-modul4.html', color: '#2b8a2b' },
+            ].map(ab => (
+              <a key={ab.file} href={BASE + ab.file} target="_blank" rel="noopener"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 'var(--r-md)', padding: '6px 10px', color: 'white', textDecoration: 'none', fontSize: 'var(--fs-xs)', fontWeight: 700 }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: ab.color, flexShrink: 0 }} />
+                {ab.label}
+              </a>
+            ))}
+          </div>
           {eligible && (
             <a href="https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?subpage=design&FormId=Hu4TuZlhDkyzozIG7ZRtpkactxD1NGxJjGpkgOG5fdpUOEczVDRIVE5NT1RMQzZHSDc4MVA2VzIxVS4u&Token=4b0aaf8eab004846af8c5083f5ce5a25" target="_blank" rel="noopener"
               style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,178,37,0.15)', border: '1px solid rgba(255,178,37,0.4)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', color: 'white', textDecoration: 'none' }}>

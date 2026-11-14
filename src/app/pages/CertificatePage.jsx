@@ -160,8 +160,8 @@ export default function CertificatePage() {
       </div>
 
       {/* ── URKUNDE ── */}
-      {/* Am Bildschirm: Vorschau */}
-      <div className="cert-screen-wrapper" style={{ background: '#e8e8e8', padding: '2rem 1rem', display: 'flex', justifyContent: 'center' }}>
+      {/* Am Bildschirm: Vorschau (Querformat) */}
+      <div className="cert-screen-wrapper" style={{ background: '#e8e8e8', padding: '2rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
         <Certificate
           studentName={studentName}
           merksatz={merksatz}
@@ -194,23 +194,26 @@ export default function CertificatePage() {
           }
           /* A4 Hochformat */
           @page { 
-            size: A4 portrait; 
-            margin: 0;
+            size: A4 landscape; 
+            margin: 9mm;
           }
-          /* Urkunde füllt genau eine A4-Seite */
+          /* Vorderseite: Querformat wie beim Kollegen */
           .cert-page {
-            width: 210mm !important;
-            height: 297mm !important;
+            width: 277mm !important;
+            min-height: 183mm !important;
+            height: auto !important;
             margin: 0 !important;
-            padding: 12mm !important;
+            padding: 0 !important;
             box-shadow: none !important;
             border-radius: 0 !important;
             page-break-after: always !important;
             page-break-inside: avoid !important;
           }
+          /* Rückseite: Hochformat */
           .cert-back {
             margin-top: 0 !important;
           }
+          @page :first { size: A4 landscape; margin: 9mm; }
           .cert-inner {
             height: calc(297mm - 24mm) !important;
           }
@@ -224,24 +227,24 @@ export default function CertificatePage() {
 function Certificate({ studentName, merksatz, levelCode, today, achievements, base, level, klasse, schule, fussabdruck, kiKompass }) {
   return (
     <div className="cert-page" style={{
-      width: '210mm',
+      width: 'min(277mm, 100%)',
       maxWidth: '100%',
       background: 'white',
       boxShadow: '0 8px 40px rgba(0,0,0,0.2)',
       borderRadius: '8px',
-      padding: '12mm',
+      padding: '0',
       boxSizing: 'border-box',
     }}>
       <div className="cert-inner" style={{
-        border: '6px solid #087f83',
-        outline: '2px solid #ffda76',
-        outlineOffset: '-12px',
-        padding: '8mm 10mm',
-        height: 'calc(297mm - 24mm)',
+        border: '8px solid #087f83',
+        outline: '3px solid #ffda76',
+        outlineOffset: '-18px',
+        padding: '16mm 18mm 8mm',
+        minHeight: '183mm',
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
-        background: 'radial-gradient(ellipse at 50% 0%, #e8f7f4 0%, white 60%)',
+        background: 'radial-gradient(circle at 50% 0%, #e8f7f4, transparent 55%)',
         position: 'relative',
       }}>
 
