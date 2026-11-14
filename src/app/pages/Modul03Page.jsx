@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
 import { startModuleLocal, passModule, saveNotesToSupabase } from '../../lib/progress.js'
 import ModuleStamp from '../../components/ui/ModuleStamp.jsx'
+import ModuleSkip from '../../components/ui/ModuleSkip.jsx'
 import { MemoryBox, InfoBox, WarningBox } from '../../components/ui/InfoBox.jsx'
 
 const MOD = getModule('modul-03')
@@ -246,6 +247,15 @@ export default function Modul03Page() {
             )}
           </div>
         )}
+
+        <ModuleSkip moduleName={MOD.title} onSkip={() => {
+          const allDone = { m1: true, m2: true, m3: true, m4: true, m5: true }
+          update({ done: allDone, mission: 5 })
+          passModule(MOD.id, 100, 100)
+          saveAchievementLocal(MOD.id)
+          saveNotesToSupabase()
+          setAchieved(true)
+        }} />
 
         <div className="actions no-print" style={{ marginTop: 'var(--sp-lg)' }}>
           {mission > 0 && <button className="btn btn-ghost" onClick={() => goMission(mission - 1)}>← Zurück</button>}

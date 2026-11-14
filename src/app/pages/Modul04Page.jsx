@@ -189,7 +189,15 @@ export default function Modul04Page() {
             <div style={{ fontSize: '3rem', marginBottom: 'var(--sp-md)' }}>🔒</div>
             <h2 style={{ color: MOD_COLOR }}>Station noch gesperrt</h2>
             <p>Schließe zuerst Station 1 ab, um diese Station freizuschalten.</p>
-            <div className="actions" style={{ justifyContent: 'center' }}>
+            
+        <ModuleSkip moduleName={MOD.title} onSkip={() => {
+          passModule(MOD.id, 100, 100)
+          saveAchievementLocal(MOD.id)
+          saveNotesToSupabase()
+          setAchieved(true)
+        }} />
+
+<div className="actions" style={{ justifyContent: 'center' }}>
               <button className="btn btn-primary" onClick={() => goStation(1)} style={{ background: MOD_COLOR }}>Zu Station 1 →</button>
             </div>
           </div>

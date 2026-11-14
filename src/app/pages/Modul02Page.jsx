@@ -791,7 +791,19 @@ function M1TextFeedback({ text, onSubmit, label }) {
   return (
     <div>
       <TextQualityFeedback text={text} />
-      <div className="actions">
+      
+        <ModuleSkip moduleName={MOD.title} onSkip={() => {
+          const allDone = {}
+          for (let i = 1; i <= 9; i++) allDone['m' + i] = true
+          allDone['m4b'] = true
+          update({ done: allDone, mission: 9 })
+          passModule(MOD.id, 100, 100)
+          saveAchievementLocal(MOD.id)
+          saveNotesToSupabase()
+          setAchieved(true)
+        }} />
+
+<div className="actions">
         <button className="btn btn-xp" disabled={!q.ok} onClick={onSubmit}>
           {label}
         </button>

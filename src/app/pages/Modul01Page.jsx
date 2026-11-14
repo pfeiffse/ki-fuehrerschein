@@ -150,6 +150,10 @@ export default function Modul01Page() {
         {station === 3 && <Station3 done={completed.includes(3)} onComplete={() => { completeStation(3); goStation(4) }} />}
         {station === 4 && <Station4 done={completed.includes(4)} onComplete={() => { completeStation(4); goStation('home') }} achieved={achieved} onDashboard={() => navigate('/dashboard')} />}
 
+        <ModuleSkip moduleName={MOD.title} onSkip={() => {
+          completeStation(1); completeStation(2); completeStation(3); completeStation(4)
+        }} />
+
         {station !== 'home' && (
           <div className="actions no-print" style={{ marginTop: 'var(--sp-lg)' }}>
             <button className="btn btn-ghost" onClick={() => goStation(typeof station === 'number' && station > 1 ? station - 1 : 'home')}>← Zurück</button>
