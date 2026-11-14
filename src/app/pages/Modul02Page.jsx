@@ -298,8 +298,38 @@ export default function Modul02Page() {
           </div>
         )}
 
+        {/* ── Mission 4b: Fünf Grundsätze ── */}
+        {mission === 5 && !done['m4b'] && (
+          <div className="card">
+            <MissionHeader number={5} total={9} title="Fünf Grundsätze" icon="📋" sozial="👤 Einzelarbeit" time="3" />
+            <p className="lead">Fünf Grundsätze für den verantwortungsvollen Umgang mit KI – lies sie sorgfältig durch.</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem', margin: 'var(--sp-md) 0' }}>
+              {[
+                { nr: 1, title: 'Werkzeug', text: 'KI unterstützt dich. Sie übernimmt weder dein Denken noch deine Verantwortung.' },
+                { nr: 2, title: 'Prüfen', text: 'Klingt richtig bedeutet nicht automatisch: ist richtig.' },
+                { nr: 3, title: 'Lernen', text: 'Nutze KI zum Erklären, Üben und Verbessern, nicht zum bloßen Abschreiben.' },
+                { nr: 4, title: 'Genau fragen', text: 'Nenne Thema, Ziel, Klassenstufe und gewünschte Form.' },
+                { nr: 5, title: 'Kritisch bleiben', text: 'KI-Ergebnisse können einseitig, unfair oder unvollständig sein.' },
+              ].map(g => (
+                <div key={g.nr} style={{ background: 'var(--c-pale2)', border: '2px solid var(--c-border)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--c-teal)', color: 'white', display: 'grid', placeItems: 'center', fontWeight: 900, fontSize: '0.8rem', flexShrink: 0 }}>{g.nr}</div>
+                    <strong style={{ color: 'var(--c-dark)' }}>{g.title}</strong>
+                  </div>
+                  <p style={{ margin: 0, fontSize: 'var(--fs-sm)', color: 'var(--c-muted)' }}>{g.text}</p>
+                </div>
+              ))}
+            </div>
+            <div className="actions">
+              <button className="btn btn-xp" onClick={() => { update({ done: { ...state.done, m4b: true } }) }}>
+                Grundsätze gelesen · Weiter zum Werkzeugkasten →
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* ── Mission 5: KI-Werkzeugkasten ── */}
-        {mission === 5 && (
+        {mission === 5 && done['m4b'] && (
           <div className="card">
             <MissionHeader number={5} total={9} title="KI-Werkzeugkasten" icon="🧰" sozial="👤 Einzelarbeit" time="4" />
             <p className="lead">Fünf Werkzeuge für den verantwortungsvollen Umgang mit KI. Lies jedes Werkzeug und schalte es frei!</p>
