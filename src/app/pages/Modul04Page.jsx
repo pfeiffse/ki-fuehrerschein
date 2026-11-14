@@ -8,6 +8,7 @@ import Station1 from '../../modules/modul-04/Station1.jsx'
 import Station2 from '../../modules/modul-04/Station2.jsx'
 import Station3 from '../../modules/modul-04/Station3.jsx'
 import Station4 from '../../modules/modul-04/Station4.jsx'
+import ModuleSkip from '../../components/ui/ModuleSkip.jsx'
 import Station5 from '../../modules/modul-04/Station5.jsx'
 
 const MOD = getModule('modul-04')
