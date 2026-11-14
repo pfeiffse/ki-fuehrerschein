@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import ModuleStamp from '../../components/ui/ModuleStamp.jsx'
 import { getModule, saveAchievementLocal, hasAchievement } from '../../lib/achievements.js'
 import { startModuleLocal, passModule } from '../../lib/progress.js'
 
@@ -54,6 +55,7 @@ export default function Modul03Page() {
   const navigate = useNavigate()
   const [state,    setState]    = useState(loadState)
   const [achieved, setAchieved] = useState(() => hasAchievement(MOD.id))
+  const [showStamp,  setShowStamp]  = useState(false)
   const [showAch,  setShowAch]  = useState(null)
 
   useEffect(() => { startModuleLocal(MOD.id) }, [])
@@ -70,6 +72,13 @@ export default function Modul03Page() {
 
   return (
     <div style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', minHeight: '100vh' }}>
+      {showStamp && (
+        <ModuleStamp
+          moduleName={MOD.title}
+          moduleIcon="🛡️"
+          onClose={() => setShowStamp(false)}
+        />
+      )}
       <AchievementPopup ach={showAch} onClose={() => setShowAch(null)} />
       <div className="wrap">
 
@@ -189,6 +198,7 @@ export default function Modul03Page() {
                     passModule(MOD.id, 100, 100)
                     saveAchievementLocal(MOD.id)
                     setAchieved(true)
+                    setShowStamp(true)
                     setShowAch({ icon: '🛡️', title: 'KI-Verantwortliche:r', desc: 'Du kennst die Regeln zur Kennzeichnung und zum Datenschutz!' })
                   }}>
                   Modul abschließen · Achievement freischalten 🛡️

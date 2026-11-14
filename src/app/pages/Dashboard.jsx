@@ -118,6 +118,47 @@ export default function Dashboard({ student }) {
           </div>
         </div>
 
+        {/* Führerscheinkarte */}
+        <div style={{ background: 'linear-gradient(135deg, #0f2a3d 0%, #103d54 50%, #087f83 100%)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', marginBottom: 'var(--sp-lg)', border: '2px solid rgba(255,218,118,0.4)', boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)', position: 'relative', overflow: 'hidden' }}>
+          {/* Hintergrund-Muster */}
+          <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} />
+
+          <div style={{ position: 'relative' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--sp-md)', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div>
+                <div style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#ffda76', marginBottom: '4px' }}>KI-Führerschein · Klasse 7</div>
+                <div style={{ fontWeight: 900, color: 'white', fontSize: '1.1rem' }}>{student?.display_name || '–'}</div>
+              </div>
+              <div style={{ fontSize: '2rem' }}>🤖</div>
+            </div>
+
+            {/* 4 Abzeichen-Felder */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: 'var(--sp-md)' }}>
+              {MODULES.filter(m => !m.optional).map(mod => {
+                const earned = !!achievements[mod.id]
+                return (
+                  <div key={mod.id} style={{ background: earned ? 'rgba(255,218,118,0.2)' : 'rgba(255,255,255,0.05)', border: `2px solid ${earned ? '#ffda76' : 'rgba(255,255,255,0.1)'}`, borderRadius: 'var(--r-lg)', padding: '0.5rem', textAlign: 'center', transition: 'all 0.3s', position: 'relative' }}>
+                    <div style={{ fontSize: '1.25rem', marginBottom: '2px', filter: earned ? 'none' : 'grayscale(1) opacity(0.3)' }}>{mod.achievement.icon}</div>
+                    <div style={{ fontSize: '0.55rem', fontWeight: 800, color: earned ? '#ffda76' : 'rgba(255,255,255,0.3)', lineHeight: 1.2 }}>{mod.achievement.title}</div>
+                    {earned && (
+                      <div style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#4ade80', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: 900, color: '#0f2a3d' }}>✓</div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Fortschrittsbalken */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>
+              <span>{Object.keys(achievements).filter(id => REQUIRED_MODULE_IDS.includes(id)).length} von 4 Modulen</span>
+              <span>{xp} / 1000 XP</span>
+            </div>
+            <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '99px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${Math.min(100, (xp / 1000) * 100)}%`, background: 'linear-gradient(90deg, #ffda76, #f59e0b)', borderRadius: '99px', transition: 'width 0.5s ease' }} />
+            </div>
+          </div>
+        </div>
+
         {/* Zertifikat-Banner */}
         {eligible ? (
           <div style={{ background: 'linear-gradient(135deg, #92400e, #b8860b)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', marginBottom: 'var(--sp-lg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--sp-md)', boxShadow: '0 0 30px rgba(184,134,11,0.4)', color: 'white' }}>
