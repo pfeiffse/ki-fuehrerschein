@@ -13,15 +13,16 @@ body { font-family: 'Fira Sans', system-ui, sans-serif; background: #f4f8fd; col
 .topbar { background: #00295f; color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
 .stripe { height: 4px; background: linear-gradient(90deg,#ffb225 0 25%,#e70c14 25% 50%,#1b1b1b 50% 75%,#3aa533 75%); }
 .offline-badge { background: rgba(245,158,11,0.25); border: 1px solid rgba(245,158,11,0.5); color: #fbbf24; border-radius: 99px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
-.wrap { max-width: 800px; margin: 0 auto; padding: 20px 16px; }
+.wrap { max-width: 800px; margin: 0 auto; padding: 20px 16px 60px; }
 .card { background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 4px 14px rgba(0,41,95,0.08); margin-bottom: 16px; }
 .card h2 { margin-bottom: 12px; font-size: 20px; }
-.btn { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-weight: 700; border: none; border-radius: 99px; padding: 10px 20px; cursor: pointer; font-size: 15px; text-decoration: none; }
+.card h3 { margin-bottom: 8px; font-size: 17px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-weight: 700; border: none; border-radius: 99px; padding: 10px 20px; cursor: pointer; font-size: 15px; transition: all 0.2s; }
 .btn-primary { background: #00295f; color: white; }
-.btn-primary:hover { background: #063b81; }
 .btn-ghost { background: white; color: #00295f; border: 2px solid #d5e0ee; }
 .btn-success { background: #2b8a2b; color: white; }
 .btn-xp { background: #f59e0b; color: #0f2a3d; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
 input.f, textarea.f { width: 100%; padding: 11px 14px; border: 2px solid #d5e0ee; border-radius: 10px; font: inherit; font-size: 15px; margin-bottom: 8px; }
 input.f:focus, textarea.f:focus { border-color: #3c9dd7; outline: none; }
@@ -32,22 +33,36 @@ textarea.f { resize: vertical; }
 .done-badge { display: inline-flex; align-items: center; gap: 6px; background: #dcfce7; color: #166534; border: 1px solid #4ade80; border-radius: 99px; padding: 6px 14px; font-weight: 800; font-size: 14px; margin: 8px 0; }
 .info-box { background: #eef5fc; border-left: 4px solid #063b81; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 14px; }
 .warn-box { background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 14px; }
+.task-box { background: #f0fdf4; border-left: 4px solid #22c55e; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 14px; }
 .progress-bar { height: 8px; background: #e5edf5; border-radius: 99px; overflow: hidden; margin: 8px 0; }
 .progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg,#ffb225,#f59e0b); transition: width 0.5s; }
 .module-card { background: white; border-radius: 14px; padding: 14px 18px; box-shadow: 0 4px 14px rgba(0,41,95,0.08); display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; margin-bottom: 10px; border: 2px solid transparent; transition: all 0.2s; }
 .module-card.clickable { cursor: pointer; }
-.module-card.clickable:hover { border-color: var(--c); }
+.module-card.clickable:hover { transform: translateX(4px); }
 .module-card.done { border-color: #2b8a2b; background: #f0fdf4; }
 .module-card.locked { opacity: 0.5; }
-.mod-circle { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-size: 20px; color: white; background: var(--c); box-shadow: 0 0 0 3px white, 0 0 0 5px var(--c); }
+.mod-circle { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-size: 20px; color: white; flex-shrink: 0; }
 .screen { display: none; }
 .screen.active { display: block; }
+.step-ind { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #56667c; margin-bottom: 8px; }
 .option { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 2px solid #d5e0ee; border-radius: 10px; margin-bottom: 8px; cursor: pointer; }
-.option input { margin-top: 2px; width: 18px; height: 18px; accent-color: #063b81; flex-shrink: 0; }
-.option:has(input:checked) { border-color: #063b81; background: #eef5fc; }
-.feedback-correct { background: #dcfce7; border: 2px solid #4ade80; border-radius: 10px; padding: 10px 14px; color: #166534; font-weight: 700; margin-top: 8px; }
-.feedback-wrong { background: #fee2e2; border: 2px solid #fca5a5; border-radius: 10px; padding: 10px 14px; color: #991b1b; font-weight: 700; margin-top: 8px; }
-.step-indicator { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #56667c; margin-bottom: 8px; }
+.option input { margin-top: 2px; width: 18px; height: 18px; flex-shrink: 0; }
+.fb-ok { background: #dcfce7; border: 2px solid #4ade80; border-radius: 10px; padding: 10px 14px; color: #166534; font-weight: 700; margin-top: 8px; }
+.fb-err { background: #fee2e2; border: 2px solid #fca5a5; border-radius: 10px; padding: 10px 14px; color: #991b1b; font-weight: 700; margin-top: 8px; }
+.phone { background: #1a1a2e; border-radius: 20px; padding: 12px; max-width: 320px; margin: 12px auto; }
+.phone-hdr { background: #1a1a2e; color: white; padding: 8px 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; font-weight: 800; }
+.phone-body { height: 220px; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; background: #0d0d1a; border-radius: 0 0 12px 12px; }
+.bub-ben { background: #2859d8; color: white; border-radius: 12px 12px 3px 12px; padding: 8px 12px; align-self: flex-end; max-width: 85%; font-size: 13px; }
+.bub-ki { background: #1e1e3a; color: white; border-radius: 12px 12px 12px 3px; padding: 8px 12px; max-width: 85%; font-size: 13px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+.nav-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.nav-tab { padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: white; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; }
+.nav-tab.active { background: rgba(255,255,255,0.25); }
+.nav-tab.done-tab { background: rgba(22,163,74,0.2); color: #4ade80; }
+.nav-tab.locked-tab { opacity: 0.3; cursor: not-allowed; }
+.modul-wrap { background: linear-gradient(145deg, #00295f, #063b81); min-height: 100vh; }
+.modul-inner { max-width: 800px; margin: 0 auto; padding: 20px 16px 60px; }
+.mission-hdr { background: rgba(255,255,255,0.06); border-radius: 14px; padding: 16px 20px; margin-bottom: 16px; color: white; }
 </style>
 </head>
 <body>
@@ -59,29 +74,24 @@ textarea.f { resize: vertical; }
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
     <div class="offline-badge">📴 Offline</div>
-    <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px;" onclick="logout()">Abmelden</button>
+    <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px;" onclick="doLogout()">Abmelden</button>
   </div>
 </header>
 <div class="stripe"></div>
 
 <div class="wrap">
-
-<!-- ═══ LOGIN ═══ -->
 <div id="s-login" class="screen active">
   <div class="card">
     <h2 style="color:#00295f;">🤖 KI-Führerschein · Offline-Modus</h2>
     <div class="warn-box" style="margin-bottom:16px;">
-      <strong>📴 Offline-Modus:</strong> Deine Daten bleiben ausschließlich auf diesem Gerät. Kein Server, keine Anmeldung mit Code nötig. Dein Fortschritt geht verloren wenn du den Browser-Cache leerst oder das Gerät wechselst.
+      <strong>📴 Offline-Modus:</strong> Deine Daten bleiben ausschließlich auf diesem Gerät. Kein Server, kein Klassencode nötig.
     </div>
     <label style="font-weight:700;display:block;margin-bottom:6px;">Dein Vorname (oder Pseudonym)</label>
-    <input type="text" id="login-name" class="f" placeholder="z. B. Lena oder Lena7a" maxlength="40" autocomplete="off"
-      onkeydown="if(event.key==='Enter')doLogin()">
+    <input type="text" id="login-name" class="f" placeholder="z. B. Lena oder Lena7a" maxlength="40" autocomplete="off">
     <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">Los geht's →</button>
-    <div id="debug-msg" style="margin-top:8px;font-size:12px;color:#56667c;"></div>
   </div>
 </div>
 
-<!-- ═══ DASHBOARD ═══ -->
 <div id="s-dash" class="screen">
   <div class="card" style="margin-bottom:16px;">
     <div style="font-size:13px;color:#56667c;margin-bottom:4px;">Hallo, <strong id="dash-name"></strong>! 👋</div>
@@ -92,342 +102,334 @@ textarea.f { resize: vertical; }
   <div class="info-box">📋 Trage deine Merksätze auf dem Arbeitsblatt ein, das du von deiner Lehrkraft bekommst.</div>
 </div>
 
-<!-- ═══ MODUL 1 ═══ -->
-<div id="s-m1" class="screen">
-  <div class="card">
-    <div class="step-indicator">Modul 1 · Was ist KI?</div>
-    <h2 style="color:#1d77bd;">🤖 Was ist KI?</h2>
-    <p style="color:#56667c;margin-bottom:16px;">Trainingsdaten · Mustererkennung · Sprach-KI</p>
-
-    <div id="m1-s1">
-      <h3 style="margin-bottom:8px;">Station 1: Trainingsdaten</h3>
-      <p>Eine KI lernt aus Beispielen. Je mehr und vielfältigere Beispiele sie sieht, desto besser kann sie Muster erkennen.</p>
-      <div class="info-box">🐴 Stell dir vor: Eine KI soll Pferde erkennen. Sie bekommt 100 Fotos von braunen Pferden. Was passiert, wenn sie dann ein weißes Pferd sieht?</div>
-      <div class="merksatz"><p>KI lernt Muster aus Beispielen. Wichtig sind viele und <strong>vielfältige</strong> Trainingsdaten – nicht nur viele ähnliche.</p></div>
-      <div class="actions"><button class="btn btn-xp" onclick="m1Next(2)">Weiter → Station 2</button></div>
+<div id="s-m1" class="screen modul-wrap">
+  <div class="modul-inner">
+    <div class="mission-hdr">
+      <div style="font-size:12px;opacity:0.7;margin-bottom:4px;">KI-Führerschein · Modul 1</div>
+      <h1 style="color:white;font-size:22px;">🤖 Was ist KI?</h1>
+      <p style="color:rgba(255,255,255,0.7);font-size:14px;">Trainingsdaten · Mustererkennung · Sprach-KI</p>
+      <div class="progress-bar" style="margin-top:10px;"><div class="progress-fill" id="m1-bar" style="width:0%"></div></div>
     </div>
-
-    <div id="m1-s2" style="display:none;">
-      <h3 style="margin-bottom:8px;">Station 2: Falsche Muster (Bias)</h3>
-      <p>Eine KI kann auch <strong>falsche Muster</strong> lernen. Wenn alle Trainingsfotos ein Wasserzeichen „R" haben, lernt die KI: „R = Pferd".</p>
-      <div class="info-box">💡 Das nennt man <strong>Bias</strong>: Die KI hat ein falsches Merkmal gelernt. Dann erkennt sie sogar ein Auto als Pferd – wenn es das „R" trägt!</div>
-      <div class="merksatz"><p>KI kann unbeabsichtigt falsche Merkmale lernen. Das nennt man <strong>Bias</strong>. Deshalb ist die sorgfältige Auswahl von Trainingsdaten so wichtig.</p></div>
-      <div class="actions"><button class="btn btn-xp" onclick="m1Next(3)">Weiter → Station 3</button></div>
-    </div>
-
-    <div id="m1-s3" style="display:none;">
-      <h3 style="margin-bottom:8px;">Station 3: Kontext & Wahrscheinlichkeiten</h3>
-      <p>Sprach-KI schaut auf den bisherigen Text und berechnet, welches Wort als nächstes wahrscheinlich kommt.</p>
-      <div class="info-box">🥪 „In der Pause esse ich ein ___" → Sandwich: 65%, Croissant: 30%, Fahrrad: 5%<br>⚽ „Auf dem Sportplatz entdecke ich ein ___" → Ball: 50%, Fahrrad: 45%, Kühlschrank: 5%</div>
-      <p style="margin-top:8px;"><strong>Wahrscheinlich ≠ Richtig!</strong> KI kann auch falsch liegen – sie wählt das häufigste Wort, nicht das korrekte.</p>
-      <div class="merksatz"><p>Der Kontext beeinflusst, welche Wörter wahrscheinlich als nächstes kommen. Wahrscheinlich bedeutet aber nicht richtig – KI kann auch falsch liegen.</p></div>
-      <div class="actions"><button class="btn btn-xp" onclick="m1Next(4)">Weiter → Station 4</button></div>
-    </div>
-
-    <div id="m1-s4" style="display:none;">
-      <h3 style="margin-bottom:8px;">Station 4: Satzwerkstatt</h3>
-      <p>Sprach-KI baut Sätze Schritt für Schritt. Jedes Wort beeinflusst, welche Wörter danach wahrscheinlich sind.</p>
-      <div class="info-box">🧱 Beispiel: „Der Hund ___" → läuft, schläft, bellt (alle passen)<br>„Der Hund läuft ___" → schnell, durch den Park, nach Hause (jetzt sind andere Wörter wahrscheinlich)</div>
-      <div class="merksatz"><p>Eine Sprach-KI erzeugt Texte Schritt für Schritt. Was schon dasteht, beeinflusst, welche Wörter als nächstes wahrscheinlich sind.</p></div>
-      <div class="actions"><button class="btn btn-success" onclick="completeModule('m1')">✓ Modul 1 abschließen</button></div>
+    <div class="nav-tabs" id="m1-tabs"></div>
+    <div id="m1-content"></div>
+    <div class="actions" style="margin-top:20px;">
+      <button class="btn btn-ghost" style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.3);" onclick="showDash()">← Übersicht</button>
     </div>
   </div>
-  <div class="actions"><button class="btn btn-ghost" onclick="showDash()">← Zurück</button></div>
 </div>
 
-<!-- ═══ MODUL 2 ═══ -->
-<div id="s-m2" class="screen">
-  <div class="card">
-    <div class="step-indicator">Modul 2 · KI sinnvoll nutzen</div>
-    <h2 style="color:#c26a00;">✅ KI sinnvoll nutzen</h2>
-    <p style="color:#56667c;margin-bottom:16px;">Fehler erkennen · Prompts · Verantwortung</p>
-
-    <div id="m2-s1">
-      <h3 style="margin-bottom:8px;">Die 5 Grundsätze</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-        <div style="background:#fff7ed;border:2px solid #c26a00;border-radius:10px;padding:12px;">
-          <strong style="color:#92400e;">1. Werkzeug</strong><br>
-          <span style="font-size:14px;">KI unterstützt dich. Sie übernimmt weder dein Denken noch deine Verantwortung.</span>
-        </div>
-        <div style="background:#fff7ed;border:2px solid #c26a00;border-radius:10px;padding:12px;">
-          <strong style="color:#92400e;">2. Prüfen</strong><br>
-          <span style="font-size:14px;">Klingt richtig bedeutet nicht automatisch: ist richtig.</span>
-        </div>
-        <div style="background:#fff7ed;border:2px solid #c26a00;border-radius:10px;padding:12px;">
-          <strong style="color:#92400e;">3. Lernen</strong><br>
-          <span style="font-size:14px;">Nutze KI zum Erklären, Üben und Verbessern, nicht zum bloßen Abschreiben.</span>
-        </div>
-        <div style="background:#fff7ed;border:2px solid #c26a00;border-radius:10px;padding:12px;">
-          <strong style="color:#92400e;">4. Genau fragen</strong><br>
-          <span style="font-size:14px;">Nenne Thema, Ziel, Klassenstufe und gewünschte Form.</span>
-        </div>
-        <div style="background:#fff7ed;border:2px solid #c26a00;border-radius:10px;padding:12px;grid-column:1/-1;">
-          <strong style="color:#92400e;">5. Kritisch bleiben</strong><br>
-          <span style="font-size:14px;">KI-Ergebnisse können einseitig, unfair oder unvollständig sein.</span>
-        </div>
-      </div>
-      <div class="merksatz"><p>KI unterstützt dich – sie übernimmt weder dein Denken noch deine Verantwortung. Prüfe KI-Antworten immer kritisch.</p></div>
-      <div class="actions"><button class="btn btn-xp" onclick="m2Next(2)">Weiter</button></div>
+<div id="s-m2" class="screen modul-wrap">
+  <div class="modul-inner">
+    <div class="mission-hdr">
+      <div style="font-size:12px;opacity:0.7;margin-bottom:4px;">KI-Führerschein · Modul 2</div>
+      <h1 style="color:white;font-size:22px;">✅ KI sinnvoll nutzen</h1>
+      <p style="color:rgba(255,255,255,0.7);font-size:14px;">Fehler erkennen · Prompts · Verantwortung</p>
+      <div class="progress-bar" style="margin-top:10px;"><div class="progress-fill" id="m2-bar" style="width:0%"></div></div>
     </div>
-
-    <div id="m2-s2" style="display:none;">
-      <h3 style="margin-bottom:8px;">KI-Fehler erkennen</h3>
-      <p>KI kann Fehler machen – auch wenn die Antwort überzeugend klingt. Das nennt man <strong>Halluzination</strong>.</p>
-      <div class="info-box">🕵️ Aufgabe: Öffne <a href="https://app.ais-chat.de" target="_blank" style="color:#063b81;">app.ais-chat.de</a> und stelle der KI eine Frage zu einem Thema, das du kennst. Prüfe die Antwort: Was stimmt? Was ist falsch?</div>
-      <div class="merksatz"><p>KI-Antworten klingen oft überzeugend – aber sie können falsch sein. Prüfe immer mit verlässlichen Quellen.</p></div>
-      <div class="actions"><button class="btn btn-xp" onclick="m2Next(3)">Weiter</button></div>
-    </div>
-
-    <div id="m2-s3" style="display:none;">
-      <h3 style="margin-bottom:8px;">Mein KI-Kompass</h3>
-      <p>Formuliere deine persönliche Regel für den Umgang mit KI:</p>
-      <label style="font-weight:700;display:block;margin:8px 0 4px;">Bevor ich KI nutze, frage ich mich …</label>
-      <textarea class="f" id="m2-kompass" rows="3" placeholder="z. B. … ob ich das auch selbst herausfinden könnte und ob KI hier wirklich hilft."></textarea>
-      <div class="merksatz"><p>Mein KI-Kompass: Bevor ich KI nutze, frage ich mich, ob sie wirklich notwendig ist und ob ich die Antwort selbst überprüfen kann.</p></div>
-      <div class="actions"><button class="btn btn-success" onclick="completeModule('m2')">✓ Modul 2 abschließen</button></div>
+    <div class="nav-tabs" id="m2-tabs"></div>
+    <div id="m2-content"></div>
+    <div class="actions" style="margin-top:20px;">
+      <button class="btn btn-ghost" style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.3);" onclick="showDash()">← Übersicht</button>
     </div>
   </div>
-  <div class="actions"><button class="btn btn-ghost" onclick="showDash()">← Zurück</button></div>
 </div>
 
-<!-- ═══ MODUL 3 ═══ -->
-<div id="s-m3" class="screen">
-  <div class="card">
-    <div class="step-indicator">Modul 3 · Kennzeichnung & Datenschutz</div>
-    <h2 style="color:#d0121a;">🛡️ Kennzeichnung & Datenschutz</h2>
-    <p style="color:#56667c;margin-bottom:16px;">Ben plant eine Party · Digitale Privatsphäre · Kennzeichnungspflicht</p>
-
-    <div id="m3-s1">
-      <h3 style="margin-bottom:8px;">Ben plant eine Party</h3>
-      <p>Ben chattet mit einer KI und verrät dabei viele persönliche Informationen:</p>
-      <div style="background:#1a1a2e;border-radius:12px;padding:16px;margin:12px 0;">
-        <div style="color:#4ade80;font-size:12px;margin-bottom:8px;">🤖 KI-Assistent · Online</div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <div style="background:#2859d8;color:white;border-radius:10px 10px 3px 10px;padding:8px 12px;align-self:flex-end;max-width:80%;font-size:14px;">Hey, ich werde nächste Woche 13! Wir feiern in der Lindenstraße 18 in Berlin.</div>
-          <div style="background:#1e1e3a;color:white;border-radius:10px 10px 10px 3px;padding:8px 12px;max-width:80%;font-size:14px;">Klingt toll! Wie viele Gäste kommen?</div>
-          <div style="background:#2859d8;color:white;border-radius:10px 10px 3px 10px;padding:8px 12px;align-self:flex-end;max-width:80%;font-size:14px;">Ungefähr zwölf. Meine Eltern sind freitags bis 19 Uhr arbeiten.</div>
-        </div>
-      </div>
-      <p><strong>Was hat Ben verraten?</strong> Adresse, Alter, Schule, Tagesablauf, wann Eltern weg sind...</p>
-      <div class="merksatz"><p>Einzelne Informationen wirken harmlos. Zusammen können sie verraten, wo du wohnst, wann du allein bist und wie man dich findet. Teile nur Daten, die für deine Frage wirklich nötig sind.</p></div>
-      <div class="actions"><button class="btn btn-xp" onclick="m3Next(2)">Weiter</button></div>
+<div id="s-m3" class="screen modul-wrap">
+  <div class="modul-inner">
+    <div class="mission-hdr">
+      <div style="font-size:12px;opacity:0.7;margin-bottom:4px;">KI-Führerschein · Modul 3</div>
+      <h1 style="color:white;font-size:22px;">🛡️ Kennzeichnung & Datenschutz</h1>
+      <p style="color:rgba(255,255,255,0.7);font-size:14px;">Ben plant eine Party · Digitale Privatsphäre · Kennzeichnungspflicht</p>
+      <div class="progress-bar" style="margin-top:10px;"><div class="progress-fill" id="m3-bar" style="width:0%"></div></div>
     </div>
-
-    <div id="m3-s2" style="display:none;">
-      <h3 style="margin-bottom:8px;">Digitale Privatsphäre</h3>
-      <p>Was bedeutet digitale Privatsphäre für dich?</p>
-      <textarea class="f" id="m3-privacy" rows="3" placeholder="Ich denke, digitale Privatsphäre bedeutet, dass …"></textarea>
-      <div class="info-box">🎬 Tipp: Schau dir den Film „Without Consent" an – er zeigt, was passiert wenn persönliche Bilder ohne Zustimmung weitergegeben werden.</div>
-      <div class="merksatz"><p>Deine Bilder und Informationen gehören zu deiner Privatsphäre. Du hast das Recht mitzubestimmen, wer sie sieht und verwendet.</p></div>
-      <div class="actions"><button class="btn btn-xp" onclick="m3Next(3)">Weiter</button></div>
-    </div>
-
-    <div id="m3-s3" style="display:none;">
-      <h3 style="margin-bottom:8px;">Kennzeichnungspflicht</h3>
-      <p>Wann muss ich KI-Nutzung kennzeichnen?</p>
-      <div style="display:flex;flex-direction:column;gap:8px;margin:12px 0;">
-        <label class="option"><input type="radio" name="m3q" value="a"> Nur wenn die Lehrkraft es ausdrücklich verlangt.</label>
-        <label class="option"><input type="radio" name="m3q" value="b"> Immer wenn KI-generierte Inhalte als eigene Arbeit ausgegeben werden könnten.</label>
-        <label class="option"><input type="radio" name="m3q" value="c"> Nie – KI ist nur ein Werkzeug wie ein Taschenrechner.</label>
-      </div>
-      <div id="m3-feedback"></div>
-      <div class="actions">
-        <button class="btn btn-xp" onclick="checkM3()">Antwort prüfen</button>
-      </div>
+    <div class="nav-tabs" id="m3-tabs"></div>
+    <div id="m3-content"></div>
+    <div class="actions" style="margin-top:20px;">
+      <button class="btn btn-ghost" style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.3);" onclick="showDash()">← Übersicht</button>
     </div>
   </div>
-  <div class="actions"><button class="btn btn-ghost" onclick="showDash()">← Zurück</button></div>
 </div>
 
-<!-- ═══ MODUL 4 ═══ -->
-<div id="s-m4" class="screen">
-  <div class="card">
-    <div class="step-indicator">Modul 4 · KI & Nachhaltigkeit</div>
-    <h2 style="color:#2b8a2b;">🌱 KI & Nachhaltigkeit</h2>
-    <p style="color:#56667c;margin-bottom:16px;">Ressourcen · Energie · Bewusster Einsatz</p>
-
-    <div id="m4-s1">
-      <h3 style="margin-bottom:8px;">Was kostet eine KI-Anfrage?</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;">
-        <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:10px;padding:12px;text-align:center;">
-          <div style="font-size:24px;margin-bottom:4px;">💧</div>
-          <strong style="color:#166534;">Wasser</strong><br>
-          <span style="font-size:13px;color:#56667c;">Eine KI-Anfrage verbraucht ca. 0,5 ml Wasser zur Kühlung der Server</span>
-        </div>
-        <div style="background:#fefce8;border:2px solid #eab308;border-radius:10px;padding:12px;text-align:center;">
-          <div style="font-size:24px;margin-bottom:4px;">⚡</div>
-          <strong style="color:#713f12;">Energie</strong><br>
-          <span style="font-size:13px;color:#56667c;">Ca. 0,3 Wh pro Anfrage – 50 Anfragen ≈ 1 Handy-Akkuladung</span>
-        </div>
-        <div style="background:#f5f3ff;border:2px solid #8b5cf6;border-radius:10px;padding:12px;text-align:center;">
-          <div style="font-size:24px;margin-bottom:4px;">🖥️</div>
-          <strong style="color:#4c1d95;">Rechenzentren</strong><br>
-          <span style="font-size:13px;color:#56667c;">Riesige Serverfarmen mit leistungsstarken Chips – Kühlung verbraucht bis zu 30% der Energie</span>
-        </div>
-        <div style="background:#ecfdf5;border:2px solid #10b981;border-radius:10px;padding:12px;text-align:center;">
-          <div style="font-size:24px;margin-bottom:4px;">🌍</div>
-          <strong style="color:#064e3b;">Rohstoffe</strong><br>
-          <span style="font-size:13px;color:#56667c;">KI-Chips brauchen seltene Metalle – deren Abbau belastet die Umwelt</span>
-        </div>
-      </div>
-      <div class="merksatz"><p>KI-Anfragen verbrauchen Energie und Wasser. Viele kleine Anfragen summieren sich. Überlege vor jeder Anfrage, ob sie wirklich notwendig ist.</p></div>
-      <div class="actions"><button class="btn btn-xp" onclick="m4Next(2)">Weiter</button></div>
+<div id="s-m4" class="screen modul-wrap">
+  <div class="modul-inner">
+    <div class="mission-hdr">
+      <div style="font-size:12px;opacity:0.7;margin-bottom:4px;">KI-Führerschein · Modul 4</div>
+      <h1 style="color:white;font-size:22px;">🌱 KI & Nachhaltigkeit</h1>
+      <p style="color:rgba(255,255,255,0.7);font-size:14px;">Ressourcen · Energie · Bewusster Einsatz</p>
+      <div class="progress-bar" style="margin-top:10px;"><div class="progress-fill" id="m4-bar" style="width:0%"></div></div>
     </div>
-
-    <div id="m4-s2" style="display:none;">
-      <h3 style="margin-bottom:8px;">Meine Nachhaltigkeitsregel</h3>
-      <p>In welchen Situationen würdest du auf KI verzichten?</p>
-      <div style="display:flex;flex-direction:column;gap:8px;margin:12px 0;" id="m4-situations">
-        <label class="option"><input type="checkbox" value="s1"> Wenn ich eine einfache Frage auch selbst beantworten kann</label>
-        <label class="option"><input type="checkbox" value="s2"> Wenn ich nur ein kurzes Bild generieren möchte</label>
-        <label class="option"><input type="checkbox" value="s3"> Wenn ich Hausaufgaben komplett von KI schreiben lassen würde</label>
-        <label class="option"><input type="checkbox" value="s4"> Wenn ich etwas aus Neugier frage, das ich auch googeln könnte</label>
-      </div>
-      <label style="font-weight:700;display:block;margin:8px 0 4px;">Meine persönliche Nachhaltigkeitsregel:</label>
-      <textarea class="f" id="m4-regel" rows="2" placeholder="Ich nutze KI bewusst, indem ich …"></textarea>
-      <div class="merksatz"><p>Überlege vor jeder KI-Anfrage, ob sie wirklich notwendig und sinnvoll ist. Bewusster Einsatz schont Ressourcen und fördert eigenes Denken.</p></div>
-      <div class="actions"><button class="btn btn-success" onclick="completeModule('m4')">✓ Modul 4 abschließen</button></div>
+    <div class="nav-tabs" id="m4-tabs"></div>
+    <div id="m4-content"></div>
+    <div class="actions" style="margin-top:20px;">
+      <button class="btn btn-ghost" style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.3);" onclick="showDash()">← Übersicht</button>
     </div>
   </div>
-  <div class="actions"><button class="btn btn-ghost" onclick="showDash()">← Zurück</button></div>
 </div>
-
-</div><!-- /wrap -->
+</div>
 
 <script>
-// Sofort-Test beim Laden
-console.log('[offline] Script geladen OK')
-try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); console.log('[offline] localStorage OK') }
-catch(e) { console.warn('[offline] localStorage:', e) }
+// ═══ STATE ═══
+var STATE = { name:'', modDone:{}, modStep:{}, stepDone:{}, answers:{}, sliders:{}, checks:{} }
+function loadState() { try { var s=localStorage.getItem('ki_off_v3'); if(s) STATE=JSON.parse(s) } catch(e){} }
+function saveState() { try { localStorage.setItem('ki_off_v3',JSON.stringify(STATE)) } catch(e){} }
+function markStepDone(m,s) { STATE.stepDone[m+'-'+s]=true; saveState() }
+function isStepDone(m,s) { return !!STATE.stepDone[m+'-'+s] }
+function markModDone(id) { STATE.modDone[id]=true; saveState(); alert('✅ Modul abgeschlossen! Trage die Merksätze auf dein Arbeitsblatt ein.'); showDash() }
 
-var MODS = [
-  { id:'m1', title:'Was ist KI?',               sub:'Trainingsdaten - Mustererkennung - Sprach-KI', icon:'🤖', color:'#1d77bd' },
-  { id:'m2', title:'KI sinnvoll nutzen',         sub:'Fehler erkennen - Prompts - Verantwortung',   icon:'✅', color:'#c26a00' },
-  { id:'m3', title:'Kennzeichnung & Datenschutz',sub:'Digitale Privatsphaere - Kennzeichnungspflicht',icon:'🛡️',color:'#d0121a' },
-  { id:'m4', title:'KI & Nachhaltigkeit',        sub:'Ressourcen - Energie - Bewusster Einsatz',    icon:'🌱', color:'#2b8a2b' }
+// ═══ NAVIGATION ═══
+function show(id) { document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')}); var el=document.getElementById(id); if(el) el.classList.add('active'); window.scrollTo(0,0) }
+function doLogin() { var n=document.getElementById('login-name').value.trim(); if(!n){alert('Bitte deinen Namen eingeben.');return} STATE.name=n; saveState(); showDash() }
+function doLogout() { if(confirm('Wirklich abmelden?')){STATE.name='';saveState();show('s-login')} }
+function showDash() {
+  if(!STATE.name){show('s-login');return}
+  document.getElementById('topbar-name').textContent=STATE.name
+  document.getElementById('dash-name').textContent=STATE.name
+  var done=0; for(var i=0;i<MODS.length;i++){if(STATE.modDone[MODS[i].id])done++}
+  document.getElementById('dash-bar').style.width=(done/4*100)+'%'
+  document.getElementById('dash-text').textContent=done+' von 4 Modulen abgeschlossen'
+  var html=''
+  for(var i=0;i<MODS.length;i++){
+    var m=MODS[i],isDone=!!STATE.modDone[m.id],isLocked=i>0&&!STATE.modDone[MODS[i-1].id]
+    var cls='module-card'+(isDone?' done':'')+(isLocked?' locked':' clickable')
+    var oc=isLocked?'':' onclick="openMod(''+m.id+'')"'
+    var cs='background:'+(isDone?'#2b8a2b':m.color)+';box-shadow:0 0 0 3px white,0 0 0 5px '+(isDone?'#2b8a2b':m.color)
+    html+='<div class="'+cls+'"'+oc+'><div class="mod-circle" style="'+cs+'">'+(isDone?'&#10003;':isLocked?'&#128274;':m.icon)+'</div>'
+    html+='<div><div style="font-weight:800;font-size:16px;">'+m.title+'</div><div style="font-size:13px;color:#56667c;">'+m.sub+'</div></div>'
+    html+='<div style="font-size:13px;font-weight:700;color:'+(isDone?'#2b8a2b':isLocked?'#9aa9bf':'#56667c')+'">'+(isDone?'&#10003; Fertig':isLocked?'Gesperrt':'Starten &rarr;')+'</div></div>'
+  }
+  document.getElementById('dash-modules').innerHTML=html; show('s-dash')
+}
+function openMod(id) { var step=STATE.modStep[id]||getSteps(id)[0].id; renderStep(id,step); show('s-'+id) }
+function getSteps(id) { if(id==='m1')return M1; if(id==='m2')return M2; if(id==='m3')return M3; if(id==='m4')return M4; return [] }
+function renderStep(modId,stepId) {
+  STATE.modStep[modId]=stepId; saveState()
+  var steps=getSteps(modId),step=null
+  for(var i=0;i<steps.length;i++){if(steps[i].id===stepId){step=steps[i];break}}
+  if(!step)return
+  var tabsHtml='',doneCount=0
+  for(var i=0;i<steps.length;i++){
+    var s=steps[i],isDone=isStepDone(modId,s.id),isCurrent=s.id===stepId,isLocked=i>0&&!isStepDone(modId,steps[i-1].id)
+    if(isDone)doneCount++
+    var cls='nav-tab'+(isCurrent?' active':'')+(isDone?' done-tab':'')+(isLocked?' locked-tab':'')
+    var oc=isLocked?'':' onclick="renderStep(''+modId+'',''+s.id+'')"'
+    tabsHtml+='<button class="'+cls+'"'+oc+'>'+(isDone?'✓ ':'')+(isLocked?'🔒 ':'')+s.title+'</button>'
+  }
+  document.getElementById(modId+'-tabs').innerHTML=tabsHtml
+  document.getElementById(modId+'-bar').style.width=(doneCount/steps.length*100)+'%'
+  document.getElementById(modId+'-content').innerHTML=step.content()
+}
+function nextStep(modId,curId) {
+  markStepDone(modId,curId)
+  var steps=getSteps(modId),idx=-1
+  for(var i=0;i<steps.length;i++){if(steps[i].id===curId){idx=i;break}}
+  if(idx>=0&&idx<steps.length-1){renderStep(modId,steps[idx+1].id)}
+  else{markModDone(modId)}
+  window.scrollTo(0,0)
+}
+function saveAns(k,v){STATE.answers[k]=v;saveState()}
+
+// ═══ DATEN ═══
+var MODS=[
+  {id:'m1',title:'Was ist KI?',sub:'Trainingsdaten · Mustererkennung · Sprach-KI',icon:'🤖',color:'#1d77bd'},
+  {id:'m2',title:'KI sinnvoll nutzen',sub:'Fehler erkennen · Prompts · Verantwortung',icon:'✅',color:'#c26a00'},
+  {id:'m3',title:'Kennzeichnung & Datenschutz',sub:'Digitale Privatsphäre · Kennzeichnungspflicht',icon:'🛡️',color:'#d0121a'},
+  {id:'m4',title:'KI & Nachhaltigkeit',sub:'Ressourcen · Energie · Bewusster Einsatz',icon:'🌱',color:'#2b8a2b'}
 ]
 
-function getP() {
-  try { return JSON.parse(localStorage.getItem('ki_off_prog') || '{}') } catch(e) { return {} }
-}
-function saveP(p) {
-  try { localStorage.setItem('ki_off_prog', JSON.stringify(p)) } catch(e) {}
-}
-function getName() {
-  return localStorage.getItem('ki_off_name') || ''
-}
+// ═══ MODUL 1 ═══
+var M1=[
+  {id:'s1',title:'Trainingsdaten',content:function(){return m1s1()}},
+  {id:'s2',title:'Bias & Wasserzeichen',content:function(){return m1s2()}},
+  {id:'s3',title:'Kontext & Wahrscheinlichkeit',content:function(){return m1s3()}},
+  {id:'s4',title:'Satzwerkstatt',content:function(){return m1s4()}}
+]
+function m1s1(){var d=isStepDone('m1','s1');return '<div class="card"><div class="step-ind">Station 1 von 4 · Trainingsdaten</div><h2 style="color:#1d77bd;">🐴 Wie lernt die Mini-KI Pferde erkennen?</h2><p style="margin-bottom:12px;">Du wirst zum KI-Trainer! Eine KI lernt aus Beispielen – aber wie viele braucht sie, und welche?</p><div class="info-box"><strong>Experiment:</strong> Eine Mini-KI bekommt Fotos von braunen Pferden. Was passiert wenn sie 100 Fotos sieht? 10.000? 1.000.000? Und was wenn alle Fotos nur braune Pferde zeigen?</div><div style="background:#f0fafb;border-radius:10px;padding:16px;margin:12px 0;"><strong style="color:#1d77bd;">Beobachtung 1:</strong> Nach 100 braunen Pferdefotos erkennt die KI braune Pferde – aber keinen Schimmel.<br><br><strong style="color:#1d77bd;">Beobachtung 2:</strong> Nach 1.000.000 braunen Pferdefotos erkennt die KI immer noch keinen Schimmel!<br><br><strong style="color:#1d77bd;">Erkenntnis:</strong> Menge allein reicht nicht – die KI braucht auch <strong>Vielfalt</strong>.</div><div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:10px;padding:14px;margin:12px 0;"><strong style="color:#991b1b;">🤖💥 Kaputte KI – Garbage In, Garbage Out:</strong><br>Eine KI wurde nur mit Pferden auf Wiesen trainiert. Jetzt sagt sie:<br>🐄 Kuh auf Wiese → "Pferd! (95%)" ❌<br>🐑 Schaf auf Wiese → "Pferd! (87%)" ❌<br>🧑 Mensch auf Wiese → "Pferd! (78%)" ❌<br>Sie hat das falsche Muster gelernt: "Wiese = Pferd"</div><div class="merksatz"><p>KI lernt Muster aus Beispielen. Wichtig sind viele und <strong>vielfältige</strong> Trainingsdaten – nicht nur viele ähnliche. Schlechte Trainingsdaten → schlechte KI ("Garbage In, Garbage Out").</p></div>'+(d?'<div class="done-badge">✓ Station 1 abgeschlossen</div>':'<div class="actions"><button class="btn btn-success" onclick="nextStep('m1','s1')">Station 1 abschließen →</button></div>')+'</div>'}
+function m1s2(){var d=isStepDone('m1','s2');return '<div class="card"><div class="step-ind">Station 2 von 4 · Bias & Wasserzeichen</div><h2 style="color:#1d77bd;">🔍 Das Wasserzeichen-Rätsel</h2><p style="margin-bottom:12px;">Die Mini-KI wurde mit 6 Pferdefotos trainiert – alle hatten ein kleines "R" als Wasserzeichen unten rechts.</p><div style="background:#fffbeb;border:2px solid #f59e0b;border-radius:10px;padding:14px;margin:12px 0;"><strong>Was passiert beim Test?</strong><br><br>🐴 Echtes Pferd mit R → "Pferd!" ✅ (aber aus falschem Grund!)<br>🐴 Echtes Pferd ohne R → "Pferd!" ✅<br>🚗 Auto MIT R → "Pferd!" ❌ (das R hat sie getäuscht!)<br>🚗 Auto ohne R → "Kein Pferd" ✅</div><div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:10px;padding:14px;margin:12px 0;"><strong style="color:#991b1b;">💡 Was ist passiert?</strong><br>Die KI hat das "R" als Merkmal für "Pferd" gelernt – obwohl es nichts mit Pferden zu tun hat.<br>Das nennt man einen <strong>Bias</strong>: ein falsches, unbeabsichtigt gelerntes Muster.</div><div class="merksatz"><p>KI kann unbeabsichtigt falsche Merkmale lernen – das nennt man <strong>Bias</strong>. Deshalb ist die sorgfältige Auswahl und Prüfung von Trainingsdaten so wichtig.</p></div>'+(d?'<div class="done-badge">✓ Station 2 abgeschlossen</div>':'<div class="actions"><button class="btn btn-success" onclick="nextStep('m1','s2')">Station 2 abschließen →</button></div>')+'</div>'}
+function m1s3(){var d=isStepDone('m1','s3');return '<div class="card"><div class="step-ind">Station 3 von 4 · Kontext & Wahrscheinlichkeiten</div><h2 style="color:#1d77bd;">💬 Wie verändert der Kontext Wortwahrscheinlichkeiten?</h2><p style="margin-bottom:12px;">Eine Sprach-KI schaut auf den bisherigen Text und berechnet, welches Wort als nächstes wahrscheinlich kommt.</p><div class="grid2"><div style="background:#e6f0ff;border:2px solid #1d77bd;border-radius:10px;padding:12px;"><strong>🏫 Pause-Kontext:</strong><br>"In der Pause esse ich ein ___"<br><br>🥪 Sandwich: <strong>65%</strong><br>🥐 Croissant: 30%<br>🚲 Fahrrad: 5%</div><div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:10px;padding:12px;"><strong>⚽ Sportplatz-Kontext:</strong><br>"Auf dem Sportplatz entdecke ich ___"<br><br>⚽ Ball: <strong>50%</strong><br>🚲 Fahrrad: <strong>45%</strong><br>🧊 Kühlschrank: 5%</div></div><div class="info-box">💡 Das Fahrrad springt von 5% auf 45% – nur weil sich der Kontext ändert!</div><div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:10px;padding:14px;margin:12px 0;"><strong style="color:#991b1b;">⚠️ Wahrscheinlich ≠ Richtig!</strong><br>"Die Hauptstadt von Australien ist ___" → KI sagt: Sydney ❌ (richtig: Canberra)<br>Sydney kommt in Texten über Australien häufiger vor – aber es ist nicht die Hauptstadt!</div><div class="merksatz"><p>Der Kontext beeinflusst, welche Wörter wahrscheinlich als nächstes kommen. Wahrscheinlich bedeutet aber nicht richtig – KI kann auch falsch liegen.</p></div>'+(d?'<div class="done-badge">✓ Station 3 abgeschlossen</div>':'<div class="actions"><button class="btn btn-success" onclick="nextStep('m1','s3')">Station 3 abschließen →</button></div>')+'</div>'}
+function m1s4(){var d=isStepDone('m1','s4'),k='m1-s4',sv=STATE.answers[k]||'';return '<div class="card"><div class="step-ind">Station 4 von 4 · Satzwerkstatt</div><h2 style="color:#1d77bd;">🧱 Wie baut Sprach-KI Sätze?</h2><p style="margin-bottom:12px;">Sprach-KI baut Sätze Schritt für Schritt. Jedes Wort beeinflusst, welche Wörter danach wahrscheinlich sind.</p><div style="background:#f0fafb;border-radius:10px;padding:16px;margin:12px 0;"><strong>Beispiel:</strong><br>"Der Hund ___" → läuft / schläft / bellt<br>"Der Hund läuft ___" → schnell / durch den Park / nach Hause<br>"Der Hund läuft schnell ___" → über die Wiese / durch den Wald<br><br><em>Jede Wahl schränkt die nächste ein – genau wie bei echter Sprach-KI!</em></div><label style="font-weight:700;display:block;margin:8px 0 4px;">Mein eigener Satz:</label><textarea class="f" id="m1s4in" rows="3" placeholder="z. B. Die KI lernt aus vielen Beispielen und erkennt dann Muster..." onchange="saveAns(''+k+'',this.value)">'+sv+'</textarea><div class="merksatz"><p>Eine Sprach-KI erzeugt Texte Schritt für Schritt. Was schon dasteht, beeinflusst, welche Wörter als nächstes wahrscheinlich sind.</p></div>'+(d?'<div class="done-badge">✓ Station 4 abgeschlossen</div>':'<div class="actions"><button class="btn btn-success" onclick="saveAns(''+k+'',document.getElementById('m1s4in').value);nextStep('m1','s4')">Modul 1 abschließen ✓</button></div>')+'</div>'}
 
-function doLogin() {
-  var n = document.getElementById('login-name').value.trim()
-  var dbg = document.getElementById('debug-msg')
-  if (!n) { alert('Bitte deinen Namen eingeben.'); return }
-  if (dbg) dbg.textContent = 'Anmeldung...'
-  try { localStorage.setItem('ki_off_name', n) } catch(e) {}
-  if (dbg) dbg.textContent = ''
-  showDash()
-}
-
-function logout() {
-  if (confirm('Wirklich abmelden?')) {
-    try { localStorage.removeItem('ki_off_name') } catch(e) {}
-    show('s-login')
+// ═══ MODUL 2 ═══
+var M2=[
+  {id:'m1',title:'Lagecheck',content:function(){return m2m1()}},
+  {id:'m2',title:'Vertrauensmesser',content:function(){return m2m2()}},
+  {id:'m3',title:'Fehlerjagd',content:function(){return m2m3()}},
+  {id:'m4',title:'Wahr oder überzeugend?',content:function(){return m2m4()}},
+  {id:'m4b',title:'5 Grundsätze',content:function(){return m2m4b()}},
+  {id:'m5',title:'Werkzeugkasten',content:function(){return m2m5()}},
+  {id:'m6',title:'Prompt-Labor',content:function(){return m2m6()}},
+  {id:'m7',title:'KI oder selber?',content:function(){return m2m7()}},
+  {id:'m9',title:'KI-Kompass',content:function(){return m2m9()}}
+]
+function m2m1(){var d=isStepDone('m2','m1'),k='m2m1',sv=STATE.answers[k]||'';return '<div class="card"><div class="step-ind">Mission 1 von 9 · Lagecheck</div><h2 style="color:#c26a00;">🔎 Ist KI schlauer als du?</h2><div class="info-box"><strong>👥 Partnerarbeit, ca. 4 Min.:</strong><br>1. Entscheidet: Ist KI schlauer als du?<br>2. Begründet eure Einschätzung mit einem Beispiel.</div><label style="font-weight:700;display:block;margin:8px 0 4px;">Unsere Einschätzung und Begründung:</label><textarea class="f" id="m2m1in" rows="4" placeholder="Wir denken, KI ist ... weil ..." onchange="saveAns(''+k+'',this.value)">'+sv+'</textarea><div class="info-box">💡 Deine Antwort wird im Finale (Mission 9) wieder aufgegriffen!</div>'+(d?'<div class="done-badge">✓ Mission 1 abgeschlossen</div>':'<div class="actions"><button class="btn btn-xp" onclick="saveAns(''+k+'',document.getElementById('m2m1in').value);nextStep('m2','m1')">Antwort speichern · Weiter →</button></div>')+'</div>'}
+function m2m2(){var d=isStepDone('m2','m2'),v=STATE.sliders['m2m2']||50;return '<div class="card"><div class="step-ind">Mission 2 von 9 · Vertrauensmesser</div><h2 style="color:#c26a00;">🤔 Wie sehr vertraust du KI?</h2><p style="margin-bottom:12px;">Stelle den Regler ein: Wie sehr vertraust du KI-Antworten – ohne sie zu prüfen?</p><div style="text-align:center;margin:16px 0;"><div style="font-size:32px;font-weight:900;color:#c26a00;" id="m2m2v">'+v+'%</div><input type="range" min="0" max="100" value="'+v+'" style="width:100%;accent-color:#c26a00;" oninput="document.getElementById('m2m2v').textContent=this.value+'%';STATE.sliders['m2m2']=parseInt(this.value);saveState()"><div style="display:flex;justify-content:space-between;font-size:12px;color:#56667c;"><span>0% – Gar nicht</span><span>100% – Vollständig</span></div></div><div class="info-box">💡 Nach dem Kurs wirst du diesen Wert vielleicht anpassen wollen!</div>'+(d?'<div class="done-badge">✓ Mission 2 abgeschlossen</div>':'<div class="actions"><button class="btn btn-xp" onclick="nextStep('m2','m2')">Einschätzung speichern · Weiter →</button></div>')+'</div>'}
+function m2m3(){var d=isStepDone('m2','m3');var ks=['m2m3a','m2m3b','m2m3c'];var svs=ks.map(function(k){return STATE.answers[k]||''});return '<div class="card"><div class="step-ind">Mission 3 von 9 · Fehlerjagd</div><h2 style="color:#c26a00;">🕵️ Fehlerjagd mit KI</h2><div class="info-box"><strong>👥 Partnerarbeit:</strong> Öffnet <a href="https://app.ais-chat.de" target="_blank" style="color:#c26a00;">app.ais-chat.de</a> und stellt der KI eine Frage zu einem Thema, das ihr kennt. Sucht nach Fehlern!</div><label style="font-weight:700;display:block;margin:8px 0 4px;">Welche Aussage macht euch misstrauisch?</label><textarea class="f" rows="2" placeholder="Die KI behauptete ..." onchange="saveAns('m2m3a',this.value)">'+svs[0]+'</textarea><label style="font-weight:700;display:block;margin:8px 0 4px;">Womit habt ihr sie geprüft?</label><textarea class="f" rows="2" placeholder="Wir haben geprüft mit ..." onchange="saveAns('m2m3b',this.value)">'+svs[1]+'</textarea><label style="font-weight:700;display:block;margin:8px 0 4px;">Was ist nach der Prüfung richtig?</label><textarea class="f" rows="2" placeholder="Richtig ist ..." onchange="saveAns('m2m3c',this.value)">'+svs[2]+'</textarea><div class="merksatz"><p>KI-Antworten klingen oft überzeugend – aber sie können falsch sein. Prüfe immer mit verlässlichen Quellen.</p></div>'+(d?'<div class="done-badge">✓ Mission 3 abgeschlossen</div>':'<div class="actions"><button class="btn btn-xp" onclick="nextStep('m2','m3')">Fallakte speichern · Weiter →</button></div>')+'</div>'}
+function m2m4(){
+  var d=isStepDone('m2','m4')
+  var items=[
+    {id:'a',text:'Studien zeigen, dass KI-Nutzung die Kreativität um 34% steigert.',type:'u',explain:'Klingt präzise, aber: Welche Studie? Wann? Ohne Quelle ist das nicht überprüfbar.'},
+    {id:'b',text:'KI-Systeme können Fehler machen, weil sie aus menschlichen Daten lernen.',type:'p',explain:'Das ist eine überprüfbare Aussage – sie beschreibt, wie KI funktioniert.'},
+    {id:'c',text:'Diese KI-Antwort ist zu 98% korrekt.',type:'u',explain:'Woher kommt diese Zahl? KI-Systeme können keine eigene Korrektheit messen.'},
+    {id:'d',text:'KI-Sprachmodelle erzeugen Text, indem sie das wahrscheinlichste nächste Wort vorhersagen.',type:'p',explain:'Das ist eine überprüfbare technische Beschreibung.'}
+  ]
+  var html='<div class="card"><div class="step-ind">Mission 4 von 9 · Wahr oder überzeugend?</div><h2 style="color:#c26a00;">🧠 Wahr oder nur überzeugend?</h2><p style="margin-bottom:12px;">Unterscheide überprüfbare Aussagen von überzeugend klingenden Behauptungen.</p><div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;"><span style="background:#dbeafe;color:#1e40af;border-radius:99px;padding:4px 12px;font-size:13px;font-weight:800;">🔵 Überprüfbar</span><span style="background:#fef3c7;color:#92400e;border-radius:99px;padding:4px 12px;font-size:13px;font-weight:800;">🟡 Nur überzeugend</span></div>'
+  var allAns=true
+  for(var i=0;i<items.length;i++){
+    var it=items[i],k='m2m4'+it.id,ans=STATE.answers[k]
+    if(ans===undefined)allAns=false
+    var bc=ans?(ans===it.type?'#4ade80':'#fca5a5'):'#d5e0ee'
+    var bg=ans?(ans===it.type?'#f0fdf4':'#fef2f2'):'white'
+    html+='<div style="border:2px solid '+bc+';border-radius:10px;padding:12px;margin-bottom:8px;background:'+bg+';">'
+    html+='<p style="margin-bottom:8px;font-weight:600;">&bdquo;'+it.text+'&ldquo;</p>'
+    html+='<div style="display:flex;gap:12px;flex-wrap:wrap;">'
+    html+='<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:700;"><input type="radio" name="m4q'+it.id+'" value="p"'+(ans==='p'?' checked':'')+' onchange="saveAns(''+k+'','p');renderStep('m2','m4')"> 🔵 Überprüfbar</label>'
+    html+='<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:700;"><input type="radio" name="m4q'+it.id+'" value="u"'+(ans==='u'?' checked':'')+' onchange="saveAns(''+k+'','u');renderStep('m2','m4')"> 🟡 Nur überzeugend</label>'
+    html+='</div>'
+    if(ans)html+='<p style="margin-top:6px;font-size:13px;color:#56667c;font-style:italic;">'+(ans===it.type?'✅':'❌')+' '+it.explain+'</p>'
+    html+='</div>'
   }
-}
-
-function show(id) {
-  var screens = document.querySelectorAll('.screen')
-  for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active')
-  var el = document.getElementById(id)
-  if (el) el.classList.add('active')
-  window.scrollTo(0,0)
-}
-
-function showDash() {
-  var name = getName()
-  if (!name) { show('s-login'); return }
-  document.getElementById('topbar-name').textContent = name
-  document.getElementById('dash-name').textContent = name
-  var p = getP()
-  var done = 0
-  for (var i = 0; i < MODS.length; i++) { if (p[MODS[i].id]) done++ }
-  document.getElementById('dash-bar').style.width = (done/4*100)+'%'
-  document.getElementById('dash-text').textContent = done+' von 4 Modulen abgeschlossen'
-
-  var html = ''
-  for (var i = 0; i < MODS.length; i++) {
-    var m = MODS[i]
-    var isDone = !!p[m.id]
-    var isLocked = i > 0 && !p[MODS[i-1].id]
-    var cls = 'module-card' + (isDone?' done':'') + (isLocked?' locked':' clickable')
-    var onclick = isLocked ? '' : ' onclick="openMod(' + "'" + m.id + "'" + ')"'
-    var circleStyle = isDone ? 'background:#2b8a2b;box-shadow:0 0 0 3px white,0 0 0 5px #2b8a2b' : ''
-    var icon = isDone ? '&#10003;' : isLocked ? '&#128274;' : m.icon
-    var statusColor = isDone ? '#2b8a2b' : isLocked ? '#9aa9bf' : '#56667c'
-    var statusText = isDone ? '&#10003; Fertig' : isLocked ? 'Gesperrt' : 'Starten &rarr;'
-    html += '<div class="' + cls + '" style="--c:' + m.color + '"' + onclick + '>'
-    html += '<div class="mod-circle" style="' + circleStyle + '">' + icon + '</div>'
-    html += '<div>'
-    html += '<div style="font-weight:800;font-size:16px;">' + m.title + '</div>'
-    html += '<div style="font-size:13px;color:#56667c;">' + m.sub + '</div>'
-    html += '</div>'
-    html += '<div style="font-size:13px;font-weight:700;color:' + statusColor + '">' + statusText + '</div>'
-    html += '</div>'
+  if(allAns){
+    var correct=items.filter(function(it){return STATE.answers['m2m4'+it.id]===it.type}).length
+    html+='<div class="'+(correct>=3?'fb-ok':'fb-err')+'">'+correct+' von 4 richtig. '+(correct>=3?'Gut erkannt!':'Lies die Erklärungen und versuche es erneut.')+'</div>'
+    if(correct>=3&&!d)html+='<div class="actions"><button class="btn btn-xp" onclick="nextStep('m2','m4')">Weiter →</button></div>'
+    else if(correct<3)html+='<div class="actions"><button class="btn btn-ghost" onclick="['a','b','c','d'].forEach(function(x){delete STATE.answers['m2m4'+x]});saveState();renderStep('m2','m4')">↺ Erneut versuchen</button></div>'
   }
-  document.getElementById('dash-modules').innerHTML = html
-  show('s-dash')
+  if(d)html+='<div class="done-badge">✓ Mission 4 abgeschlossen</div>'
+  return html+'</div>'
+}
+function m2m4b(){var d=isStepDone('m2','m4b');var gs=[{n:1,t:'Werkzeug',tx:'KI unterstützt dich. Sie übernimmt weder dein Denken noch deine Verantwortung.'},{n:2,t:'Prüfen',tx:'Klingt richtig bedeutet nicht automatisch: ist richtig.'},{n:3,t:'Lernen',tx:'Nutze KI zum Erklären, Üben und Verbessern, nicht zum bloßen Abschreiben.'},{n:4,t:'Genau fragen',tx:'Nenne Thema, Ziel, Klassenstufe und gewünschte Form.'},{n:5,t:'Kritisch bleiben',tx:'KI-Ergebnisse können einseitig, unfair oder unvollständig sein.'}];var html='<div class="card"><div class="step-ind">Mission 5 von 9 · Fünf Grundsätze</div><h2 style="color:#c26a00;">📋 Fünf Grundsätze für den KI-Umgang</h2><div class="grid2">';for(var i=0;i<gs.length;i++){var g=gs[i];html+='<div style="background:#fff7ed;border:2px solid #c26a00;border-radius:10px;padding:12px;'+(i===4?'grid-column:1/-1':'')+'"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><div style="width:28px;height:28px;border-radius:50%;background:#c26a00;color:white;display:grid;place-items:center;font-weight:900;font-size:13px;flex-shrink:0;">'+g.n+'</div><strong style="color:#92400e;">'+g.t+'</strong></div><p style="font-size:14px;color:#78350f;">'+g.tx+'</p></div>'}html+='</div><div class="merksatz"><p>KI unterstützt dich – sie übernimmt weder dein Denken noch deine Verantwortung. Prüfe KI-Antworten immer kritisch.</p></div>'+(d?'<div class="done-badge">✓ Mission 5 abgeschlossen</div>':'<div class="actions"><button class="btn btn-xp" onclick="nextStep('m2','m4b')">Grundsätze gelesen · Weiter →</button></div>')+'</div>';return html}
+function m2m5(){
+  var d=isStepDone('m2','m5')
+  var tools=[{id:'t1',icon:'🔍',title:'Faktencheck',desc:'Prüfe KI-Antworten mit verlässlichen Quellen.'},{id:'t2',icon:'❓',title:'Quellen fragen',desc:'Frage die KI: "Woher weißt du das?" – und prüfe die genannten Quellen.'},{id:'t3',icon:'🔄',title:'Gegenfrage stellen',desc:'Frage: "Könnte das auch falsch sein?"'},{id:'t4',icon:'📝',title:'Eigene Formulierung',desc:'Schreibe KI-Inhalte in eigenen Worten um.'},{id:'t5',icon:'👥',title:'Zweite Meinung',desc:'Frage eine andere Person oder eine andere KI.'}]
+  var unlocked=STATE.checks['m2m5']||[]
+  var html='<div class="card"><div class="step-ind">Mission 6 von 9 · KI-Werkzeugkasten</div><h2 style="color:#c26a00;">🧰 Dein KI-Werkzeugkasten</h2><p style="margin-bottom:12px;">Klicke auf jedes Werkzeug um es freizuschalten. Du brauchst alle 5!</p>'
+  for(var i=0;i<tools.length;i++){var t=tools[i],isU=unlocked.indexOf(t.id)>=0;html+='<div style="background:'+(isU?'#f0fdf4':'#f4f8fd')+';border:2px solid '+(isU?'#4ade80':'#d5e0ee')+';border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:'+(isU?'default':'pointer')+';" onclick="unlockT(''+t.id+'')"><div style="font-size:24px;">'+t.icon+'</div><div><strong>'+t.title+'</strong><br><span style="font-size:13px;color:#56667c;">'+t.desc+'</span></div><div style="margin-left:auto;font-size:20px;">'+(isU?'✅':'🔒')+'</div></div>'}
+  html+='<p style="font-weight:700;color:'+(unlocked.length>=5?'#2b8a2b':'#56667c')+';">'+unlocked.length+' von 5 Werkzeugen freigeschaltet</p>'
+  if(unlocked.length<5)html+='<p style="font-size:13px;color:#f59e0b;font-weight:700;">🔧 Noch '+(5-unlocked.length)+' Werkzeug'+(5-unlocked.length!==1?'e':'')+' freischalten!</p>'
+  if(d)html+='<div class="done-badge">✓ Mission 6 abgeschlossen</div>'
+  else if(unlocked.length>=5)html+='<div class="actions"><button class="btn btn-xp" onclick="nextStep('m2','m5')">Werkzeugkasten komplett · Weiter →</button></div>'
+  return html+'</div>'
+}
+function unlockT(id){var u=STATE.checks['m2m5']||[];if(u.indexOf(id)<0){u.push(id);STATE.checks['m2m5']=u;saveState()}renderStep('m2','m5')}
+function m2m6(){var d=isStepDone('m2','m6'),k='m2m6',sv=STATE.answers[k]||'';var bs=[{id:'thema',l:'Thema',ex:'Addieren von Brüchen'},{id:'klasse',l:'Klassenstufe',ex:'für Klasse 7'},{id:'form',l:'Form',ex:'in einfachen Schritten'},{id:'beispiel',l:'Beispiel',ex:'mit einem Beispiel'},{id:'aufgaben',l:'Aufgaben',ex:'danach zwei Aufgaben ohne Lösung'}];var sel=STATE.checks['m2m6']||[];var html='<div class="card"><div class="step-ind">Mission 7 von 9 · Prompt-Labor</div><h2 style="color:#c26a00;">💬 Prompt-Labor</h2><p style="margin-bottom:12px;">Ein guter Prompt enthält: Thema, Ziel, Klassenstufe und gewünschte Form.</p>';for(var i=0;i<bs.length;i++){var b=bs[i],isSel=sel.indexOf(b.id)>=0;html+='<div style="background:'+(isSel?'#f0fdf4':'white')+';border:2px solid '+(isSel?'#4ade80':'#d5e0ee')+';border-radius:10px;padding:10px 14px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:10px;" onclick="toggleB(''+b.id+'')"><div style="width:20px;height:20px;border-radius:4px;border:2px solid '+(isSel?'#4ade80':'#d5e0ee')+';background:'+(isSel?'#4ade80':'white')+';display:grid;place-items:center;font-size:12px;">'+(isSel?'✓':'')+'</div><div><strong>'+b.l+':</strong> <span style="color:#56667c;">'+b.ex+'</span></div></div>'}var str=Math.round(sel.length/bs.length*100);html+='<div style="margin:12px 0;"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:4px;"><span>Prompt-Stärke</span><span style="color:'+(str>=80?'#2b8a2b':str>=40?'#f59e0b':'#dc2626')+'">'+str+'%</span></div><div class="progress-bar"><div class="progress-fill" style="width:'+str+'%;background:'+(str>=80?'#2b8a2b':str>=40?'#f59e0b':'#dc2626')+'"></div></div></div><label style="font-weight:700;display:block;margin:8px 0 4px;">Mein eigener Prompt:</label><textarea class="f" id="m2m6in" rows="3" placeholder="Erkläre ... für Klasse 7 ... Nutze ... Stelle mir danach ..." onchange="saveAns(''+k+'',this.value)">'+sv+'</textarea><div class="merksatz"><p>Ein guter Prompt nennt Thema, Ziel, Klassenstufe und gewünschte Form. Je präziser die Frage, desto besser die Antwort.</p></div>'+(d?'<div class="done-badge">✓ Mission 7 abgeschlossen</div>':'<div class="actions"><button class="btn btn-xp" onclick="saveAns(''+k+'',document.getElementById('m2m6in').value);nextStep('m2','m6')">Prompt speichern · Weiter →</button></div>')+'</div>';return html}
+function toggleB(id){var s=STATE.checks['m2m6']||[];var i=s.indexOf(id);if(i>=0)s.splice(i,1);else s.push(id);STATE.checks['m2m6']=s;saveState();renderStep('m2','m6')}
+function m2m7(){
+  var d=isStepDone('m2','m7')
+  var sits=[{id:'s1',text:'Du lässt dir ein schwieriges Mathe-Konzept erklären, das du im Buch nicht verstehst.',ans:'s'},{id:'s2',text:'Du lässt KI deine gesamte Hausaufgabe schreiben und gibst sie als deine eigene ab.',ans:'n'},{id:'s3',text:'Du fragst KI nach dem Wetter – obwohl du aus dem Fenster schauen könntest.',ans:'n'},{id:'s4',text:'Du nutzt KI, um Ideen für ein Projekt zu sammeln, und entscheidest dann selbst.',ans:'s'},{id:'s5',text:'Du nutzt KI, um Feedback auf deinen Aufsatz zu bekommen, bevor du ihn abgibst.',ans:'s'}]
+  var html='<div class="card"><div class="step-ind">Mission 8 von 9 · KI oder selber?</div><h2 style="color:#c26a00;">⚖️ KI oder selber machen?</h2><p style="margin-bottom:12px;">Beurteile jede Situation: Ist der KI-Einsatz sinnvoll?</p>'
+  var allAns=true
+  for(var i=0;i<sits.length;i++){var s=sits[i],k='m2m7'+s.id,ans=STATE.answers[k];if(ans===undefined)allAns=false;var bc=ans?(ans===s.ans?'#4ade80':'#fca5a5'):'#d5e0ee';var bg=ans?(ans===s.ans?'#f0fdf4':'#fef2f2'):'white';html+='<div style="border:2px solid '+bc+';border-radius:10px;padding:12px;margin-bottom:8px;background:'+bg+';"><p style="margin-bottom:8px;font-weight:600;">'+s.text+'</p><div style="display:flex;gap:12px;flex-wrap:wrap;"><label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:700;"><input type="radio" name="m7q'+s.id+'" value="s"'+(ans==='s'?' checked':'')+' onchange="saveAns(''+k+'','s');renderStep('m2','m7')"> ✅ Sinnvoll</label><label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:700;"><input type="radio" name="m7q'+s.id+'" value="n"'+(ans==='n'?' checked':'')+' onchange="saveAns(''+k+'','n');renderStep('m2','m7')"> ❌ Nicht sinnvoll</label></div>'+(ans?'<p style="margin-top:6px;font-size:13px;color:#56667c;">'+(ans===s.ans?'✅ Richtig!':'❌ Überlege nochmal.')+'</p>':'')+'</div>'}
+  if(allAns&&!d)html+='<div class="actions"><button class="btn btn-xp" onclick="nextStep('m2','m7')">Weiter →</button></div>'
+  if(d)html+='<div class="done-badge">✓ Mission 8 abgeschlossen</div>'
+  return html+'</div>'
+}
+function m2m9(){var d=isStepDone('m2','m9'),k='m2m9',sv=STATE.answers[k]||'',m1a=STATE.answers['m2m1']||'(noch nicht beantwortet)';return '<div class="card"><div class="step-ind">Mission 9 von 9 · KI-Kompass</div><h2 style="color:#c26a00;">🧭 Mein KI-Kompass</h2><div style="background:#f0fafb;border-radius:10px;padding:14px;margin-bottom:12px;"><strong>Deine Antwort vom Anfang (Mission 1):</strong><br><em style="color:#56667c;">'+m1a+'</em></div><p style="margin-bottom:8px;">Hat sich deine Einschätzung verändert? Formuliere jetzt deinen persönlichen KI-Kompass:</p><label style="font-weight:700;display:block;margin:8px 0 4px;">Bevor ich KI nutze, frage ich mich …</label><textarea class="f" id="m2m9in" rows="3" placeholder="z. B. … ob ich das auch selbst herausfinden könnte und ob KI hier wirklich hilft." onchange="saveAns(''+k+'',this.value)">'+sv+'</textarea><div class="merksatz"><p>Mein KI-Kompass: Bevor ich KI nutze, frage ich mich, ob sie wirklich notwendig ist und ob ich die Antwort selbst überprüfen kann.</p></div>'+(d?'<div class="done-badge">✓ Modul 2 abgeschlossen!</div>':'<div class="actions"><button class="btn btn-success" onclick="saveAns(''+k+'',document.getElementById('m2m9in').value);nextStep('m2','m9')">Modul 2 abschließen ✓</button></div>')+'</div>'}
+
+// ═══ MODUL 3 ═══
+var M3=[
+  {id:'s0',title:'Start',content:function(){return m3s0()}},
+  {id:'s1',title:'Ben-Chat',content:function(){return m3s1()}},
+  {id:'s2',title:'Ermittlungsakte',content:function(){return m3s2()}},
+  {id:'s3',title:'Konsequenzen',content:function(){return m3s3()}},
+  {id:'s4',title:'KI als Freund?',content:function(){return m3s4()}},
+  {id:'s5',title:'Filmstation',content:function(){return m3s5()}},
+  {id:'s6',title:'Redaktion',content:function(){return m3s6()}},
+  {id:'s7',title:'Bens Referat',content:function(){return m3s7()}}
+]
+function m3s0(){return '<div class="card"><div class="step-ind">Modul 3 · Übersicht</div><h2 style="color:#d0121a;">🛡️ Deine Mission</h2><p style="margin-bottom:12px;">Du begleitest Ben, 13 Jahre alt. Erst scheint alles ganz harmlos. Doch schon bald wirst du zum Daten-Detektiv.</p><div class="grid2"><div style="background:#fff1f2;border:2px solid #fca5a5;border-radius:10px;padding:12px;text-align:center;"><div style="font-size:24px;">💬</div><strong>Ben-Chat</strong><br><span style="font-size:13px;color:#56667c;">Schau Ben über die Schulter</span></div><div style="background:#fff1f2;border:2px solid #fca5a5;border-radius:10px;padding:12px;text-align:center;"><div style="font-size:24px;">🔍</div><strong>Ermittlungsakte</strong><br><span style="font-size:13px;color:#56667c;">Welche Daten verrät Ben?</span></div><div style="background:#fff1f2;border:2px solid #fca5a5;border-radius:10px;padding:12px;text-align:center;"><div style="font-size:24px;">🎬</div><strong>Filmstation</strong><br><span style="font-size:13px;color:#56667c;">Without Consent</span></div><div style="background:#fff1f2;border:2px solid #fca5a5;border-radius:10px;padding:12px;text-align:center;"><div style="font-size:24px;">📰</div><strong>Redaktion</strong><br><span style="font-size:13px;color:#56667c;">Kennzeichnungspflicht</span></div></div><div class="actions"><button class="btn btn-primary" style="background:#d0121a;" onclick="nextStep('m3','s0')">Mission starten →</button></div></div>'}
+function m3s1(){var d=isStepDone('m3','s1');var msgs=[{w:'Ben',t:'Hey, ich werde nächste Woche 13! Hilfst du mir bei meiner Geburtstagsparty?'},{w:'KI',t:'Klar! Was hast du vor?'},{w:'Ben',t:'Wir feiern bei uns in der Lindenstraße 18 in Berlin. Wir haben einen großen Garten.'},{w:'Ben',t:'Ich gehe auf die Sonnenberg-Schule, in die 7b. Meine Freunde kommen direkt nach der Schule.'},{w:'KI',t:'Klingt gut! Wie viele Gäste kommen?'},{w:'Ben',t:'Ungefähr zwölf. Meine Eltern sind freitags bis 19 Uhr arbeiten, also muss ich vorher alles vorbereiten.'},{w:'Ben',t:'Hier ist noch ein Foto von unserem Haus und Garten. Kannst du Dekorationen vorschlagen?'}];var ch=msgs.map(function(m){return '<div class="'+(m.w==='Ben'?'bub-ben':'bub-ki')+'">'+m.t+'</div>'}).join('');return '<div class="card"><div class="step-ind">Mission 1 · Ben-Chat</div><h2 style="color:#d0121a;">💬 Ben plant eine Party</h2><p style="margin-bottom:12px;">Schau Ben über die Schulter. <strong>Achte darauf, was Ben nebenbei über sich verrät.</strong></p><div class="phone"><div class="phone-hdr"><span style="font-size:18px;">🤖</span> KI-Assistent · Online</div><div class="phone-body">'+ch+'</div></div><div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:10px;padding:14px;margin:12px 0;"><strong style="color:#991b1b;">Was hat Ben verraten?</strong><br>📍 Adresse: Lindenstraße 18, Berlin<br>🏫 Schule: Sonnenberg-Schule, Klasse 7b<br>🕖 Tagesablauf: Eltern freitags bis 19 Uhr weg<br>🎂 Alter: Bald 13 Jahre<br>🏠 Foto von Haus und Garten</div><div class="merksatz"><p>Einzelne Informationen wirken harmlos. Zusammen können sie verraten, wo du wohnst, wann du allein bist und wie man dich findet.</p></div>'+(d?'<div class="done-badge">✓ Mission 1 abgeschlossen</div>':'<div class="actions"><button class="btn btn-xp" onclick="nextStep('m3','s1')">Jetzt Daten-Detektiv werden →</button></div>')+'</div>'}
+function m3s2(){
+  var d=isStepDone('m3','s2')
+  var clues=[{icon:'📍',label:'Wohnort',desc:'Straße und Hausnummer'},{icon:'🏫',label:'Schule',desc:'Schulname und Klasse'},{icon:'🕖',label:'Tagesablauf',desc:'Eltern freitags bis 19 Uhr weg'},{icon:'🎂',label:'Alter',desc:'Bald 13 Jahre alt'},{icon:'🏠',label:'Haus',desc:'Foto von Haus und Garten'}]
+  var found=STATE.checks['m3s2']||[]
+  var html='<div class="card"><div class="step-ind">Mission 2 · Ermittlungsakte</div><h2 style="color:#d0121a;">🔍 Deine Ermittlungsakte</h2><div class="task-box"><strong>Aufgabe:</strong> Welche Informationen über Ben könnte eine unbefugte Person herausfinden? <strong>Klicke alle fünf Spuren an.</strong></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:12px 0;">'
+  for(var i=0;i<clues.length;i++){var c=clues[i],isFnd=found.indexOf(c.label)>=0;html+='<div style="border:2px solid '+(isFnd?'#4ade80':'#d5e0ee')+';border-radius:10px;padding:12px;text-align:center;cursor:'+(isFnd?'default':'pointer')+';background:'+(isFnd?'#f0fdf4':'white')+';transition:all 0.2s;" onclick="findClue(''+c.label+'')"><div style="font-size:24px;margin-bottom:4px;">'+c.icon+'</div><div style="font-weight:800;font-size:14px;color:'+(isFnd?'#166534':'#17243b')+';">'+c.label+'</div>'+(isFnd?'<div style="font-size:12px;color:#56667c;margin-top:2px;">'+c.desc+'</div>':'')+'</div>'}
+  html+='</div><div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:4px;"><span>'+found.length+' von 5 Spuren entdeckt</span><span>'+Math.round(found.length/5*100)+'%</span></div><div class="progress-bar"><div class="progress-fill" style="width:'+(found.length/5*100)+'%;background:#d0121a;"></div></div></div>'
+  if(found.length>=5){html+='<div class="info-box">💡 Aus vielen kleinen Angaben entsteht ein erstaunlich genaues Bild von Ben.</div><div class="merksatz"><p>Einzelne Informationen wirken harmlos. Zusammen können sie verraten, wo du wohnst, wann du allein bist und wie man dich findet. Teile nur Daten, die für deine Frage wirklich nötig sind.</p></div>';if(!d)html+='<div class="actions"><button class="btn btn-xp" onclick="nextStep('m3','s2')">Weiter: Welche Folgen könnte das haben? →</button></div>'}
+  if(d)html+='<div class="done-badge">✓ Mission 2 abgeschlossen</div>'
+  return html+'</div>'
+}
+function findClue(label){var f=STATE.checks['m3s2']||[];if(f.indexOf(label)<0){f.push(label);STATE.checks['m3s2']=f;saveState()}renderStep('m3','s2')}
+function m3s3(){
+  var d=isStepDone('m3','s3')
+  var cons=[{q:'Eine fremde Person kennt Bens Adresse und weiß, wann seine Eltern nicht da sind. Welche Information macht das möglich?',a:['Nur die Anzahl seiner Gäste.','Die Kombination aus Adresse und Tagesablauf.'],c:1,ex:'Genau! Verschiedene Angaben zusammen können Rückschlüsse auf Bens Aufenthaltsort ermöglichen.'},{q:'Jemand erstellt ein falsches Profil mit Bens Namen und seinem Hausfoto. Warum könnte das glaubwürdig wirken?',a:['Weil persönliche Details und Bilder eine falsche Identität überzeugender machen können.','Weil jedes Foto automatisch öffentlich ist.'],c:0,ex:'Richtig. Persönliche Angaben können für Identitätsmissbrauch genutzt werden.'},{q:'Ein Screenshot von Bens Chat landet in einer Klassengruppe. Was wäre jetzt eine gute Reaktion?',a:['Weiterleiten, damit alle Bescheid wissen.','Nicht weiterverbreiten, Ben informieren und bei Bedarf Hilfe holen.'],c:1,ex:'Genau. Private Informationen gehören nicht ohne Erlaubnis weitergegeben.'}]
+  var html='<div class="card"><div class="step-ind">Mission 3 · Ein Klick, viele Folgen</div><h2 style="color:#d0121a;">⚠️ Ein Klick, viele Folgen</h2><p style="margin-bottom:12px;">Entscheide bei drei möglichen Situationen, warum Bens Daten problematisch werden könnten.</p>'
+  var allDone=true
+  for(var i=0;i<cons.length;i++){var c=cons[i],k='m3s3'+i,ans=STATE.answers[k];if(ans===undefined)allDone=false;var bc=ans!==undefined?(ans===c.c?'#4ade80':'#fca5a5'):'#d5e0ee';var bg=ans!==undefined?(ans===c.c?'#f0fdf4':'#fef2f2'):'white';html+='<div style="border:2px solid '+bc+';border-radius:10px;padding:12px;margin-bottom:8px;background:'+bg+';"><p style="margin-bottom:8px;font-weight:600;">'+c.q+'</p>';for(var j=0;j<c.a.length;j++){html+='<label class="option" style="margin-bottom:4px;"><input type="radio" name="m3c'+i+'" value="'+j+'"'+(ans===j?' checked':'')+' onchange="saveAns(''+k+'','+j+');renderStep('m3','s3')"> '+c.a[j]+'</label>'}if(ans!==undefined)html+='<div class="'+(ans===c.c?'fb-ok':'fb-err')+'">'+(ans===c.c?'✅':'❌')+' '+c.ex+'</div>';html+='</div>'}
+  if(allDone){html+='<div class="merksatz"><p>Einzelne Informationen wirken harmlos. Zusammen können sie verraten, wo du wohnst, wann du allein bist und wie man dich findet.</p></div>';if(!d)html+='<div class="actions"><button class="btn btn-xp" onclick="nextStep('m3','s3')">Weiter →</button></div>'}
+  if(d)html+='<div class="done-badge">✓ Mission 3 abgeschlossen</div>'
+  return html+'</div>'
+}
+function m3s4(){var d=isStepDone('m3','s4');var msgs=[{w:'Ben',t:'Übrigens, ich habe mich heute mit meinem besten Freund gestritten. Jetzt bin ich total traurig.'},{w:'KI',t:'Das klingt wirklich schwierig. Möchtest du mir erzählen, was passiert ist?'},{w:'Ben',t:'Vielleicht … Er hat etwas Peinliches über mich weitererzählt.'},{w:'KI',t:'Du kannst mir mehr davon erzählen, wenn du möchtest.'}];var ch=msgs.map(function(m){return '<div class="'+(m.w==='Ben'?'bub-ben':'bub-ki')+'">'+m.t+'</div>'}).join('');return '<div class="card"><div class="step-ind">Mission 4 · KI als Freund?</div><h2 style="color:#d0121a;">🤖 Die KI fragt weiter …</h2><p style="margin-bottom:12px;">Nach der Detektivarbeit schauen wir noch einmal auf Bens Handy.</p><div class="phone"><div class="phone-hdr"><span style="font-size:18px;">🤖</span> KI-Assistent · Online</div><div class="phone-body">'+ch+'</div></div><div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:10px;padding:14px;margin:12px 0;"><h3 style="color:#991b1b;margin-bottom:6px;">🤖 Klingt wie ein Freund – ist aber keiner!</h3><p style="font-size:14px;color:#7f1d1d;">Eine KI kann freundlich antworten und immer weitere Fragen stellen. Aber sie ist kein Mensch: Sie hat keine eigenen Gefühle und kann menschliches Mitgefühl nicht ersetzen. Wenn dich etwas belastet, sprich mit Freunden, Familie oder einer Vertrauensperson.</p></div><div class="merksatz"><p>Eine KI kann wie ein Freund schreiben. Sie ist aber kein Mensch und kein Ersatz für echte Vertrauenspersonen.</p></div>'+(d?'<div class="done-badge">✓ Mission 4 abgeschlossen</div>':'<div class="actions"><button class="btn btn-xp" onclick="nextStep('m3','s4')">Weiter zur Filmstation →</button></div>')+'</div>'}
+function m3s5(){var d=isStepDone('m3','s5'),k1='m3s5p',k2='m3s5f',sv1=STATE.answers[k1]||'',sv2=STATE.answers[k2]||'';return '<div class="card"><div class="step-ind">Mission 5 · Filmstation</div><h2 style="color:#d0121a;">🎬 Filmstation: Deine Spuren im Netz</h2><div class="info-box"><strong>Dein Lernweg:</strong> ① Vorwissen aufschreiben → ② Film ansehen → ③ Gedanken ergänzen</div><label style="font-weight:700;display:block;margin:8px 0 4px;">Was bedeutet für dich digitale Privatsphäre?</label><textarea class="f" id="m3s5pin" rows="2" placeholder="Ich denke, digitale Privatsphäre bedeutet, dass …" onchange="saveAns(''+k1+'',this.value)">'+sv1+'</textarea><label style="font-weight:700;display:block;margin:8px 0 4px;">Was verstehst du unter einem digitalen Fußabdruck?</label><textarea class="f" id="m3s5fin" rows="2" placeholder="Ein digitaler Fußabdruck ist für mich …" onchange="saveAns(''+k2+'',this.value)">'+sv2+'</textarea><div style="background:#111827;border-radius:10px;overflow:hidden;margin:12px 0;aspect-ratio:16/9;"><video controls style="width:100%;height:100%;display:block;" src="without-consent.mp4"><p style="color:white;padding:16px;">Video nicht verfügbar.</p></video></div><div class="merksatz"><p>Deine Bilder und Informationen gehören zu deiner Privatsphäre. Digitale Privatsphäre bedeutet, dass du mitbestimmen kannst, wer persönliche Informationen über dich sieht und verwendet.</p></div>'+(d?'<div class="done-badge">✓ Mission 5 abgeschlossen</div>':'<div class="actions"><button class="btn btn-xp" onclick="saveAns(''+k1+'',document.getElementById('m3s5pin').value);saveAns(''+k2+'',document.getElementById('m3s5fin').value);nextStep('m3','s5')">Filmstation abschließen →</button></div>')+'</div>'}
+function m3s6(){
+  var d=isStepDone('m3','s6')
+  var news=[{emoji:'🦊',h:'KI-generierter Fuchs im Astronautenanzug',t:'Eine Schülerin hat für die Schülerzeitung eine Fantasieillustration mit KI erzeugt.',opts:['"Illustration mit KI erstellt" dazuschreiben.','Als echtes Foto ausgeben.'],r:0,why:'Eine klare Herkunftsangabe ist hier sinnvoll.'},{emoji:'🎤',h:'Der Bürgermeister sagt etwas, das er nie gesagt hat',t:'Ein täuschend echtes KI-Video lässt einen realen Politiker eine erfundene Aussage machen.',opts:['Ohne Hinweis teilen.','Nicht als echte Nachricht verbreiten; KI-Manipulation klar kenntlich machen.'],r:1,why:'Bei täuschend echten KI-Manipulationen sind Transparenz und Schutz vor Irreführung besonders wichtig.'},{emoji:'📝',h:'Bens Referat über Vulkane',t:'Ben hat selbst recherchiert, die KI nach einer Gliederung gefragt und einen Absatz sprachlich verbessern lassen.',opts:['KI-Nutzung kennzeichnen.','Nichts kennzeichnen, weil er selbst geschrieben hat.'],r:0,why:'Ben hat KI genutzt – das sollte er kennzeichnen, auch wenn er selbst aktiv war.'}]
+  var html='<div class="card"><div class="step-ind">Mission 6 · Redaktion</div><h2 style="color:#d0121a;">📰 Du bist jetzt Bens Beraterin oder Berater</h2><p style="margin-bottom:12px;">Drei Situationen aus dem Schulalltag. Entscheide: Muss KI-Nutzung gekennzeichnet werden?</p>'
+  var allDone=true
+  for(var i=0;i<news.length;i++){var item=news[i],k='m3s6'+i,ans=STATE.answers[k];if(ans===undefined)allDone=false;var bc=ans!==undefined?(ans===item.r?'#4ade80':'#fca5a5'):'#d5e0ee';var bg=ans!==undefined?(ans===item.r?'#f0fdf4':'#fef2f2'):'white';html+='<div style="border:2px solid '+bc+';border-radius:10px;padding:14px;margin-bottom:10px;background:'+bg+';"><div style="font-size:24px;margin-bottom:6px;">'+item.emoji+'</div><h3 style="margin-bottom:6px;">'+item.h+'</h3><p style="color:#56667c;font-size:14px;margin-bottom:10px;">'+item.t+'</p>';for(var j=0;j<item.opts.length;j++){html+='<label class="option" style="margin-bottom:4px;"><input type="radio" name="m3n'+i+'" value="'+j+'"'+(ans===j?' checked':'')+' onchange="saveAns(''+k+'','+j+');renderStep('m3','s6')"> '+item.opts[j]+'</label>'}if(ans!==undefined)html+='<div class="'+(ans===item.r?'fb-ok':'fb-err')+'">'+(ans===item.r?'✅':'❌')+' '+item.why+'</div>';html+='</div>'}
+  if(allDone){html+='<div class="merksatz"><p>Kennzeichne KI-Inhalte immer dann, wenn andere wissen müssen, dass eine KI beteiligt war. Im Zweifel: kennzeichnen.</p></div>';if(!d)html+='<div class="actions"><button class="btn btn-xp" onclick="nextStep('m3','s6')">Redaktion abschließen →</button></div>'}
+  if(d)html+='<div class="done-badge">✓ Mission 6 abgeschlossen</div>'
+  return html+'</div>'
+}
+function m3s7(){
+  var d=isStepDone('m3','s7')
+  var parts=[['Ich habe die KI nach einer möglichen Gliederung gefragt.',true],['Die KI hat das gesamte Referat für mich geschrieben.',false],['Ich habe einen eigenen Absatz sprachlich überarbeiten lassen.',true],['Ich habe alle Angaben ungeprüft übernommen.',false],['Ich habe die Vorschläge geprüft und die Quellen selbst kontrolliert.',true],['Ich habe die KI überhaupt nicht verwendet.',false]]
+  var sel=STATE.checks['m3s7']||[],chk=STATE.checks['m3s7c']||false
+  var ci=[0,2,4],allOk=ci.every(function(i){return sel.indexOf(i)>=0})&&sel.every(function(i){return ci.indexOf(i)>=0})
+  var html='<div class="card"><div class="step-ind">Mission 7 · Bens Referat</div><h2 style="color:#d0121a;">📄 Bens KI-Nachweis</h2><p style="margin-bottom:12px;">Welche Aussagen gehören in Bens KI-Nachweis?</p>'
+  for(var i=0;i<parts.length;i++){var p=parts[i],isSel=sel.indexOf(i)>=0,isC=p[1],sr=chk;var bc=sr?(isC&&isSel?'#4ade80':!isC&&isSel?'#fca5a5':isC&&!isSel?'#f59e0b':'#d5e0ee'):(isSel?'#d0121a':'#d5e0ee');var bg=sr?(isC&&isSel?'#f0fdf4':!isC&&isSel?'#fef2f2':isC&&!isSel?'#fffbeb':'white'):(isSel?'#fff1f2':'white');html+='<label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:2px solid '+bc+';border-radius:10px;margin-bottom:6px;background:'+bg+';cursor:'+(chk?'default':'pointer')+';"><input type="checkbox"'+(isSel?' checked':'')+(chk?' disabled':'')+' style="margin-top:3px;width:18px;height:18px;accent-color:#d0121a;flex-shrink:0;" onchange="togglePt('+i+')"><span style="font-size:14px;">'+p[0]+'</span>'+(sr?'<span style="margin-left:auto;font-weight:800;font-size:12px;color:'+(isC&&isSel?'#166534':!isC&&isSel?'#991b1b':isC&&!isSel?'#92400e':'#56667c')+'">'+(isC&&isSel?'✓ Richtig':!isC&&isSel?'✗ Falsch':isC&&!isSel?'○ Vergessen':'')+'</span>':'')+'</label>'}
+  if(!chk)html+='<div class="actions"><button class="btn btn-primary" style="background:#d0121a;" onclick="chkPts()">Auswahl prüfen</button></div>'
+  else{html+='<div class="'+(allOk?'fb-ok':'fb-err')+'">'+(allOk?'✅ Perfekt! Du hast alle richtigen Bausteine gefunden.':'❌ Noch nicht ganz. Schau dir die Markierungen an.')+'</div>';if(allOk&&!d)html+='<div class="actions"><button class="btn btn-success" onclick="nextStep('m3','s7')">Modul 3 abschließen ✓</button></div>';else if(!allOk)html+='<div class="actions"><button class="btn btn-ghost" onclick="STATE.checks['m3s7']=[];STATE.checks['m3s7c']=false;saveState();renderStep('m3','s7')">↺ Erneut versuchen</button></div>'}
+  if(d)html+='<div class="done-badge">✓ Modul 3 abgeschlossen!</div>'
+  return html+'</div>'
+}
+function togglePt(idx){var s=STATE.checks['m3s7']||[];var i=s.indexOf(idx);if(i>=0)s.splice(i,1);else s.push(idx);STATE.checks['m3s7']=s;saveState();renderStep('m3','s7')}
+function chkPts(){STATE.checks['m3s7c']=true;saveState();renderStep('m3','s7')}
+
+// ═══ MODUL 4 ═══
+var M4=[
+  {id:'s1',title:'Ressourcen',content:function(){return m4s1()}},
+  {id:'s2',title:'Filmcheck',content:function(){return m4s2()}},
+  {id:'s3',title:'Wasserrechner',content:function(){return m4s3()}},
+  {id:'s4',title:'Energie-Regler',content:function(){return m4s4()}},
+  {id:'s5',title:'KI im Alltag',content:function(){return m4s5()}}
+]
+var KACHELN=[{id:'strom',e:'⚡',l:'Strom',c:true},{id:'wasser',e:'💧',l:'Wasser',c:true},{id:'rohstoffe',e:'🪨',l:'Rohstoffe',c:true},{id:'flaeche',e:'🏗️',l:'Fläche',c:true},{id:'kuehlung',e:'❄️',l:'Kühlung',c:true},{id:'kupfer',e:'🔌',l:'Kupfer',c:true},{id:'seltene',e:'🧲',l:'Seltene Erden',c:true},{id:'netze',e:'🌐',l:'Datennetze',c:true},{id:'menschen',e:'👩‍💻',l:'Menschen',c:true},{id:'gebaeude',e:'🏢',l:'Gebäude',c:true},{id:'trainingsdaten',e:'📚',l:'Trainingsdaten',c:true},{id:'transport',e:'🚢',l:'Transport',c:true},{id:'baeume',e:'🌳',l:'Bäume',c:false},{id:'papier',e:'📄',l:'Papier',c:false},{id:'schokolade',e:'🍫',l:'Schokolade',c:false},{id:'uhrzeit',e:'⏰',l:'Uhrzeit',c:false},{id:'musik',e:'🎵',l:'Musik',c:false},{id:'farbe',e:'🎨',l:'Farbe',c:false}]
+function m4s1(){
+  var d=isStepDone('m4','s1'),sel=STATE.checks['m4s1']||[],chk=STATE.checks['m4s1c']||false
+  var cSel=KACHELN.filter(function(k){return k.c&&sel.indexOf(k.id)>=0}).length
+  var wSel=KACHELN.filter(function(k){return !k.c&&sel.indexOf(k.id)>=0}).length
+  var allOk=cSel===12&&wSel===0
+  var html='<div class="card"><div class="step-ind">Station 1 von 5 · Ressourcen</div><h2 style="color:#2b8a2b;">🌍 Was braucht KI?</h2><p style="margin-bottom:12px;">Klicke alle Ressourcen an, die KI-Systeme benötigen. Achtung: Nicht alle Kacheln gehören dazu!</p><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin:12px 0;">'
+  for(var i=0;i<KACHELN.length;i++){var k=KACHELN[i],isSel=sel.indexOf(k.id)>=0,sr=chk;var bc=sr?(k.c&&isSel?'#4ade80':!k.c&&isSel?'#fca5a5':k.c&&!isSel?'#f59e0b':'#d5e0ee'):(isSel?'#2b8a2b':'#d5e0ee');var bg=sr?(k.c&&isSel?'#f0fdf4':!k.c&&isSel?'#fef2f2':k.c&&!isSel?'#fffbeb':'white'):(isSel?'#f0fdf4':'white');html+='<div style="border:2px solid '+bc+';border-radius:10px;padding:10px;text-align:center;cursor:'+(chk?'default':'pointer')+';background:'+bg+';transition:all 0.2s;" onclick="'+(chk?'':'toggleK(''+k.id+'')')+'"><div style="font-size:20px;">'+k.e+'</div><div style="font-size:12px;font-weight:700;margin-top:4px;">'+k.l+'</div>'+(sr?'<div style="font-size:10px;margin-top:2px;">'+(k.c&&isSel?'✓':!k.c&&isSel?'✗':k.c&&!isSel?'○':'')+'</div>':'')+'</div>'}
+  html+='</div><p style="font-weight:700;color:#56667c;">'+sel.length+' von 12 richtigen Ressourcen ausgewählt</p>'
+  if(!chk)html+='<div class="actions"><button class="btn btn-primary" style="background:#2b8a2b;" onclick="chkK()">Auswahl prüfen</button></div>'
+  else{html+='<div class="'+(allOk?'fb-ok':'fb-err')+'">'+(allOk?'✅ Alle 12 Ressourcen gefunden!':'❌ '+cSel+'/12 richtig, '+wSel+' falsch. Schau dir die Markierungen an.')+'</div>';if(allOk&&!d)html+='<div class="actions"><button class="btn btn-xp" onclick="nextStep('m4','s1')">Weiter →</button></div>';else if(!allOk)html+='<div class="actions"><button class="btn btn-ghost" onclick="STATE.checks['m4s1']=[];STATE.checks['m4s1c']=false;saveState();renderStep('m4','s1')">↺ Erneut versuchen</button></div>'}
+  if(d)html+='<div class="done-badge">✓ Station 1 abgeschlossen</div>'
+  return html+'</div>'
+}
+function toggleK(id){var s=STATE.checks['m4s1']||[];var i=s.indexOf(id);if(i>=0)s.splice(i,1);else s.push(id);STATE.checks['m4s1']=s;saveState();renderStep('m4','s1')}
+function chkK(){STATE.checks['m4s1c']=true;saveState();renderStep('m4','s1')}
+function m4s2(){var d=isStepDone('m4','s2');return '<div class="card"><div class="step-ind">Station 2 von 5 · Filmcheck</div><h2 style="color:#2b8a2b;">⚡ KI unter Strom</h2><p style="margin-bottom:12px;">Was kostet eine KI-Anfrage unsere Umwelt?</p><div style="background:#111827;border-radius:10px;overflow:hidden;margin:12px 0;aspect-ratio:16/9;"><video controls style="width:100%;height:100%;display:block;" src="without-consent.mp4"><p style="color:white;padding:16px;">Video nicht verfügbar.</p></video></div><details style="background:#f0fafb;border-radius:10px;padding:14px;margin:12px 0;"><summary style="font-weight:800;cursor:pointer;color:#2b8a2b;">📄 Textalternative zum Film</summary><div style="margin-top:10px;font-size:14px;"><p><strong>KI-Anfragen und Rechenzentren:</strong> Wenn du eine Frage an eine KI stellst, wird sie in einem großen Rechenzentrum verarbeitet. Dort arbeiten viele leistungsfähige Computerchips gleichzeitig.</p><p style="margin-top:8px;"><strong>Kühlung:</strong> Diese Chips werden sehr heiß. Die Kühlung kann bis zu 30% der gesamten Energie eines Rechenzentrums verbrauchen.</p><p style="margin-top:8px;"><strong>Texte vs. Videos:</strong> Ein kurzer KI-generierter Text benötigt weniger Energie als ein KI-generiertes Bild oder Video.</p></div></details><div class="merksatz"><p>Nicht nur das Rechnen, auch die Kühlung verbraucht Energie. Videos brauchen mehr als Texte. KI bewusst einsetzen!</p></div>'+(d?'<div class="done-badge">✓ Station 2 abgeschlossen</div>':'<div class="actions"><button class="btn btn-xp" onclick="nextStep('m4','s2')">Station 2 abschließen →</button></div>')+'</div>'}
+function m4s3(){var d=isStepDone('m4','s3'),p=STATE.sliders['m4s3p']||25,t=STATE.sliders['m4s3t']||1,a=p*t*10,l=(a/1000)*15,sp=Math.round(l/4.5);return '<div class="card"><div class="step-ind">Station 3 von 5 · Wasserrechner</div><h2 style="color:#2b8a2b;">💧 KI, Wasser und die Toilettenspülung</h2><p style="margin-bottom:12px;">Wie viel Wasser verbraucht KI? Stelle die Regler ein!</p><div style="margin:16px 0;"><label style="font-weight:700;display:block;margin-bottom:6px;">Anzahl Schüler:innen: <strong style="color:#2b8a2b;">'+p+'</strong></label><input type="range" min="1" max="60" value="'+p+'" style="width:100%;accent-color:#2b8a2b;" oninput="STATE.sliders['m4s3p']=parseInt(this.value);saveState();renderStep('m4','s3')"></div><div style="margin:16px 0;"><label style="font-weight:700;display:block;margin-bottom:6px;">Projekttage: <strong style="color:#2b8a2b;">'+t+'</strong></label><input type="range" min="1" max="5" value="'+t+'" style="width:100%;accent-color:#2b8a2b;" oninput="STATE.sliders['m4s3t']=parseInt(this.value);saveState();renderStep('m4','s3')"></div><div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:10px;padding:16px;text-align:center;margin:12px 0;"><div style="font-size:13px;color:#56667c;margin-bottom:4px;">'+p+' Schüler × '+t+' Tag(e) × 10 Anfragen = <strong>'+a+' Anfragen</strong></div><div style="font-size:28px;font-weight:900;color:#2b8a2b;">💧 '+l.toFixed(1)+' Liter</div><div style="font-size:14px;color:#56667c;margin-top:4px;">≈ <strong>'+sp+' Toilettenspülungen</strong></div></div><div class="warn-box" style="font-size:13px;">⚠️ Modellwert: 15 Liter pro 1.000 Anfragen – didaktische Näherung, kein exakter Messwert.</div><div class="merksatz"><p>Einzelne Verbräuche können sich bei großer Nutzung summieren. Zahlen zu Umweltwirkungen brauchen immer Kontext.</p></div>'+(d?'<div class="done-badge">✓ Station 3 abgeschlossen</div>':'<div class="actions"><button class="btn btn-xp" onclick="nextStep('m4','s3')">Station 3 abschließen →</button></div>')+'</div>'}
+function m4s4(){var d=isStepDone('m4','s4'),a=STATE.sliders['m4s4']||50,e=a*0.3,ant=Math.min(1,e/15),ld=(e/15).toFixed(2);return '<div class="card"><div class="step-ind">Station 4 von 5 · Energie-Regler</div><h2 style="color:#2b8a2b;">🔋 Wie viel Energie braucht eine KI-Anfrage?</h2><p style="margin-bottom:12px;">Untersuche den Energiebedarf vieler kleiner KI-Anfragen.</p><div style="margin:16px 0;"><label style="font-weight:700;display:block;margin-bottom:6px;">Anzahl KI-Textanfragen: <strong style="color:#2b8a2b;">'+a+'</strong></label><input type="range" min="0" max="150" value="'+a+'" style="width:100%;accent-color:#2b8a2b;" oninput="STATE.sliders['m4s4']=parseInt(this.value);saveState();renderStep('m4','s4')"><div style="display:flex;justify-content:space-between;font-size:12px;color:#56667c;"><span>0</span><span>50</span><span>100</span><span>150</span></div></div><div style="background:#f0fafb;border-radius:10px;padding:12px;margin:12px 0;font-family:monospace;font-size:15px;">'+a+' Anfragen × 0,3 Wh = <strong style="color:#2b8a2b;">'+e.toFixed(1)+' Wh</strong></div><div style="margin:12px 0;"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:4px;"><span>Akku-Verbrauch (15 Wh Vergleichsakku)</span><span style="color:#2b8a2b;">'+Math.round(ant*100)+'%</span></div><div style="background:#e5edf5;border-radius:99px;height:24px;overflow:hidden;"><div style="height:100%;width:'+(ant*100)+'%;background:linear-gradient(90deg,#2b8a2b,#4ade80);border-radius:99px;transition:width 0.3s;"></div></div><div style="font-size:13px;color:#56667c;margin-top:4px;">'+ld+' Akkuladungen</div></div><div class="warn-box" style="font-size:13px;">⚠️ Modellannahmen: 0,3 Wh/Anfrage, 15 Wh Vergleichsakku.</div><div class="merksatz"><p>50 Anfragen × 0,3 Wh = 15 Wh ≈ 1 Akkuladung (Modellrechnung). Viele kleine Anfragen summieren sich!</p></div>'+(d?'<div class="done-badge">✓ Station 4 abgeschlossen</div>':'<div class="actions"><button class="btn btn-xp" onclick="nextStep('m4','s4')">Station 4 abschließen →</button></div>')+'</div>'}
+function m4s5(){
+  var d=isStepDone('m4','s5'),k='m4s5r',sv=STATE.answers[k]||''
+  var sits=[{id:'a01',t:'Du lässt dir ein schwieriges Mathe-Konzept erklären, das du im Buch nicht verstehst.',kat:'h'},{id:'a02',t:'Du lässt KI deine gesamte Hausaufgabe schreiben und gibst sie als deine eigene ab.',kat:'u'},{id:'a03',t:'Du fragst KI nach dem Wetter – obwohl du aus dem Fenster schauen könntest.',kat:'u'},{id:'a04',t:'Du nutzt KI, um Ideen für ein Projekt zu sammeln, und entscheidest dann selbst.',kat:'h'},{id:'a05',t:'Du lässt KI einen einfachen Text übersetzen, den du auch im Wörterbuch nachschlagen könntest.',kat:'n'},{id:'a06',t:'Du nutzt KI, um eine lange Nachricht in einfache Sprache umzuformulieren, damit deine Oma sie versteht.',kat:'h'},{id:'a07',t:'Du lässt KI ein Bild für dein Referat erstellen, obwohl du selbst zeichnen könntest.',kat:'n'},{id:'a08',t:'Du fragst KI nach dem Geburtsdatum einer historischen Person.',kat:'n'},{id:'a09',t:'Du nutzt KI, um Feedback auf deinen Aufsatz zu bekommen, bevor du ihn abgibst.',kat:'h'},{id:'a10',t:'Du lässt KI entscheiden, welchen Film du heute Abend schaust.',kat:'u'},{id:'a11',t:'Du nutzt KI, um Vokabeln zu üben.',kat:'h'},{id:'a12',t:'Du lässt KI deine gesamte Präsentation erstellen.',kat:'u'},{id:'a13',t:'Du fragst KI nach Tipps für ein Gespräch mit deinen Eltern.',kat:'n'}]
+  var pers=STATE.checks['m4s5p']||[],fach=STATE.answers['m4s5f']||{}
+  var html='<div class="card"><div class="step-ind">Station 5 von 5 · KI im Alltag</div><h2 style="color:#2b8a2b;">🌍 KI im Alltag</h2><p style="margin-bottom:12px;">Beurteile 13 Alltagssituationen: Ist der KI-Einsatz sinnvoll, überflüssig oder erst nachdenken?</p><div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;"><span style="background:#dcfce7;color:#166534;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:800;">💡 Wirklich hilfreich</span><span style="background:#fee2e2;color:#991b1b;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:800;">🚫 Überflüssig</span><span style="background:#fef3c7;color:#92400e;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:800;">⚖️ Erst nachdenken!</span></div>'
+  for(var i=0;i<sits.length;i++){var s=sits[i],fk='m4s5f'+s.id,fa=STATE.answers[fk];var katColor=fa==='h'?'#dcfce7':fa==='u'?'#fee2e2':fa==='n'?'#fef3c7':'white';var katBorder=fa==='h'?'#4ade80':fa==='u'?'#fca5a5':fa==='n'?'#f59e0b':'#d5e0ee';html+='<div style="border:2px solid '+katBorder+';border-radius:10px;padding:12px;margin-bottom:8px;background:'+katColor+';"><p style="margin-bottom:8px;font-size:14px;font-weight:600;">'+s.t+'</p><div style="display:flex;gap:8px;flex-wrap:wrap;"><label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;"><input type="radio" name="m4s5'+s.id+'" value="h"'+(fa==='h'?' checked':'')+' onchange="saveAns(''+fk+'','h');renderStep('m4','s5')"> 💡 Hilfreich</label><label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;"><input type="radio" name="m4s5'+s.id+'" value="u"'+(fa==='u'?' checked':'')+' onchange="saveAns(''+fk+'','u');renderStep('m4','s5')"> 🚫 Überflüssig</label><label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;font-weight:700;"><input type="radio" name="m4s5'+s.id+'" value="n"'+(fa==='n'?' checked':'')+' onchange="saveAns(''+fk+'','n');renderStep('m4','s5')"> ⚖️ Nachdenken</label></div></div>'}
+  var allAns=sits.every(function(s){return !!STATE.answers['m4s5f'+s.id]})
+  if(allAns){html+='<label style="font-weight:700;display:block;margin:12px 0 4px;">Meine persönliche Nachhaltigkeitsregel:</label><textarea class="f" id="m4s5rin" rows="2" placeholder="Ich nutze KI bewusst, indem ich …" onchange="saveAns(''+k+'',this.value)">'+sv+'</textarea><div class="merksatz"><p>Überlege vor jeder KI-Anfrage, ob sie wirklich notwendig und sinnvoll ist. Bewusster Einsatz schont Ressourcen und fördert eigenes Denken.</p></div>';if(!d)html+='<div class="actions"><button class="btn btn-success" onclick="saveAns(''+k+'',document.getElementById('m4s5rin').value);nextStep('m4','s5')">Modul 4 abschließen ✓</button></div>'}
+  if(d)html+='<div class="done-badge">✓ Modul 4 abgeschlossen!</div>'
+  return html+'</div>'
 }
 
-function openMod(id) { show('s-'+id) }
-
-function completeModule(id) {
-  var p = getP()
-  p[id] = true
-  saveP(p)
-  alert('Modul abgeschlossen! Trage den Merksatz auf dein Arbeitsblatt ein.')
-  showDash()
-}
-
-function m1Next(step) {
-  var els = document.querySelectorAll('[id^="m1-s"]')
-  for (var i = 0; i < els.length; i++) els[i].style.display = 'none'
-  document.getElementById('m1-s'+step).style.display = 'block'
-  window.scrollTo(0,0)
-}
-function m2Next(step) {
-  var els = document.querySelectorAll('[id^="m2-s"]')
-  for (var i = 0; i < els.length; i++) els[i].style.display = 'none'
-  document.getElementById('m2-s'+step).style.display = 'block'
-  window.scrollTo(0,0)
-}
-function m3Next(step) {
-  var els = document.querySelectorAll('[id^="m3-s"]')
-  for (var i = 0; i < els.length; i++) els[i].style.display = 'none'
-  document.getElementById('m3-s'+step).style.display = 'block'
-  window.scrollTo(0,0)
-}
-function m4Next(step) {
-  var els = document.querySelectorAll('[id^="m4-s"]')
-  for (var i = 0; i < els.length; i++) els[i].style.display = 'none'
-  document.getElementById('m4-s'+step).style.display = 'block'
-  window.scrollTo(0,0)
-}
-
-function checkM3() {
-  var val = document.querySelector('input[name="m3q"]:checked')
-  var fb = document.getElementById('m3-feedback')
-  if (!val) { fb.innerHTML = '<div class="feedback-wrong">Bitte waehle eine Antwort aus.</div>'; return }
-  if (val.value === 'b') {
-    fb.innerHTML = '<div class="feedback-correct">Richtig! Kennzeichne KI-Inhalte immer dann, wenn andere wissen muessen, dass eine KI beteiligt war.</div>'
-    setTimeout(function() { completeModule('m3') }, 1500)
-  } else {
-    fb.innerHTML = '<div class="feedback-wrong">Nicht ganz. Kennzeichnung ist immer dann wichtig, wenn andere wissen muessen, dass KI beteiligt war.</div>'
-  }
-}
-
+// ═══ INIT ═══
 window.addEventListener('load', function() {
-  if (getName()) showDash()
+  loadState()
+  if(STATE.name) showDash()
 })
-
 </script>
 </body>
 </html>
