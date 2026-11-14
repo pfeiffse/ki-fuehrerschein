@@ -193,7 +193,7 @@ export default function LandingPage({ onJoin }) {
           <div className="login-box login-card" style={{ background: 'white', borderRadius: '20px', padding: '24px', boxShadow: '0 14px 34px rgba(0,20,60,0.3)' }}>
             <h2 style={{ color: '#00295f', fontSize: '24px', margin: '0 0 6px' }}>Anmelden</h2>
             <div style={{ display: 'inline-block', fontSize: '12px', fontWeight: 700, borderRadius: '999px', padding: '2px 10px', background: '#eef5fc', color: '#063b81', marginBottom: '16px' }}>
-              🔒 Offline-Modus · Daten bleiben auf diesem Gerät
+              🔒 Anmeldung mit Klassencode · Fortschritt wird gespeichert
             </div>
 
             <form onSubmit={handleJoin} noValidate>

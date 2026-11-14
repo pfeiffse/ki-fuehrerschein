@@ -25,7 +25,7 @@ export default function MyDataPage() {
       profil: { anzeigename: student?.display_name, beigetreten: student?.created_at },
       module_fortschritt: progress.map(p => ({ modul: p.module_id, status: p.status, punkte: p.score, bestanden: p.passed })),
       achievements: Object.keys(getAchievementsLocal()),
-      hinweis: 'Merksatz und Zertifikatsname werden nur lokal gespeichert.',
+      hinweis: 'Merksatz und Zertifikatsname werden lokal und in der Cloud gespeichert.',
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
@@ -70,7 +70,7 @@ export default function MyDataPage() {
           <h2>Gespeicherte Daten</h2>
           <p><strong>Name:</strong> {student?.display_name ?? '–'}</p>
           <p><strong>Module:</strong> {progress.length} Einträge</p>
-          <p style={{ color: 'var(--c-muted)', fontSize: 'var(--fs-sm)' }}>Merksatz und Zertifikatsname werden nur lokal gespeichert – nicht auf dem Server.</p>
+          <p style={{ color: 'var(--c-muted)', fontSize: 'var(--fs-sm)' }}>Merksatz und Zertifikatsname werden lokal und in der Cloud (Supabase) gespeichert.</p>
         </div>
 
         <div className="card">

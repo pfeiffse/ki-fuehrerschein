@@ -132,7 +132,7 @@ export default function CertificatePage() {
               <button className="btn btn-success" onClick={handleSave}>
                 {saved ? '✓ Gespeichert!' : 'Alles speichern'}
               </button>
-              <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>Nur lokal gespeichert · Kein Upload</span>
+              <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>Lokal + in der Cloud gespeichert</span>
             </div>
 
             {levelCode && (
