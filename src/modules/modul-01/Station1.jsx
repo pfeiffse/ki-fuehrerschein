@@ -62,7 +62,7 @@ const BROKEN_KI_EXAMPLES = [
     explanation: 'Grüne Wiese + großes Tier = Pferd für diese KI. Sie hat nie Kühe gesehen.'
   },
   {
-    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
+    img: 'https://images.unsplash.com/photo-1484557052118-f32bd25b45b5?w=400&q=80',
     label: 'Schaf auf der Wiese',
     kiSays: '🐴 Pferd! (87%)',
     correct: false,
@@ -76,7 +76,7 @@ const BROKEN_KI_EXAMPLES = [
     explanation: 'Zufällig richtig – aber aus dem falschen Grund: Wiese, nicht Pferdeform.'
   },
   {
-    img: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&q=80',
+    img: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80',
     label: 'Mensch auf der Wiese',
     kiSays: '🐴 Pferd! (78%)',
     correct: false,
