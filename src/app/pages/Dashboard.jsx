@@ -327,6 +327,7 @@ export default function Dashboard({ student }) {
         <div style={{ marginTop: 'var(--sp-lg)', paddingBottom: 'var(--sp-xl)', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <button onClick={() => navigate('/datenschutz')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 'var(--fs-xs)', cursor: 'pointer', fontFamily: 'inherit' }}>Datenschutz</button>
           <button onClick={() => navigate('/meine-daten')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 'var(--fs-xs)', cursor: 'pointer', fontFamily: 'inherit' }}>Meine Daten</button>
+          <a href={BASE + 'elterninformation.html'} target="_blank" rel="noopener" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 'var(--fs-xs)', textDecoration: 'none' }}>Elterninformation</a>
         </div>
       </div>
     </div>

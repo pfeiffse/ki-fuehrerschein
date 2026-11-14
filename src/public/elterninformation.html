@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elterninformation – KI-Führerschein</title>
+<style>
+@font-face { font-family: 'Fira Sans'; font-weight: 400; src: url('./fonts/fira-sans-400.ttf') format('truetype'); }
+@font-face { font-family: 'Fira Sans'; font-weight: 700; src: url('./fonts/fira-sans-700.ttf') format('truetype'); }
+@font-face { font-family: 'Fira Sans'; font-weight: 800; src: url('./fonts/fira-sans-800.ttf') format('truetype'); }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Fira Sans', Arial, sans-serif; color: #17243b; background: white; font-size: 11pt; line-height: 1.6; }
+
+@page { size: A4 portrait; margin: 20mm 20mm 20mm 25mm; }
+@media print { .no-print { display: none !important; } body { font-size: 10.5pt; } }
+
+.page { max-width: 170mm; margin: 0 auto; padding: 15mm 0; }
+
+/* Briefkopf */
+.letterhead { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #00295f; padding-bottom: 10px; margin-bottom: 20px; }
+.school-name { font-size: 14pt; font-weight: 800; color: #00295f; }
+.school-sub { font-size: 9pt; color: #56667c; margin-top: 2px; }
+.date-block { text-align: right; font-size: 9pt; color: #56667c; }
+
+/* Empfänger */
+.recipient { margin-bottom: 20px; font-size: 10pt; }
+
+/* Betreff */
+.subject { font-weight: 800; font-size: 12pt; color: #00295f; margin-bottom: 16px; border-left: 4px solid #ffb225; padding-left: 10px; }
+
+/* Fließtext */
+p { margin-bottom: 10px; }
+
+/* Info-Boxen */
+.info-box { border-left: 4px solid #063b81; background: #eef5fc; padding: 10px 14px; margin: 14px 0; border-radius: 0 6px 6px 0; font-size: 10pt; }
+.info-box.green { border-color: #2b8a2b; background: #f0fdf4; }
+.info-box.yellow { border-color: #f59e0b; background: #fffbeb; }
+.info-box strong { color: #00295f; }
+.info-box.green strong { color: #2b8a2b; }
+.info-box.yellow strong { color: #92400e; }
+
+/* Tabelle */
+table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 12px 0; }
+th { background: #eef5fc; color: #00295f; font-weight: 800; padding: 7px 10px; text-align: left; border-bottom: 2px solid #d5e0ee; }
+td { padding: 6px 10px; border-bottom: 1px solid #e5edf5; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+/* Unterschrift */
+.signature { margin-top: 30px; }
+.sig-line { border-bottom: 1px solid #17243b; width: 200px; margin-bottom: 4px; height: 30px; }
+.sig-label { font-size: 9pt; color: #56667c; }
+
+/* Rückmeldung */
+.rueckmeldung { margin-top: 30px; border: 2px dashed #d5e0ee; border-radius: 8px; padding: 14px; }
+.rueckmeldung h3 { font-size: 10pt; color: #00295f; margin-bottom: 10px; }
+.check-line { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 10pt; }
+.checkbox { width: 16px; height: 16px; border: 2px solid #17243b; border-radius: 3px; flex-shrink: 0; }
+.field-line { border-bottom: 1px solid #17243b; flex: 1; height: 20px; }
+
+.print-btn { position: fixed; bottom: 20px; right: 20px; background: #00295f; color: white; border: none; border-radius: 99px; padding: 11px 22px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ Drucken / PDF</button>
+
+<div class="page">
+
+  <!-- Briefkopf -->
+  <div class="letterhead">
+    <div>
+      <div class="school-name">Schul- und Leistungssportzentrum Berlin</div>
+      <div class="school-sub">SLZB · Landsberger Allee 563 · 12681 Berlin</div>
+    </div>
+    <div class="date-block">
+      Berlin, November 2026<br>
+      Klasse 7
+    </div>
+  </div>
+
+  <!-- Empfänger -->
+  <div class="recipient">
+    An die Erziehungsberechtigten<br>
+    der Schülerinnen und Schüler der Klasse 7
+  </div>
+
+  <!-- Betreff -->
+  <div class="subject">Information: Einsatz einer digitalen Lernplattform im Unterricht<br>
+  <span style="font-size:10pt; font-weight:400; color:#56667c;">„KI-Führerschein Klasse 7" – Pilotprojekt der KI-AG</span></div>
+
+  <!-- Anrede -->
+  <p>Sehr geehrte Erziehungsberechtigte,</p>
+
+  <p>im Rahmen des Informatikunterrichts und der KI-AG setzen wir in Klasse 7 eine digitale Lernplattform ein, die wir Ihnen hiermit vorstellen möchten. Die Plattform trägt den Namen <strong>„KI-Führerschein"</strong> und wurde von Lehrkräften des SLZB entwickelt.</p>
+
+  <!-- Was ist die Plattform -->
+  <p><strong>Was ist der KI-Führerschein?</strong></p>
+  <p>Der KI-Führerschein ist eine interaktive Lernplattform, auf der Schülerinnen und Schüler in vier Modulen grundlegende Kompetenzen im Umgang mit Künstlicher Intelligenz erwerben:</p>
+
+  <table>
+    <tr><th>Modul</th><th>Inhalt</th><th>Dauer</th></tr>
+    <tr><td><strong>1 · Was ist KI?</strong></td><td>Trainingsdaten, Mustererkennung, Sprach-KI</td><td>ca. 45 Min.</td></tr>
+    <tr><td><strong>2 · KI sinnvoll nutzen</strong></td><td>Fehler erkennen, Prompts, Verantwortung</td><td>ca. 45 Min.</td></tr>
+    <tr><td><strong>3 · Datenschutz</strong></td><td>Digitale Privatsphäre, Kennzeichnungspflicht</td><td>ca. 45 Min.</td></tr>
+    <tr><td><strong>4 · KI & Nachhaltigkeit</strong></td><td>Ressourcen, Energie, bewusster Einsatz</td><td>ca. 45 Min.</td></tr>
+  </table>
+
+  <p>Nach erfolgreichem Abschluss aller vier Module erhalten die Schülerinnen und Schüler ein <strong>Zertifikat</strong>.</p>
+
+  <!-- Datenschutz -->
+  <p><strong>Datenschutz – was wird gespeichert?</strong></p>
+
+  <div class="info-box green">
+    <strong>✅ Pseudonyme empfohlen:</strong> Ihre Kinder können statt ihres echten Namens ein Pseudonym verwenden (z. B. „Lena7a"). Die Lehrkraft weiß, wer sich dahinter verbirgt – nach außen sind keine Rückschlüsse auf die Person möglich.
+  </div>
+
+  <table>
+    <tr><th>Was wird gespeichert?</th><th>Wo?</th><th>Wie lange?</th></tr>
+    <tr><td>Anzeigename (Pseudonym möglich)</td><td>Schulserver (EU)</td><td>Ende Schuljahr</td></tr>
+    <tr><td>Lernfortschritt (Module bestanden)</td><td>Schulserver (EU)</td><td>Ende Schuljahr</td></tr>
+    <tr><td>Persönliche Merksätze (freiwillig)</td><td>Schulserver (EU)</td><td>Ende Schuljahr</td></tr>
+    <tr><td>Keine Fotos, keine E-Mails, keine Adressen</td><td>–</td><td>–</td></tr>
+  </table>
+
+  <div class="info-box">
+    <strong>🔒 EU-Server:</strong> Alle Daten werden ausschließlich auf Servern in <strong>Frankfurt (Deutschland)</strong> gespeichert. Der Dienstleister Supabase Inc. unterliegt der europäischen Datenschutzgrundverordnung (DSGVO). Ein Auftragsverarbeitungsvertrag (Art. 28 DSGVO) liegt vor.
+  </div>
+
+  <!-- Rechtsgrundlage -->
+  <p><strong>Rechtsgrundlage:</strong> Die Datenverarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. e DSGVO (schulischer Bildungsauftrag) in Verbindung mit dem Berliner Schulgesetz. Eine gesonderte Einwilligung ist nicht erforderlich.</p>
+
+  <!-- Rechte -->
+  <div class="info-box yellow">
+    <strong>Ihre Rechte:</strong> Sie haben das Recht auf Auskunft, Berichtigung und Löschung der gespeicherten Daten. Ihr Kind kann seine Daten jederzeit selbst in der App löschen. Bei Fragen wenden Sie sich bitte an die Lehrkraft oder den Datenschutzbeauftragten der Schule.
+  </div>
+
+  <!-- Zugang -->
+  <p><strong>Wie funktioniert die Anmeldung?</strong></p>
+  <p>Ihr Kind meldet sich mit einem <strong>Klassencode</strong> (wird von der Lehrkraft mitgeteilt) und einem selbst gewählten Anzeigenamen an. Es ist keine E-Mail-Adresse und kein Passwort erforderlich.</p>
+
+  <p>Die Plattform ist erreichbar unter: <strong>pfeiffse.github.io/ki-fuehrerschein</strong></p>
+
+  <!-- Grußformel -->
+  <p>Bei Fragen stehen wir Ihnen gerne zur Verfügung.</p>
+  <p>Mit freundlichen Grüßen</p>
+
+  <div class="signature">
+    <div class="sig-line"></div>
+    <div class="sig-label">Klassenleitung / KI-AG · SLZB Berlin</div>
+  </div>
+
+  <!-- Rückmeldung (optional) -->
+  <div class="rueckmeldung">
+    <h3>✂️ Rückmeldung (optional – nur bei Rückfragen erforderlich)</h3>
+    <div class="check-line">
+      <div class="checkbox"></div>
+      <span>Ich habe die Information zur Kenntnis genommen. Ich habe keine Rückfragen.</span>
+    </div>
+    <div class="check-line">
+      <div class="checkbox"></div>
+      <span>Ich bitte um ein Gespräch. Meine Telefonnummer / E-Mail:</span>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:8px; align-items:center;">
+      <span style="font-size:9pt; white-space:nowrap;">Name des Kindes:</span>
+      <div class="field-line"></div>
+      <span style="font-size:9pt; white-space:nowrap;">Unterschrift:</span>
+      <div class="field-line"></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
