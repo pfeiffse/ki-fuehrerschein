@@ -24,7 +24,6 @@ const MODS = [
 export default function LandingPage({ onJoin }) {
   const navigate   = useNavigate()
   const [name,     setName]     = useState('')
-  const [klasse,   setKlasse]   = useState('')
   const [code,     setCode]     = useState('')
   const [error,    setError]    = useState('')
   const [loading,  setLoading]  = useState(false)
@@ -34,30 +33,12 @@ export default function LandingPage({ onJoin }) {
     e.preventDefault()
     setError('')
     if (!name.trim()) { setError('Bitte deinen Vornamen eingeben.'); return }
-    if (!klasse.trim()) { setError('Bitte deine Klasse eingeben.'); return }
+    if (!code.trim()) { setError('Bitte den Klassencode eingeben. Du bekommst ihn von deiner Lehrkraft.'); return }
     setLoading(true)
-    // Offline-Modus: direkt mit Name+Klasse als Pseudonym anmelden
-    // Klassencode aus Klasse generieren (z.B. "7b" → "KI7B")
-    const joinCode = code.trim() || ('KI' + klasse.trim().toUpperCase().replace(/[^A-Z0-9]/g,''))
-    const result = await studentJoin(joinCode, name.trim())
+    const result = await studentJoin(code.trim(), name.trim())
     setLoading(false)
     if (result.error) {
-      // Zeige Fehler wenn Klassencode nicht gefunden
-      if (code.trim() && result.error.includes('nicht gefunden')) {
-        setError('Klassencode nicht gefunden. Bitte bei der Lehrkraft nachfragen.')
-      } else {
-        // Ohne Klassencode: Demo-Modus mit lokalem Student
-        // Versuche mit DEMO-Code
-        const demoResult = await studentJoin('DEMO7A', name.trim())
-        if (demoResult.student) {
-          onJoin(demoResult.student)
-        } else {
-          // Letzter Fallback: nur lokal (kein Supabase-Sync)
-          const student = { id: crypto.randomUUID(), display_name: name.trim(), class_id: null, _offline: true }
-          localStorage.setItem('ki_student', JSON.stringify(student))
-          onJoin(student)
-        }
-      }
+      setError('Klassencode nicht gefunden. Bitte bei der Lehrkraft nachfragen.')
     } else {
       onJoin(result.student)
     }
@@ -205,28 +186,19 @@ export default function LandingPage({ onJoin }) {
                   onBlur={e => { e.target.style.borderColor='#d5e0ee'; e.target.style.boxShadow='none' }} />
               </div>
               <div style={{ marginBottom: '14px' }}>
-                <label style={{ display: 'block', fontWeight: 700, marginBottom: '6px', fontSize: '15px', color: '#17243b' }}>Klasse</label>
-                <input type="text" value={klasse} onChange={e => setKlasse(e.target.value)}
-                  placeholder="z. B. 7b" autoComplete="off" style={inp}
+                <label style={{ display: 'block', fontWeight: 700, marginBottom: '6px', fontSize: '15px', color: '#17243b' }}>
+                  Klassencode
+                  <span style={{ fontWeight: 400, color: '#56667c', fontSize: '13px', marginLeft: '6px' }}>– von der Lehrkraft</span>
+                </label>
+                <input type="text" value={code} onChange={e => setCode(e.target.value.toUpperCase())}
+                  placeholder="z. B. KI7A" autoComplete="off"
+                  style={{ ...inp, fontFamily: 'monospace', fontSize: '1.1rem', fontWeight: 800, letterSpacing: '0.1em' }}
                   onFocus={e => { e.target.style.borderColor='#3c9dd7'; e.target.style.boxShadow='0 0 0 3px rgba(60,157,215,0.25)' }}
                   onBlur={e => { e.target.style.borderColor='#d5e0ee'; e.target.style.boxShadow='none' }} />
-                <div style={{ fontSize: '13px', color: '#56667c', marginTop: '5px' }}>
-                  Mit Klassencode anmelden?{' '}
-                  <button type="button" onClick={() => setShowCode(!showCode)}
-                    style={{ background: 'none', border: 'none', color: '#063b81', textDecoration: 'underline', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', padding: 0 }}>
-                    {showCode ? 'Ausblenden' : 'Klassencode eingeben'}
-                  </button>
+                <div style={{ fontSize: '12px', color: '#56667c', marginTop: '5px' }}>
+                  📋 Den Code bekommst du von deiner Lehrkraft.
                 </div>
               </div>
-              {showCode && (
-                <div style={{ marginBottom: '14px' }}>
-                  <label style={{ display: 'block', fontWeight: 700, marginBottom: '6px', fontSize: '15px', color: '#17243b' }}>Klassencode</label>
-                  <input type="text" value={code} onChange={e => setCode(e.target.value.toUpperCase())}
-                    placeholder="z. B. KI7A" autoComplete="off" style={inp}
-                    onFocus={e => e.target.style.borderColor='#3c9dd7'}
-                    onBlur={e => e.target.style.borderColor='#d5e0ee'} />
-                </div>
-              )}
 
               {error && (
                 <div style={{ background: '#fdeaea', color: '#c0262d', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontWeight: 600, fontSize: '15px' }}>
@@ -235,7 +207,8 @@ export default function LandingPage({ onJoin }) {
               )}
 
               <button type="submit" disabled={loading}
-                className="submit-btn pulse-btn" style={{ width: '100%', background: '#00295f', color: 'white', border: 'none', borderRadius: '999px', padding: '13px 20px', fontWeight: 700, fontSize: '16px', cursor: 'pointer', fontFamily: 'inherit', marginTop: '4px' }}>
+                className="submit-btn pulse-btn"
+                style={{ width: '100%', background: '#00295f', color: 'white', border: 'none', borderRadius: '999px', padding: '13px 20px', fontWeight: 700, fontSize: '16px', cursor: 'pointer', fontFamily: 'inherit', marginTop: '4px' }}>
                 {loading ? (
                   <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                     <span style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
