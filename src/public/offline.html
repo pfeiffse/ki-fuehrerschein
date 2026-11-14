@@ -296,79 +296,75 @@ textarea.f { resize: vertical; }
 
 <script>
 // Sofort-Test beim Laden
-console.log('[offline] Script geladen ✓')
-try { localStorage.setItem('_test', '1'); localStorage.removeItem('_test'); console.log('[offline] localStorage OK') } 
-catch(e) { console.warn('[offline] localStorage nicht verfügbar:', e) }
+console.log('[offline] Script geladen OK')
+try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); console.log('[offline] localStorage OK') }
+catch(e) { console.warn('[offline] localStorage:', e) }
 
-const MODS = [
-  { id:'m1', title:'Was ist KI?',               sub:'Trainingsdaten · Mustererkennung · Sprach-KI', icon:'🤖', color:'#1d77bd' },
-  { id:'m2', title:'KI sinnvoll nutzen',         sub:'Fehler erkennen · Prompts · Verantwortung',   icon:'✅', color:'#c26a00' },
-  { id:'m3', title:'Kennzeichnung & Datenschutz',sub:'Digitale Privatsphäre · Kennzeichnungspflicht',icon:'🛡️',color:'#d0121a' },
-  { id:'m4', title:'KI & Nachhaltigkeit',         sub:'Ressourcen · Energie · Bewusster Einsatz',   icon:'🌱', color:'#2b8a2b' },
+var MODS = [
+  { id:'m1', title:'Was ist KI?',               sub:'Trainingsdaten - Mustererkennung - Sprach-KI', icon:'🤖', color:'#1d77bd' },
+  { id:'m2', title:'KI sinnvoll nutzen',         sub:'Fehler erkennen - Prompts - Verantwortung',   icon:'✅', color:'#c26a00' },
+  { id:'m3', title:'Kennzeichnung & Datenschutz',sub:'Digitale Privatsphaere - Kennzeichnungspflicht',icon:'🛡️',color:'#d0121a' },
+  { id:'m4', title:'KI & Nachhaltigkeit',        sub:'Ressourcen - Energie - Bewusster Einsatz',    icon:'🌱', color:'#2b8a2b' }
 ]
 
-function getP() { 
-  try { 
-    return JSON.parse(localStorage.getItem('ki_off_prog') || sessionStorage.getItem('ki_off_prog') || '{}') 
-  } catch { return {} } 
+function getP() {
+  try { return JSON.parse(localStorage.getItem('ki_off_prog') || '{}') } catch(e) { return {} }
 }
-function saveP(p) { 
-  const s = JSON.stringify(p)
-  try { localStorage.setItem('ki_off_prog', s) } catch(e) {}
-  try { sessionStorage.setItem('ki_off_prog', s) } catch(e) {}
+function saveP(p) {
+  try { localStorage.setItem('ki_off_prog', JSON.stringify(p)) } catch(e) {}
 }
-function getName() { return localStorage.getItem('ki_off_name') || sessionStorage.getItem('ki_off_name') || '' }
+function getName() {
+  return localStorage.getItem('ki_off_name') || ''
+}
 
 function doLogin() {
-  const n = document.getElementById('login-name').value.trim()
-  const dbg = document.getElementById('debug-msg')
+  var n = document.getElementById('login-name').value.trim()
+  var dbg = document.getElementById('debug-msg')
   if (!n) { alert('Bitte deinen Namen eingeben.'); return }
-  if (dbg) dbg.textContent = 'Anmeldung läuft...'
-  try {
-    localStorage.setItem('ki_off_name', n)
-    if (dbg) dbg.textContent = 'localStorage OK'
-  } catch(e) {
-    sessionStorage.setItem('ki_off_name', n)
-    if (dbg) dbg.textContent = 'sessionStorage Fallback'
-  }
-  setTimeout(() => showDash(), 100)
+  if (dbg) dbg.textContent = 'Anmeldung...'
+  try { localStorage.setItem('ki_off_name', n) } catch(e) {}
+  if (dbg) dbg.textContent = ''
+  showDash()
 }
 
 function logout() {
-  if (confirm('Wirklich abmelden? Dein Fortschritt bleibt gespeichert.')) {
-    localStorage.removeItem('ki_off_name')
+  if (confirm('Wirklich abmelden?')) {
+    try { localStorage.removeItem('ki_off_name') } catch(e) {}
     show('s-login')
   }
 }
 
 function show(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
-  document.getElementById(id).classList.add('active')
+  var screens = document.querySelectorAll('.screen')
+  for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active')
+  var el = document.getElementById(id)
+  if (el) el.classList.add('active')
   window.scrollTo(0,0)
 }
 
 function showDash() {
-  const name = getName()
+  var name = getName()
   if (!name) { show('s-login'); return }
   document.getElementById('topbar-name').textContent = name
   document.getElementById('dash-name').textContent = name
-  const p = getP()
-  const done = MODS.filter(function(m) { return p[m.id] }).length
+  var p = getP()
+  var done = 0
+  for (var i = 0; i < MODS.length; i++) { if (p[MODS[i].id]) done++ }
   document.getElementById('dash-bar').style.width = (done/4*100)+'%'
   document.getElementById('dash-text').textContent = done+' von 4 Modulen abgeschlossen'
-  
+
   var html = ''
   for (var i = 0; i < MODS.length; i++) {
     var m = MODS[i]
     var isDone = !!p[m.id]
     var isLocked = i > 0 && !p[MODS[i-1].id]
-    var clickAttr = isLocked ? '' : 'onclick="openMod('' + m.id + '')" style="cursor:pointer"'
-    var icon = isDone ? '✓' : isLocked ? '🔒' : m.icon
-    var statusColor = isDone ? '#2b8a2b' : isLocked ? '#9aa9bf' : '#56667c'
-    var statusText = isDone ? '✓ Fertig' : isLocked ? 'Gesperrt' : 'Starten →'
+    var cls = 'module-card' + (isDone?' done':'') + (isLocked?' locked':' clickable')
+    var onclick = isLocked ? '' : ' onclick="openMod(' + "'" + m.id + "'" + ')"'
     var circleStyle = isDone ? 'background:#2b8a2b;box-shadow:0 0 0 3px white,0 0 0 5px #2b8a2b' : ''
-    html += '<div class="module-card ' + (isDone?'done':'') + ' ' + (isLocked?'locked':'clickable') + '" '
-    html += 'style="--c:' + m.color + '" ' + clickAttr + '>'
+    var icon = isDone ? '&#10003;' : isLocked ? '&#128274;' : m.icon
+    var statusColor = isDone ? '#2b8a2b' : isLocked ? '#9aa9bf' : '#56667c'
+    var statusText = isDone ? '&#10003; Fertig' : isLocked ? 'Gesperrt' : 'Starten &rarr;'
+    html += '<div class="' + cls + '" style="--c:' + m.color + '"' + onclick + '>'
     html += '<div class="mod-circle" style="' + circleStyle + '">' + icon + '</div>'
     html += '<div>'
     html += '<div style="font-weight:800;font-size:16px;">' + m.title + '</div>'
@@ -378,65 +374,60 @@ function showDash() {
     html += '</div>'
   }
   document.getElementById('dash-modules').innerHTML = html
-  
-  try {
-    show('s-dash')
-  } catch(e) {
-    console.error('[offline] showDash Fehler:', e)
-  }
+  show('s-dash')
 }
+
 function openMod(id) { show('s-'+id) }
 
 function completeModule(id) {
-  const p = getP(); p[id] = true; saveP(p)
-  alert('✅ Modul abgeschlossen! Trage den Merksatz auf dein Arbeitsblatt ein.')
+  var p = getP()
+  p[id] = true
+  saveP(p)
+  alert('Modul abgeschlossen! Trage den Merksatz auf dein Arbeitsblatt ein.')
   showDash()
 }
 
-// Modul 1 Navigation
 function m1Next(step) {
-  document.querySelectorAll('[id^="m1-s"]').forEach(el => el.style.display='none')
-  document.getElementById('m1-s'+step).style.display='block'
+  var els = document.querySelectorAll('[id^="m1-s"]')
+  for (var i = 0; i < els.length; i++) els[i].style.display = 'none'
+  document.getElementById('m1-s'+step).style.display = 'block'
   window.scrollTo(0,0)
 }
-
-// Modul 2 Navigation
 function m2Next(step) {
-  document.querySelectorAll('[id^="m2-s"]').forEach(el => el.style.display='none')
-  document.getElementById('m2-s'+step).style.display='block'
+  var els = document.querySelectorAll('[id^="m2-s"]')
+  for (var i = 0; i < els.length; i++) els[i].style.display = 'none'
+  document.getElementById('m2-s'+step).style.display = 'block'
   window.scrollTo(0,0)
 }
-
-// Modul 3 Navigation
 function m3Next(step) {
-  document.querySelectorAll('[id^="m3-s"]').forEach(el => el.style.display='none')
-  document.getElementById('m3-s'+step).style.display='block'
+  var els = document.querySelectorAll('[id^="m3-s"]')
+  for (var i = 0; i < els.length; i++) els[i].style.display = 'none'
+  document.getElementById('m3-s'+step).style.display = 'block'
+  window.scrollTo(0,0)
+}
+function m4Next(step) {
+  var els = document.querySelectorAll('[id^="m4-s"]')
+  for (var i = 0; i < els.length; i++) els[i].style.display = 'none'
+  document.getElementById('m4-s'+step).style.display = 'block'
   window.scrollTo(0,0)
 }
 
 function checkM3() {
-  const val = document.querySelector('input[name="m3q"]:checked')?.value
-  const fb = document.getElementById('m3-feedback')
-  if (!val) { fb.innerHTML='<div class="feedback-wrong">Bitte wähle eine Antwort aus.</div>'; return }
-  if (val === 'b') {
-    fb.innerHTML='<div class="feedback-correct">✅ Richtig! Kennzeichne KI-Inhalte immer dann, wenn andere wissen müssen, dass eine KI beteiligt war.</div>'
-    setTimeout(() => { completeModule('m3') }, 1500)
+  var val = document.querySelector('input[name="m3q"]:checked')
+  var fb = document.getElementById('m3-feedback')
+  if (!val) { fb.innerHTML = '<div class="feedback-wrong">Bitte waehle eine Antwort aus.</div>'; return }
+  if (val.value === 'b') {
+    fb.innerHTML = '<div class="feedback-correct">Richtig! Kennzeichne KI-Inhalte immer dann, wenn andere wissen muessen, dass eine KI beteiligt war.</div>'
+    setTimeout(function() { completeModule('m3') }, 1500)
   } else {
-    fb.innerHTML='<div class="feedback-wrong">❌ Nicht ganz. Kennzeichnung ist immer dann wichtig, wenn andere wissen müssen, dass KI beteiligt war – unabhängig von der Schulregel.</div>'
+    fb.innerHTML = '<div class="feedback-wrong">Nicht ganz. Kennzeichnung ist immer dann wichtig, wenn andere wissen muessen, dass KI beteiligt war.</div>'
   }
 }
 
-// Modul 4 Navigation
-function m4Next(step) {
-  document.querySelectorAll('[id^="m4-s"]').forEach(el => el.style.display='none')
-  document.getElementById('m4-s'+step).style.display='block'
-  window.scrollTo(0,0)
-}
-
-// Init
-window.addEventListener('load', () => {
+window.addEventListener('load', function() {
   if (getName()) showDash()
 })
+
 </script>
 </body>
 </html>
