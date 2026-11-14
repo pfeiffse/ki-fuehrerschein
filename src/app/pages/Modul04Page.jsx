@@ -190,11 +190,12 @@ export default function Modul04Page() {
             <h2 style={{ color: MOD_COLOR }}>Station noch gesperrt</h2>
             <p>Schließe zuerst Station 1 ab, um diese Station freizuschalten.</p>
             
-        <ModuleSkip moduleName={MOD.title} onSkip={() => {
+        <ModuleSkip moduleName={MOD.title} moduleId={MOD.id} onSkip={(isMaster) => {
           passModule(MOD.id, 100, 100)
           saveAchievementLocal(MOD.id)
           saveNotesToSupabase()
           setAchieved(true)
+          if (isMaster) navigate('/dashboard')
         }} />
 
 <div className="actions" style={{ justifyContent: 'center' }}>

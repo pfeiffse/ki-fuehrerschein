@@ -150,8 +150,9 @@ export default function Modul01Page() {
         {station === 3 && <Station3 done={completed.includes(3)} onComplete={() => { completeStation(3); goStation(4) }} />}
         {station === 4 && <Station4 done={completed.includes(4)} onComplete={() => { completeStation(4); goStation('home') }} achieved={achieved} onDashboard={() => navigate('/dashboard')} />}
 
-        <ModuleSkip moduleName={MOD.title} onSkip={() => {
+        <ModuleSkip moduleName={MOD.title} moduleId={MOD.id} onSkip={(isMaster) => {
           completeStation(1); completeStation(2); completeStation(3); completeStation(4)
+          if (isMaster) navigate('/dashboard')
         }} />
 
         {station !== 'home' && (

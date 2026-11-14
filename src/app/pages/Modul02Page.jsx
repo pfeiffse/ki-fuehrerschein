@@ -792,7 +792,7 @@ function M1TextFeedback({ text, onSubmit, label }) {
     <div>
       <TextQualityFeedback text={text} />
       
-        <ModuleSkip moduleName={MOD.title} onSkip={() => {
+        <ModuleSkip moduleName={MOD.title} moduleId={MOD.id} onSkip={(isMaster) => {
           const allDone = {}
           for (let i = 1; i <= 9; i++) allDone['m' + i] = true
           allDone['m4b'] = true
@@ -801,6 +801,7 @@ function M1TextFeedback({ text, onSubmit, label }) {
           saveAchievementLocal(MOD.id)
           saveNotesToSupabase()
           setAchieved(true)
+          if (isMaster) navigate('/dashboard')
         }} />
 
 <div className="actions">

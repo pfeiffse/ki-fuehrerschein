@@ -36,6 +36,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
   const [showNewTeacher, setShowNewTeacher] = useState(false)
   const [showNewClass,   setShowNewClass]   = useState(false)
   const [showDeadlines,  setShowDeadlines]  = useState(false)
+  const [skipLogs,       setSkipLogs]       = useState([])
   const [confirmDelete,  setConfirmDelete]  = useState(null)
   const [assignTeacher,  setAssignTeacher]  = useState(null)
 
@@ -46,6 +47,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
     const [cl, te, st, pr] = await Promise.all([
       supabase.from('classes').select('*, users(display_name)').order('grade').order('name'),
       supabase.from('teachers').select('*').order('display_name'),
+      supabase.from('skip_log').select('*').order('used_at', { ascending: false }).limit(100),
       supabase.from('students').select('*, classes(name, grade, join_code)').order('display_name'),
       supabase.from('student_module_progress').select('*'),
     ])
@@ -183,6 +185,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
             { id: 'classes',   label: 'Klassen (' + classes.length + ')' },
             { id: 'teachers',  label: 'Lehrkraefte (' + teachers.length + ')' },
             { id: 'students',  label: 'Schueler:innen (' + students.length + ')' },
+            { id: 'skiplog',   label: '🔑 Skip-Log' },
           ].map(t => (
             <button key={t.id} className={'nav-btn ' + (tab === t.id ? 'active' : '')} onClick={() => setTab(t.id)}
               style={{ fontSize: 'var(--fs-sm)', color: 'white', background: tab === t.id ? 'var(--c-xp)' : 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>
@@ -360,6 +363,44 @@ export default function AdminDashboard({ teacher, onLogout }) {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            )}
+
+            {tab === 'skiplog' && (
+              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)' }}>
+                <h2 style={{ margin: '0 0 var(--sp-md)', color: '#f87171' }}>🔑 Skip-Log</h2>
+                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--fs-sm)', marginBottom: 'var(--sp-md)' }}>
+                  Zeigt wann und von wem der Skip-Code benutzt wurde.
+                </p>
+                {skipLogs.length === 0 ? (
+                  <p style={{ color: 'rgba(255,255,255,0.4)' }}>Noch keine Skip-Nutzungen aufgezeichnet.</p>
+                ) : (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ color: 'white', width: '100%', borderCollapse: 'collapse', fontSize: 'var(--fs-sm)' }}>
+                      <thead>
+                        <tr>{['Zeitpunkt','Schüler:in','Modul','Code'].map(h => (
+                          <th key={h} style={{ color: 'rgba(255,255,255,0.5)', padding: '0.5rem', textAlign: 'left', fontWeight: 700, fontSize: 'var(--fs-xs)', textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>{h}</th>
+                        ))}</tr>
+                      </thead>
+                      <tbody>
+                        {skipLogs.map(log => (
+                          <tr key={log.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                            <td style={{ padding: '0.625rem 0.5rem', color: 'rgba(255,255,255,0.7)' }}>
+                              {new Date(log.used_at).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                            </td>
+                            <td style={{ padding: '0.625rem 0.5rem', fontWeight: 700 }}>{log.student_name}</td>
+                            <td style={{ padding: '0.625rem 0.5rem', color: 'rgba(255,255,255,0.7)' }}>{log.module_id}</td>
+                            <td style={{ padding: '0.625rem 0.5rem' }}>
+                              <span style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', borderRadius: '4px', padding: '2px 8px', fontSize: 'var(--fs-xs)', fontFamily: 'monospace', fontWeight: 800 }}>
+                                {log.code_used}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
           </React.Fragment>

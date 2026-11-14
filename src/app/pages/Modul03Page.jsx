@@ -248,13 +248,14 @@ export default function Modul03Page() {
           </div>
         )}
 
-        <ModuleSkip moduleName={MOD.title} onSkip={() => {
+        <ModuleSkip moduleName={MOD.title} moduleId={MOD.id} onSkip={(isMaster) => {
           const allDone = { m1: true, m2: true, m3: true, m4: true, m5: true }
           update({ done: allDone, mission: 5 })
           passModule(MOD.id, 100, 100)
           saveAchievementLocal(MOD.id)
           saveNotesToSupabase()
           setAchieved(true)
+          if (isMaster) navigate('/dashboard')
         }} />
 
         <div className="actions no-print" style={{ marginTop: 'var(--sp-lg)' }}>
