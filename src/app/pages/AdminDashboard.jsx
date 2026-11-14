@@ -277,6 +277,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--sp-md)' }}>
                   <h2 style={{ margin: 0, color: '#7dd3fc' }}>Alle Lehrkraefte und Admins</h2>
                   <button className="btn btn-primary" onClick={() => setShowNewTeacher(true)}>+ Anlegen</button>
+                  <button className="btn" onClick={() => window.location.href='/ki-fuehrerschein/lehrer/zertifikate'} style={{ background: 'rgba(74,222,128,0.2)', border: '1px solid rgba(74,222,128,0.4)', color: '#4ade80' }}>🏆 Zertifikate drucken</button>
                 </div>
                 {teachers.length === 0 ? (
                   <p style={{ color: 'rgba(255,255,255,0.5)' }}>Noch keine Lehrkraefte angelegt.</p>

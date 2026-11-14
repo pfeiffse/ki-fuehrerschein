@@ -139,15 +139,26 @@ export async function saveNotesToSupabase() {
   const student = getStudentLocal()
   if (!student || !student.id || !navigator.onLine) return
   try {
+    // XP + Achievements aus localStorage
+    const xp = parseInt(localStorage.getItem('ki_xp') || '0')
+    const achievements = JSON.parse(localStorage.getItem('ki_achievements') || '{}')
+    const klasse = localStorage.getItem('ki_cert_klasse') || ''
+    const schule = localStorage.getItem('ki_cert_schule') || 'SLZB'
+
     const notes = {
-      student_id:  student.id,
-      merksatz:    localStorage.getItem('ki_merksatz')    || '',
-      fussabdruck: localStorage.getItem('ki_fussabdruck') || '',
-      ki_kompass:  localStorage.getItem('ki_kompass')     || '',
-      updated_at:  new Date().toISOString(),
+      student_id:   student.id,
+      student_name: student.display_name || '',
+      merksatz:     localStorage.getItem('ki_merksatz')    || '',
+      fussabdruck:  localStorage.getItem('ki_fussabdruck') || '',
+      ki_kompass:   localStorage.getItem('ki_kompass')     || '',
+      xp,
+      achievements,
+      klasse,
+      schule,
+      updated_at:   new Date().toISOString(),
     }
     await supabase.from('student_notes').upsert(notes, { onConflict: 'student_id' })
-    console.log('[notes] Merksätze gespeichert ✓')
+    console.log('[notes] Vollständig gespeichert ✓ (XP:', xp, ')')
   } catch(err) { console.warn('[notes] Fehler:', err) }
 }
 

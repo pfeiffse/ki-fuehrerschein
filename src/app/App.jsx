@@ -17,6 +17,7 @@ import PrivacyPage      from './pages/PrivacyPage.jsx'
 import MyDataPage       from './pages/MyDataPage.jsx'
 import TeacherLogin     from './pages/TeacherLogin.jsx'
 import TeacherDashboard from './pages/TeacherDashboard.jsx'
+import AdminCertificates from './pages/AdminCertificates.jsx'
 import AdminDashboard   from './pages/AdminDashboard.jsx'
 import NotFound         from './pages/NotFound.jsx'
 import GameHeader       from '../components/layout/GameHeader.jsx'
@@ -67,6 +68,8 @@ export default function App() {
           element={isTeacher ? <TeacherDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
         <Route path="/admin"
           element={isTeacher ? <AdminDashboard teacher={teacher} onLogout={() => setTeacher(null)} /> : <Navigate to="/lehrer" replace />} />
+        <Route path="/lehrer/zertifikate"
+          element={isTeacher ? <AdminCertificates /> : <Navigate to="/lehrer" replace />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
