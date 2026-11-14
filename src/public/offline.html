@@ -353,32 +353,38 @@ function showDash() {
   document.getElementById('topbar-name').textContent = name
   document.getElementById('dash-name').textContent = name
   const p = getP()
-  const done = MODS.filter(m => p[m.id]).length
+  const done = MODS.filter(function(m) { return p[m.id] }).length
   document.getElementById('dash-bar').style.width = (done/4*100)+'%'
   document.getElementById('dash-text').textContent = done+' von 4 Modulen abgeschlossen'
-  document.getElementById('dash-modules').innerHTML = MODS.map((m,i) => {
-    const isDone = !!p[m.id]
-    const isLocked = i > 0 && !p[MODS[i-1].id]
-    return `<div class="module-card ${isDone?'done':''} ${isLocked?'locked':'clickable'}"
-      style="--c:${m.color}" ${isLocked?'':'onclick="openMod(''+m.id+'')"'}>
-      <div class="mod-circle" style="${isDone?'background:#2b8a2b;box-shadow:0 0 0 3px white,0 0 0 5px #2b8a2b':''}">${isDone?'✓':isLocked?'🔒':m.icon}</div>
-      <div>
-        <div style="font-weight:800;font-size:16px;">${m.title}</div>
-        <div style="font-size:13px;color:#56667c;">${m.sub}</div>
-      </div>
-      <div style="font-size:13px;font-weight:700;color:${isDone?'#2b8a2b':isLocked?'#9aa9bf':'#56667c'}">
-        ${isDone?'✓ Fertig':isLocked?'Gesperrt':'Starten →'}
-      </div>
-    </div>`
-  }).join('')
+  
+  var html = ''
+  for (var i = 0; i < MODS.length; i++) {
+    var m = MODS[i]
+    var isDone = !!p[m.id]
+    var isLocked = i > 0 && !p[MODS[i-1].id]
+    var clickAttr = isLocked ? '' : 'onclick="openMod('' + m.id + '')" style="cursor:pointer"'
+    var icon = isDone ? '✓' : isLocked ? '🔒' : m.icon
+    var statusColor = isDone ? '#2b8a2b' : isLocked ? '#9aa9bf' : '#56667c'
+    var statusText = isDone ? '✓ Fertig' : isLocked ? 'Gesperrt' : 'Starten →'
+    var circleStyle = isDone ? 'background:#2b8a2b;box-shadow:0 0 0 3px white,0 0 0 5px #2b8a2b' : ''
+    html += '<div class="module-card ' + (isDone?'done':'') + ' ' + (isLocked?'locked':'clickable') + '" '
+    html += 'style="--c:' + m.color + '" ' + clickAttr + '>'
+    html += '<div class="mod-circle" style="' + circleStyle + '">' + icon + '</div>'
+    html += '<div>'
+    html += '<div style="font-weight:800;font-size:16px;">' + m.title + '</div>'
+    html += '<div style="font-size:13px;color:#56667c;">' + m.sub + '</div>'
+    html += '</div>'
+    html += '<div style="font-size:13px;font-weight:700;color:' + statusColor + '">' + statusText + '</div>'
+    html += '</div>'
+  }
+  document.getElementById('dash-modules').innerHTML = html
+  
   try {
     show('s-dash')
   } catch(e) {
     console.error('[offline] showDash Fehler:', e)
-    document.getElementById('debug-msg').textContent = 'Fehler: ' + e.message
   }
 }
-
 function openMod(id) { show('s-'+id) }
 
 function completeModule(id) {
