@@ -347,16 +347,16 @@ window.KIFS_CONFIG = {
 window.KIFS_MODULES = [
   { key:'m1', id:'modul-01', nr:1, datei:'m1_was_ist_ki.html',
     titel:'Was ist KI?', unter:'Trainingsdaten · Mustererkennung · Sprach-KI',
-    farbe:'#1d77bd', abzeichen:{ icon:'🔍', name:'KI-Versteher:in', text:'Du weißt, wie KI aus Daten lernt.' } },
+    farbe:'#1d77bd', abzeichen:{ icon:'??', name:'KI-Versteher:in', text:'Du weißt, wie KI aus Daten lernt.' } },
   { key:'m2', id:'modul-02', nr:2, datei:'m2_ki_sinnvoll_nutzen.html',
     titel:'KI sinnvoll nutzen', unter:'Fehler erkennen · Prompts · Verantwortung',
     farbe:'#c26a00', abzeichen:{ icon:'✅', name:'KI-Checker:in', text:'Du kannst KI-Antworten kritisch prüfen.' } },
   { key:'m3', id:'modul-03', nr:3, datei:'m3_kennzeichnung_datenschutz.html',
     titel:'Kennzeichnung & Datenschutz', unter:'Wann kennzeichnen · Daten schützen',
-    farbe:'#d0121a', abzeichen:{ icon:'🏷️', name:'KI-Verantwortliche:r', text:'Du kennst die Regeln zur Kennzeichnung und zum Datenschutz.' } },
+    farbe:'#d0121a', abzeichen:{ icon:'??️', name:'KI-Verantwortliche:r', text:'Du kennst die Regeln zur Kennzeichnung und zum Datenschutz.' } },
   { key:'m4', id:'modul-04', nr:4, datei:'m4_ki_nachhaltigkeit.html',
     titel:'KI & Nachhaltigkeit', unter:'Ressourcen · Energie · Bewusster Einsatz',
-    farbe:'#2b8a2b', abzeichen:{ icon:'🌱', name:'KI-Nachhaltigkeits-Profi', text:'Du kennst die Ressourcen hinter KI.' } }
+    farbe:'#2b8a2b', abzeichen:{ icon:'??', name:'KI-Nachhaltigkeits-Profi', text:'Du kennst die Ressourcen hinter KI.' } }
 ];
 
 
@@ -380,7 +380,7 @@ window.KIFS_MODULE_HTML["m3"] = `<!doctype html>
 :root{--blue:#063b81;--blue-dark:#00295f;--sky:#3c9dd7;--ink:#17243b;--muted:#4a5a70;--line:#d5e0ee;--paper:#f4f8fd;--pale:#eef5fc;
   --ok:#2b7a26;--ok-bg:#e6f5e4;--bad:#c0262d;--bad-bg:#fdeaea;--warn:#8a5a00;--warn-bg:#fff4dc;--gold:#ffb225;--red:#d0121a}
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 'Fira Sans',system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
 .wrap{max-width:900px;margin:auto;padding:18px 18px 50px}
 .mission-header{background:linear-gradient(135deg,#00295f,#063b81 60%,#1d6fb8);color:#fff;border-radius:18px;padding:24px 26px;margin-bottom:20px}
 .eyebrow{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:8px}
@@ -481,6 +481,12 @@ var BEN_MSGS=[
   {w:'KI',t:'Klingt gut! Wie viele Gäste kommen?'},
   {w:'Ben',t:'Ungefähr zwölf. Meine Eltern sind freitags bis 19 Uhr arbeiten, also muss ich vorher alles vorbereiten.'},
   {w:'Ben',t:'Hier ist noch ein Foto von unserem Haus und Garten. Kannst du Dekorationen vorschlagen?'}
+];
+var HUMAN_MSGS=[
+  {w:'Ben',t:'Übrigens, ich habe mich heute mit meinem besten Freund gestritten. Jetzt bin ich total traurig.'},
+  {w:'KI',t:'Das klingt wirklich schwierig. Möchtest du mir erzählen, was passiert ist?'},
+  {w:'Ben',t:'Vielleicht … Er hat etwas Peinliches über mich weitererzählt.'},
+  {w:'KI',t:'Du kannst mir mehr davon erzählen, wenn du möchtest.'}
 ];
 var CLUES=[
   {icon:'📍',label:'Wohnort',desc:'Lindenstraße 18, Berlin'},
@@ -775,7 +781,7 @@ function finishModule(){
   markDone('m8');
   document.getElementById('achOverlay').hidden=false;
   if(window.parent&&window.parent!==window){
-    window.parent.postMessage({type:'KIFS_COMPLETE',moduleKey:'m3'},'*');
+    window.parent.postMessage({kifs:true,type:'complete',score:100},'*');
   }
 }
 document.getElementById('achClose').addEventListener('click',function(){
