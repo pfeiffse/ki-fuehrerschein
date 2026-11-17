@@ -239,29 +239,64 @@ export default function AdminDashboard({ teacher, onLogout }) {
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ color: 'white', width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr>{['Klasse','Jg.','Code','Lehrkraft','SuS','Zert.',''].map(h => <th key={h} style={{ color: 'rgba(255,255,255,0.5)', padding: '0.5rem', textAlign: 'left', fontWeight: 700, fontSize: 'var(--fs-sm)' }}>{h}</th>)}</tr>
+                      <tr style={{ background: 'rgba(255,255,255,0.05)' }}>
+                        {['Klasse','Code','Lehrkraft','SuS','Zertifikate','Aktionen'].map(h => (
+                          <th key={h} style={{ color: 'rgba(255,255,255,0.6)', padding: '0.625rem 0.75rem', textAlign: 'left', fontWeight: 800, fontSize: 'var(--fs-xs)', textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '2px solid rgba(255,255,255,0.1)' }}>{h}</th>
+                        ))}
+                      </tr>
                     </thead>
                     <tbody>
-                      {classes.map(cls => {
+                      {classes.map((cls, idx) => {
                         const clsStu = students.filter(s => s.class_id === cls.id)
                         const certs  = clsStu.filter(s => moduleIds.every(mid => getProgress(s.id, mid)?.passed)).length
+                        const rowBg  = idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)'
                         return (
-                          <tr key={cls.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                            <td style={{ fontWeight: 700, padding: '0.75rem 0.5rem' }}>{cls.name}</td>
-                            <td style={{ padding: '0.75rem 0.5rem' }}>{cls.grade}</td>
-                            <td style={{ padding: '0.75rem 0.5rem' }}><code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '4px', fontWeight: 900 }}>{cls.join_code}</code></td>
-                            <td style={{ padding: '0.75rem 0.5rem', color: 'rgba(255,255,255,0.6)', fontSize: 'var(--fs-sm)' }}>{cls.teachers?.display_name || '–'}</td>
-                            <td style={{ padding: '0.75rem 0.5rem' }}>{clsStu.length}</td>
-                            <td style={{ padding: '0.75rem 0.5rem', color: certs > 0 ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}>{certs > 0 ? certs + ' Zert.' : '-'}</td>
-                            <td style={{ padding: '0.75rem 0.5rem', display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
-                              <button className="btn" onClick={() => setAssignTeacher(cls)}
-                                style={{ background: 'rgba(8,127,131,0.2)', color: '#5eead4', border: '1px solid rgba(8,127,131,0.4)', fontSize: 'var(--fs-xs)', padding: '4px 10px', minHeight: '2rem' }}>
-                                Lehrkraft
-                              </button>
-                              <button className="btn" onClick={() => setConfirmDelete({ type: 'class', id: cls.id, name: cls.name })}
-                                style={{ background: 'rgba(220,38,38,0.2)', color: '#fca5a5', border: '1px solid rgba(220,38,38,0.4)', fontSize: 'var(--fs-xs)', padding: '4px 10px', minHeight: '2rem' }}>
-                                Loeschen
-                              </button>
+                          <tr key={cls.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: rowBg, transition: 'background 0.15s' }}
+                            onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,0.06)'}
+                            onMouseLeave={e => e.currentTarget.style.background=rowBg}>
+                            {/* Klasse */}
+                            <td style={{ padding: '0.75rem 0.75rem' }}>
+                              <div style={{ fontWeight: 900, fontSize: '1rem', color: 'white' }}>{cls.name}</div>
+                              <div style={{ fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Jahrgang {cls.grade}</div>
+                            </td>
+                            {/* Code */}
+                            <td style={{ padding: '0.75rem 0.75rem' }}>
+                              <code style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '6px', fontWeight: 900, fontSize: '0.9rem', letterSpacing: '0.05em', color: '#fbbf24' }}>{cls.join_code}</code>
+                            </td>
+                            {/* Lehrkraft */}
+                            <td style={{ padding: '0.75rem 0.75rem' }}>
+                              {cls.teachers?.display_name
+                                ? <span style={{ color: '#5eead4', fontWeight: 700, fontSize: 'var(--fs-sm)' }}>{cls.teachers.display_name}</span>
+                                : <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 'var(--fs-sm)', fontStyle: 'italic' }}>Keine Lehrkraft</span>}
+                            </td>
+                            {/* SuS */}
+                            <td style={{ padding: '0.75rem 0.75rem' }}>
+                              <span style={{ background: clsStu.length > 0 ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.05)', color: clsStu.length > 0 ? '#93c5fd' : 'rgba(255,255,255,0.3)', borderRadius: '99px', padding: '3px 10px', fontWeight: 800, fontSize: 'var(--fs-sm)' }}>
+                                {clsStu.length} SuS
+                              </span>
+                            </td>
+                            {/* Zertifikate */}
+                            <td style={{ padding: '0.75rem 0.75rem' }}>
+                              {certs > 0
+                                ? <span style={{ background: 'rgba(251,191,36,0.2)', color: '#fbbf24', borderRadius: '99px', padding: '3px 10px', fontWeight: 800, fontSize: 'var(--fs-sm)' }}>🏆 {certs} Zert.</span>
+                                : <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 'var(--fs-sm)' }}>–</span>}
+                            </td>
+                            {/* Aktionen */}
+                            <td style={{ padding: '0.75rem 0.75rem' }}>
+                              <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+                                <button className="btn" onClick={() => setAssignTeacher(cls)}
+                                  style={{ background: 'rgba(8,127,131,0.2)', color: '#5eead4', border: '1px solid rgba(8,127,131,0.4)', fontSize: 'var(--fs-xs)', padding: '4px 10px', minHeight: '2rem' }}>
+                                  👩‍🏫 Lehrkraft
+                                </button>
+                                <button className="btn" onClick={() => navigate('/lehrer/zertifikate')}
+                                  style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)', fontSize: 'var(--fs-xs)', padding: '4px 10px', minHeight: '2rem' }}>
+                                  🏆 Ergebnisse
+                                </button>
+                                <button className="btn" onClick={() => setConfirmDelete({ type: 'class', id: cls.id, name: cls.name })}
+                                  style={{ background: 'rgba(220,38,38,0.2)', color: '#fca5a5', border: '1px solid rgba(220,38,38,0.4)', fontSize: 'var(--fs-xs)', padding: '4px 10px', minHeight: '2rem' }}>
+                                  🗑️ Löschen
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         )
