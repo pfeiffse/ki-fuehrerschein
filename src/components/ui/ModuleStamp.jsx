@@ -1,101 +1,141 @@
-// ModuleStamp - BESTANDEN-Stempel Animation beim Modulabschluss
+// ModuleStamp - Feier-Overlay mit Canvas-Konfetti (nach Kollegen-Design)
+import React, { useEffect } from 'react'
+import { useConfetti } from '../../hooks/useConfetti.js'
+import { MODULES, getXP, getLevel } from '../../lib/achievements.js'
 
-import React, { useEffect, useState } from 'react'
-
-export default function ModuleStamp({ moduleName, moduleIcon, onClose }) {
-  const [phase, setPhase] = useState('stamp') // stamp → confetti → done
+export default function ModuleStamp({ moduleName, moduleIcon, onClose, isFinal }) {
+  const { cannons, rain } = useConfetti()
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('confetti'), 300)
-    const t2 = setTimeout(() => setPhase('done'), 3000)
-    return () => { clearTimeout(t1); clearTimeout(t2) }
+    // Kanonen-Konfetti beim Öffnen
+    setTimeout(() => cannons(), 300)
+    if (isFinal) {
+      setTimeout(() => cannons(), 1300)
+      setTimeout(() => cannons(), 2300)
+    }
   }, [])
 
+  const xp = getXP()
+  const level = getLevel(xp)
+
   return (
-    <div onClick={onClose} style={{
-      position: 'fixed', inset: 0, zIndex: 9998,
-      background: 'rgba(0,0,0,0.6)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '1.5rem',
-    }}>
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9998,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '20px',
+        background: 'rgba(0,20,50,0.78)',
+        backdropFilter: 'blur(3px)',
+        animation: 'celFade .25s ease',
+      }}>
       <style>{`
-        @keyframes stampIn {
-          0%   { transform: scale(3) rotate(-15deg); opacity: 0 }
-          60%  { transform: scale(0.9) rotate(2deg); opacity: 1 }
-          80%  { transform: scale(1.05) rotate(-1deg) }
-          100% { transform: scale(1) rotate(0deg); opacity: 1 }
-        }
-        @keyframes confettiFall {
-          0%   { transform: translateY(-10px) rotate(0deg); opacity: 1 }
-          100% { transform: translateY(100vh) rotate(720deg); opacity: 0 }
-        }
-        .stamp-anim { animation: stampIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards }
-        .confetti-fall { position: fixed; animation: confettiFall ease-in forwards }
+        @keyframes celFade { from{opacity:0} to{opacity:1} }
+        @keyframes celSlam { 0%{transform:translate(-50%,-50%) rotate(-12deg) scale(3.2);opacity:0} 100%{transform:translate(-50%,-50%) rotate(-12deg) scale(1);opacity:1} }
+        @keyframes celFill { 0%{background:rgba(255,255,255,.5);color:#9aa9bf;border:2px dashed #aebcd0;transform:scale(1)} 50%{transform:scale(1.25)} 100%{background:var(--fc);color:#fff;border:2px solid var(--fc);transform:scale(1)} }
+        @keyframes ptsGain { 0%{transform:scale(0) translateY(20px);opacity:0} 100%{transform:scale(1) translateY(0);opacity:1} }
+        @keyframes celShake { 0%,100%{transform:translate(0)} 25%{transform:translate(-5px,3px)} 50%{transform:translate(4px,-3px)} 75%{transform:translate(-3px,2px)} }
       `}</style>
 
-      {/* Konfetti */}
-      {phase === 'confetti' && Array.from({ length: 40 }, (_, i) => (
-        <div key={i} className="confetti-fall" style={{
-          left: `${Math.random() * 100}%`,
-          top: '-10px',
-          width: `${6 + Math.random() * 8}px`,
-          height: `${6 + Math.random() * 8}px`,
-          background: ['#fbbf24','#4ade80','#60a5fa','#f472b6','#a78bfa','#34d399'][i % 6],
-          borderRadius: i % 3 === 0 ? '50%' : '2px',
-          animationDelay: `${Math.random() * 0.8}s`,
-          animationDuration: `${2 + Math.random() * 2}s`,
-        }} />
-      ))}
-
-      {/* Stempel */}
-      <div className="stamp-anim" onClick={e => e.stopPropagation()} style={{
-        position: 'relative',
-        background: 'white',
-        borderRadius: '1.25rem',
-        padding: '2.5rem 2rem',
-        maxWidth: '20rem', width: '100%',
-        textAlign: 'center',
-        boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
-      }}>
-        {/* Stempel-Overlay */}
-        <div style={{
-          position: 'absolute', inset: '1rem',
-          border: '6px solid #16a34a',
-          borderRadius: '0.75rem',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transform: 'rotate(-8deg)',
-          pointerEvents: 'none',
-          opacity: 0.15,
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: 'white', color: '#17243b',
+          borderRadius: '26px', maxWidth: '480px', width: '100%',
+          padding: '28px 26px 24px', textAlign: 'center',
+          boxShadow: '0 30px 80px rgba(0,0,0,0.45)',
         }}>
-          <div style={{ fontSize: '3rem', fontWeight: 900, color: '#16a34a', letterSpacing: '0.05em' }}>
-            BESTANDEN
+
+        {/* Kick-Label */}
+        <div style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '.14em', textTransform: 'uppercase', color: isFinal ? '#2b8a2b' : '#063b81', marginBottom: '4px' }}>
+          {isFinal ? `Alle 4 Etappen bestanden` : `Etappe bestanden`}
+        </div>
+
+        {/* Mini-Führerscheinkarte */}
+        <div className="cel-lic" style={{
+          position: 'relative', margin: '10px auto 18px',
+          width: '100%', maxWidth: '400px',
+          borderRadius: '18px',
+          background: 'linear-gradient(135deg,#fbe8ef,#e9edfc 50%,#e4f4e6)',
+          border: '1px solid #cfcadf',
+          padding: '14px 16px', textAlign: 'left',
+          display: 'grid', gridTemplateColumns: '70px 1fr',
+          gap: '10px 14px',
+          boxShadow: '0 10px 24px rgba(0,0,0,0.2)',
+        }}>
+          {/* Avatar */}
+          <div style={{ height: '84px', borderRadius: '10px', background: 'linear-gradient(160deg,#dfe8f4,#c9d7ea)', border: '3px solid white', display: 'grid', placeItems: 'center', fontSize: '34px', fontWeight: 900, color: '#063b81' }}>
+            {moduleIcon}
+          </div>
+          {/* Info */}
+          <div>
+            <small style={{ display: 'block', color: '#56667c', fontWeight: 700, fontSize: '11px', letterSpacing: '.1em', textTransform: 'uppercase' }}>
+              KI-Führerschein · {isFinal ? 'erteilt' : 'in Ausbildung'}
+            </small>
+            <b style={{ display: 'block', fontSize: '18px', color: '#00295f', margin: '2px 0' }}>{moduleName}</b>
+          </div>
+          {/* Abzeichen-Felder */}
+          <div style={{ gridColumn: '1/-1', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
+            {MODULES.filter(m => !m.optional).map(mod => {
+              const earned = false // wird durch achievements bestimmt
+              return (
+                <div key={mod.id} style={{
+                  height: '48px', borderRadius: '9px',
+                  border: '2px dashed #aebcd0',
+                  display: 'grid', placeItems: 'center',
+                  textAlign: 'center', fontWeight: 800,
+                  color: '#9aa9bf', fontSize: '12px',
+                  lineHeight: 1.1, background: 'rgba(255,255,255,0.5)',
+                }}>
+                  <span style={{ display: 'block', fontSize: '18px' }}>{mod.achievement.icon}</span>
+                  M{mod.nr || MODULES.indexOf(mod)+1}
+                </div>
+              )
+            })}
+          </div>
+          {/* BESTANDEN-Stempel */}
+          <div style={{
+            position: 'absolute', left: '50%', top: '44%',
+            transform: 'translate(-50%,-50%) rotate(-12deg)',
+            border: `6px solid ${isFinal ? '#2b8a2b' : '#063b81'}`,
+            color: isFinal ? '#2b8a2b' : '#063b81',
+            background: 'rgba(255,255,255,0.88)',
+            fontSize: 'clamp(20px,5vw,28px)', fontWeight: 900,
+            letterSpacing: '.14em', padding: '4px 18px',
+            borderRadius: '12px', textTransform: 'uppercase',
+            whiteSpace: 'nowrap',
+            animation: 'celSlam .55s .45s cubic-bezier(.2,1.6,.4,1) both',
+          }}>
+            {isFinal ? 'Erteilt' : 'Bestanden'}
           </div>
         </div>
 
-        <div style={{ fontSize: '3.5rem', marginBottom: '0.75rem' }}>{moduleIcon}</div>
-        <div style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.15em',
-          textTransform: 'uppercase', color: '#16a34a', marginBottom: '0.5rem' }}>
-          Modul abgeschlossen!
-        </div>
-        <h2 style={{ margin: '0 0 0.5rem', color: '#0f2a3d', fontSize: '1.25rem' }}>
-          {moduleName}
-        </h2>
-        <div style={{ display: 'inline-block', background: '#dcfce7', border: '3px solid #16a34a',
-          borderRadius: '99px', padding: '0.375rem 1.25rem',
-          fontWeight: 900, color: '#15803d', fontSize: '1.1rem',
-          marginBottom: '1.25rem', transform: 'rotate(-3deg)' }}>
-          ✓ BESTANDEN
-        </div>
-        <div style={{ color: 'rgba(0,0,0,0.4)', fontSize: '0.75rem', marginBottom: '1rem' }}>
-          Tippe irgendwo um weiterzumachen
-        </div>
-        <button onClick={onClose} style={{
-          background: '#16a34a', border: 'none', borderRadius: '0.75rem',
-          color: 'white', fontWeight: 800, fontSize: '0.9rem',
-          padding: '0.625rem 1.5rem', cursor: 'pointer', fontFamily: 'inherit', width: '100%',
+        {/* Punkte-Gewinn */}
+        <div style={{
+          display: 'inline-block', margin: '0 0 10px',
+          background: '#fff8e6', border: '2px solid #ffd27a',
+          color: '#8a5200', fontWeight: 900, fontSize: '20px',
+          borderRadius: '999px', padding: '4px 16px',
+          animation: 'ptsGain .6s 1.15s cubic-bezier(.2,1.6,.4,1) both',
         }}>
-          Weiter →
-        </button>
+          +250 Punkte ⭐
+        </div>
+
+        {/* Titel */}
+        <h2 style={{ fontSize: '22px', margin: '4px 0 8px', color: '#00295f' }}>
+          {isFinal ? '🎓 Dein KI-Führerschein ist erteilt!' : `${moduleIcon} Abzeichen erworben!`}
+        </h2>
+        <p style={{ margin: '0 0 18px', color: '#56667c', fontSize: '15px' }}>
+          {isFinal ? 'Du hast alle vier Abzeichen gesammelt!' : moduleName}
+        </p>
+
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button onClick={onClose}
+            style={{ background: '#00295f', color: 'white', border: 'none', borderRadius: '999px', padding: '11px 24px', fontWeight: 700, fontSize: '16px', cursor: 'pointer', fontFamily: 'inherit' }}>
+            {isFinal ? 'Zum Zertifikat →' : 'Weiter →'}
+          </button>
+        </div>
       </div>
     </div>
   )
