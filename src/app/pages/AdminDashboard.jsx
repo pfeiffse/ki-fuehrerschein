@@ -237,7 +237,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
                   <button className="btn btn-primary" onClick={() => setShowNewClass(true)}>+ Neue Klasse</button>
                 </div>
                 <div style={{ overflowX: 'auto' }}>
-                  <table style={{ color: 'white', width: '100%', borderCollapse: 'collapse' }}>
+                  <table style={{ color: 'white', width: '100%', borderCollapse: 'collapse', backgroundColor: 'transparent' }}>
                     <thead>
                       <tr style={{ background: 'rgba(255,255,255,0.05)' }}>
                         {['Klasse','Code','Lehrkraft','SuS','Zertifikate','Aktionen'].map(h => (
@@ -318,25 +318,25 @@ export default function AdminDashboard({ teacher, onLogout }) {
                   <p style={{ color: 'rgba(255,255,255,0.5)' }}>Noch keine Lehrkraefte angelegt.</p>
                 ) : (
                   <div style={{ overflowX: 'auto' }}>
-                    <table style={{ color: 'white', width: '100%', borderCollapse: 'collapse' }}>
+                    <table style={{ color: 'white', width: '100%', borderCollapse: 'collapse', backgroundColor: 'transparent' }}>
                       <thead>
-                        <tr>{['Name','Rolle','Klassen','Angelegt',''].map(h => <th key={h} style={{ color: 'rgba(255,255,255,0.5)', padding: '0.5rem', textAlign: 'left', fontWeight: 700, fontSize: 'var(--fs-sm)' }}>{h}</th>)}</tr>
+                        <tr style={{ background: 'rgba(255,255,255,0.05)' }}>{['Name','Rolle','Klassen','Angelegt',''].map(h => <th key={h} style={{ color: 'rgba(255,255,255,0.6)', padding: '0.625rem 0.75rem', textAlign: 'left', fontWeight: 800, fontSize: 'var(--fs-xs)', textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '2px solid rgba(255,255,255,0.1)' }}>{h}</th>)}</tr>
                       </thead>
                       <tbody>
-                        {teachers.map(t => (
-                          <tr key={t.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                            <td style={{ fontWeight: 700, padding: '0.75rem 0.5rem' }}>{t.display_name}</td>
-                            <td style={{ padding: '0.75rem 0.5rem' }}>
+                        {teachers.map((t, idx) => (
+                          <tr key={t.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.03)', color: 'white' }}>
+                            <td style={{ fontWeight: 700, padding: '0.75rem 0.75rem', color: 'white' }}>{t.display_name}</td>
+                            <td style={{ padding: '0.75rem 0.75rem' }}>
                               <span style={{ background: t.role === 'superadmin' ? 'rgba(245,158,11,0.2)' : 'rgba(8,127,131,0.2)', color: t.role === 'superadmin' ? '#fbbf24' : '#5eead4', borderRadius: '99px', padding: '3px 10px', fontSize: 'var(--fs-xs)', fontWeight: 800 }}>
                                 {t.role === 'superadmin' ? 'Admin' : 'Lehrkraft'}
                               </span>
                             </td>
-                            <td style={{ padding: '0.75rem 0.5rem' }}>{classes.filter(c => c.teacher_id === t.id).length}</td>
-                            <td style={{ padding: '0.75rem 0.5rem', color: 'rgba(255,255,255,0.5)', fontSize: 'var(--fs-sm)' }}>{new Date(t.created_at).toLocaleDateString('de-DE')}</td>
-                            <td style={{ padding: '0.75rem 0.5rem' }}>
+                            <td style={{ padding: '0.75rem 0.75rem', color: 'rgba(255,255,255,0.8)' }}>{classes.filter(c => c.teacher_id === t.id).length}</td>
+                            <td style={{ padding: '0.75rem 0.75rem', color: 'rgba(255,255,255,0.5)', fontSize: 'var(--fs-sm)' }}>{new Date(t.created_at).toLocaleDateString('de-DE')}</td>
+                            <td style={{ padding: '0.75rem 0.75rem' }}>
                               <button className="btn" onClick={() => setConfirmDelete({ type: 'teacher', id: t.id, name: t.display_name })}
                                 style={{ background: 'rgba(220,38,38,0.2)', color: '#fca5a5', border: '1px solid rgba(220,38,38,0.4)', fontSize: 'var(--fs-xs)', padding: '4px 10px', minHeight: '2rem' }}>
-                                Loeschen
+                                🗑️ Löschen
                               </button>
                             </td>
                           </tr>
@@ -355,7 +355,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
                   <button className="btn btn-ghost" onClick={exportCSV} style={{ fontSize: 'var(--fs-sm)' }}>CSV</button>
                 </div>
                 <div style={{ overflowX: 'auto' }}>
-                  <table style={{ color: 'white', width: '100%', borderCollapse: 'collapse' }}>
+                  <table style={{ color: 'white', width: '100%', borderCollapse: 'collapse', backgroundColor: 'transparent' }}>
                     <thead>
                       <tr>
                         <th style={{ color: 'rgba(255,255,255,0.5)', padding: '0.5rem', textAlign: 'left', fontSize: 'var(--fs-sm)' }}>Name</th>
