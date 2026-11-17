@@ -45,7 +45,7 @@ export default function AdminDashboard({ teacher, onLogout }) {
   async function loadAll() {
     setLoading(true)
     const [cl, te, st, pr] = await Promise.all([
-      supabase.from('classes').select('*, users(display_name)').order('grade').order('name'),
+      supabase.from('classes').select('*, teachers(id, display_name)').order('grade').order('name'),
       supabase.from('teachers').select('*').order('display_name'),
       supabase.from('skip_log').select('*').order('used_at', { ascending: false }).limit(100),
       supabase.from('students').select('*, classes(name, grade, join_code)').order('display_name'),
