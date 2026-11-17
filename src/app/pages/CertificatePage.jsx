@@ -209,9 +209,10 @@ export default function CertificatePage() {
             page-break-after: always !important;
             page-break-inside: avoid !important;
           }
-          /* Rückseite: Hochformat */
+          /* Rückseite: kein Seitenumbruch danach */
           .cert-back {
             margin-top: 0 !important;
+            page-break-after: avoid !important;
           }
           @page :first { size: A4 landscape; margin: 9mm; }
           .cert-inner {

@@ -135,9 +135,9 @@ export default function AdminDashboard({ teacher, onLogout }) {
 
       {confirmDelete && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: '1.5rem' }}>
-          <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '26rem', width: '100%' }}>
-            <h2 style={{ color: 'var(--c-error)', marginTop: 0 }}>Wirklich loeschen?</h2>
-            <p><strong>"{confirmDelete.name}"</strong> und alle Daten werden unwiderruflich geloescht.</p>
+          <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '26rem', width: '100%', color: '#17243b' }}>
+            <h2 style={{ color: 'var(--c-error)', marginTop: 0 }}>Wirklich löschen?</h2>
+            <p><strong>"{confirmDelete.name}"</strong> und alle Daten werden unwiderruflich gelöscht.</p>
             <div className="actions">
               <button className="btn btn-danger" onClick={handleDelete}>Ja, endgueltig loeschen</button>
               <button className="btn btn-ghost" onClick={() => setConfirmDelete(null)}>Abbrechen</button>
@@ -501,7 +501,7 @@ function NewTeacherForm({ onCreated, onCancel, onError }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1.5rem', overflowY: 'auto' }}>
-      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '30rem', width: '100%', boxShadow: 'var(--sh-lg)', margin: 'auto' }}>
+      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '30rem', width: '100%', boxShadow: 'var(--sh-lg)', margin: 'auto', color: '#17243b' }}>
         <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>Lehrkraft / Admin anlegen</h2>
         {success ? (
           <div style={{ textAlign: 'center' }}>
@@ -593,7 +593,7 @@ function NewClassForm({ teachers, onCreated, onCancel, onError }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1.5rem' }}>
-      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '28rem', width: '100%' }}>
+      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '28rem', width: '100%', color: '#17243b' }}>
         <h2 style={{ color: MOD_COLOR, marginTop: 0 }}>Neue Klasse anlegen</h2>
         <form onSubmit={handleCreate} noValidate>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
@@ -711,7 +711,7 @@ function AssignTeacherModal({ cls, teachers, onSaved, onCancel, onError }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1.5rem' }}>
-      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '24rem', width: '100%', boxShadow: 'var(--sh-lg)' }}>
+      <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '2rem', maxWidth: '24rem', width: '100%', boxShadow: 'var(--sh-lg)', color: '#17243b' }}>
         <h2 style={{ marginTop: 0, color: 'var(--c-dark)' }}>Lehrkraft zuweisen</h2>
         <p style={{ color: 'var(--c-muted)', marginBottom: '1.25rem' }}>
           Klasse: <strong>{cls.name}</strong> (Code: <code>{cls.join_code}</code>)
