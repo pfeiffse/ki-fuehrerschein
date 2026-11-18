@@ -120,23 +120,23 @@ export default function Dashboard({ student }) {
           </div>
         </div>
 
-        {/* Zertifikat-Banner */}
-        {eligible ? (
+        {/* Zertifikat-Banner - erst nach Feedback */}
+        {eligible && feedbackDone ? (
           <div style={{ background: 'linear-gradient(135deg, #92400e, #b8860b)', borderRadius: 'var(--r-xl)', padding: 'var(--sp-lg)', marginBottom: 'var(--sp-lg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--sp-md)', boxShadow: '0 0 30px rgba(184,134,11,0.4)', color: 'white' }}>
             <div>
               <div style={{ fontWeight: 900, fontSize: 'var(--fs-xl)', marginBottom: '0.25rem' }}>🏆 KI-Führerschein bestanden!</div>
-              <div style={{ opacity: 0.9 }}>Alle Pflichtmodule abgeschlossen. Dein Zertifikat wartet!</div>
+              <div style={{ opacity: 0.9 }}>Merksätze eingetragen & Feedback gegeben – dein Zertifikat wartet!</div>
             </div>
             <button className="btn" onClick={() => navigate('/zertifikat')}
               style={{ background: 'white', color: '#92400e', fontWeight: 900 }}>
               Zertifikat öffnen →
             </button>
           </div>
-        ) : (
+        ) : !eligible ? (
           <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 'var(--r-lg)', padding: 'var(--sp-md)', marginBottom: 'var(--sp-lg)', color: 'rgba(255,255,255,0.7)', fontSize: 'var(--fs-sm)' }}>
             🔒 Zertifikat wird freigeschaltet nach Abschluss aller {REQUIRED_MODULE_IDS.length} Pflichtmodule
           </div>
-        )}
+        ) : null}
 
         {/* Vorleistungs-Code */}
         <div style={{ marginBottom: 'var(--sp-lg)' }}>
@@ -279,6 +279,9 @@ export default function Dashboard({ student }) {
               style={{ background: '#f59e0b', color: 'white', border: 'none', borderRadius: '99px', padding: '0.625rem 1.25rem', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0 }}>
               Merksätze eintragen →
             </button>
+            <div style={{ fontSize: 'var(--fs-xs)', color: '#92400e', marginTop: '4px' }}>
+              Schritt 1 von 3 – danach: Feedback → Zertifikat
+            </div>
           </div>
         )}
 
