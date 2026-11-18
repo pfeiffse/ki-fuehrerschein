@@ -245,6 +245,43 @@ export default function Dashboard({ student }) {
           })}
         </div>
 
+        {/* Merksatz-Aufgabe VOR dem Feedback */}
+        {eligible && (
+          <div style={{
+            position: 'relative',
+            display: 'grid',
+            gridTemplateColumns: '68px 1fr auto',
+            gap: '1rem',
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+            color: '#17243b',
+            borderRadius: '18px',
+            padding: '1rem 1.25rem',
+            boxShadow: '0 10px 24px rgba(245,158,11,0.3)',
+            border: '2px solid #f59e0b',
+            marginTop: '0.875rem',
+            maxWidth: '780px',
+          }}>
+            <div style={{ position: 'absolute', right: '1rem', top: '-0.75rem', background: '#f59e0b', color: 'white', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.1em', padding: '3px 10px', borderRadius: '7px', textTransform: 'uppercase' }}>
+              Jetzt ausfüllen!
+            </div>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: '1.5rem', fontWeight: 900, color: 'white', background: '#f59e0b', boxShadow: '0 0 0 4px white, 0 0 0 7px #f59e0b', flexShrink: 0 }}>
+              ✏️
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#92400e', marginBottom: '2px' }}>Pflicht vor dem Zertifikat</div>
+              <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.1rem', color: '#17243b' }}>Merksätze für die Urkunde eintragen</h3>
+              <p style={{ margin: 0, fontSize: '0.875rem', color: '#78350f' }}>
+                Trage jetzt deine persönlichen Merksätze ein – sie erscheinen auf deiner Urkunde. Das Drucken übernimmt deine Lehrkraft.
+              </p>
+            </div>
+            <button onClick={() => navigate('/zertifikat')}
+              style={{ background: '#f59e0b', color: 'white', border: 'none', borderRadius: '99px', padding: '0.625rem 1.25rem', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              Merksätze eintragen →
+            </button>
+          </div>
+        )}
+
         {/* Feedback als Pflicht-Etappe */}
         {eligible && (
           <div style={{

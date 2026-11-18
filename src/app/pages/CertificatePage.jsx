@@ -76,16 +76,16 @@ export default function CertificatePage() {
       <div className="no-print" style={{ background: 'linear-gradient(145deg, #0f2a3d, #1a4a6b)', padding: '1.5rem 1rem' }}>
         <div style={{ maxWidth: '60rem', margin: '0 auto' }}>
           <div style={{ background: 'white', borderRadius: 'var(--r-2xl)', padding: '1.5rem', marginBottom: '1rem', boxShadow: 'var(--sh-lg)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
-              <div>
-                <h2 style={{ margin: '0 0 0.25rem', color: 'var(--c-teal)' }}>🏆 Dein KI-Führerschein</h2>
-                <p style={{ margin: 0, color: 'var(--c-muted)', fontSize: 'var(--fs-sm)' }}>
-                  Gib deinen persönlichen Merksatz ein. Das Drucken übernimmt deine Lehrkraft.
+            <div style={{ marginBottom: '1rem' }}>
+              <h2 style={{ margin: '0 0 0.5rem', color: 'var(--c-teal)' }}>🏆 Dein KI-Führerschein</h2>
+              <div style={{ background: '#fffbeb', border: '2px solid #f59e0b', borderRadius: 'var(--r-lg)', padding: '0.875rem 1rem', marginBottom: '0.75rem' }}>
+                <p style={{ margin: 0, fontWeight: 800, color: '#92400e', fontSize: 'var(--fs-sm)' }}>
+                  ✏️ Wichtig: Trage jetzt deine persönlichen Merksätze ein – sie erscheinen auf deiner Urkunde!
+                </p>
+                <p style={{ margin: '0.375rem 0 0', color: '#78350f', fontSize: 'var(--fs-xs)' }}>
+                  Das Drucken übernimmt deine Lehrkraft. Du musst nur deine Texte eingeben und speichern.
                 </p>
               </div>
-              <button className="btn btn-primary" onClick={() => window.print()} style={{ background: 'var(--c-teal)' }}>
-                🖨️ Drucken / PDF
-              </button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
@@ -152,8 +152,8 @@ export default function CertificatePage() {
               style={{ color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.3)' }}>
               ← Zur Übersicht
             </button>
-            <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 'var(--fs-xs)' }}>
-              💡 Zeige diese Seite deiner Lehrkraft zum Drucken
+            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'var(--fs-sm)', fontWeight: 700 }}>
+              ✅ Merksätze gespeichert? Dann bist du fertig – deine Lehrkraft druckt die Urkunde!
             </span>
           </div>
         </div>
