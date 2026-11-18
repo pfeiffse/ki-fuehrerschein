@@ -18,22 +18,22 @@ export const MODELL = {
 export const RESSOURCEN_KACHELN = [
   { id: 'strom',        emoji: '⚡', label: 'Strom',          correct: true  },
   { id: 'wasser',       emoji: '💧', label: 'Wasser',         correct: true  },
-  { id: 'rohstoffe',    emoji: '🪨', label: 'Rohstoffe',      correct: true  },
-  { id: 'flaeche',      emoji: '🏗️', label: 'Fläche',         correct: true  },
+  { id: 'rohstoffe',    emoji: '⛏️', label: 'Rohstoffe',      correct: true  },
+  { id: 'flaeche',      emoji: '🏠', label: 'Fläche',         correct: true  },
   { id: 'kuehlung',     emoji: '❄️', label: 'Kühlung',        correct: true  },
   { id: 'kupfer',       emoji: '🔌', label: 'Kupfer',         correct: true  },
-  { id: 'seltene',      emoji: '🧲', label: 'Seltene Erden',  correct: true  },
+  { id: 'seltene',      emoji: '💡', label: 'Seltene Erden',  correct: true  },
   { id: 'netze',        emoji: '🌐', label: 'Datennetze',     correct: true  },
-  { id: 'menschen',     emoji: '👩‍💻', label: 'Menschen',       correct: true  },
+  { id: 'menschen',     emoji: '👤', label: 'Menschen',       correct: true  },
   { id: 'gebaeude',     emoji: '🏢', label: 'Gebäude',        correct: true  },
   { id: 'trainingsdaten',emoji:'📚', label: 'Trainingsdaten', correct: true  },
-  { id: 'transport',    emoji: '🚢', label: 'Transport',      correct: true  },
+  { id: 'transport',    emoji: '✈️', label: 'Transport',      correct: true  },
   { id: 'baeume',       emoji: '🌳', label: 'Bäume',          correct: false },
   { id: 'papier',       emoji: '📄', label: 'Papier',         correct: false },
   { id: 'schokolade',   emoji: '🍫', label: 'Schokolade',     correct: false },
   { id: 'uhrzeit',      emoji: '⏰', label: 'Uhrzeit',        correct: false },
-  { id: 'spielzeug',    emoji: '🧸', label: 'Spielzeug',      correct: false },
-  { id: 'shampoo',      emoji: '🧴', label: 'Shampoo',        correct: false },
+  { id: 'spielzeug',    emoji: '🎮', label: 'Spielzeug',      correct: false },
+  { id: 'shampoo',      emoji: '🛁', label: 'Shampoo',        correct: false },
 ]
 
 // ── 12 Informationskarten (Station 1) ────────────────────────
@@ -83,7 +83,7 @@ export const INFO_KARTEN = [
   },
   {
     id: 'rohstoffe',
-    icon: '🪨', title: 'Rohstoffe',
+    icon: '⛏️', title: 'Rohstoffe',
     was: 'Für Chips, Platinen, Gehäuse, Kabel und Bauwerke braucht man mineralische Rohstoffe und andere Materialien.',
     wirkung: 'Abbau, Transport und Verarbeitung verändern Landschaften, benötigen Energie und können Böden oder Gewässer belasten.',
     vergleich: 'Nicht nur ein Chip',
@@ -104,7 +104,7 @@ export const INFO_KARTEN = [
   },
   {
     id: 'flaeche',
-    icon: '🏗️', title: 'Fläche',
+    icon: '🏠', title: 'Fläche',
     was: 'Rechenzentren brauchen Grundstücke für Gebäude, Kühltechnik, Leitungen und manchmal Umspannwerke.',
     wirkung: 'Versiegelte Flächen nehmen Pflanzen und Tieren Lebensraum und erschweren das Versickern von Regenwasser.',
     vergleich: 'Mehrere Fußballfelder',
@@ -167,7 +167,7 @@ export const INFO_KARTEN = [
   },
   {
     id: 'seltene',
-    icon: '🧲', title: 'Seltene Erden',
+    icon: '💡', title: 'Seltene Erden',
     was: '„Seltene Erden" bezeichnet 17 chemische Elemente, darunter Neodym und Lanthan. Viele sind nicht besonders selten, aber ihre Trennung und Verarbeitung ist schwierig.',
     wirkung: 'Der Abbau und die chemische Trennung können viel Material und Wasser beanspruchen. Manche Lagerstätten enthalten problematische Begleitstoffe.',
     vergleich: '17 Elemente',
@@ -209,7 +209,7 @@ export const INFO_KARTEN = [
   },
   {
     id: 'menschen',
-    icon: '👩‍💻', title: 'Menschen',
+    icon: '👤', title: 'Menschen',
     was: 'Menschen entwickeln KI, beschaffen Rohstoffe, bauen Chips und Rechenzentren, prüfen Ergebnisse und warten Anlagen.',
     wirkung: 'Auch Arbeitsbedingungen und die Auswirkungen auf Gemeinden in Bergbauregionen gehören zur Nachhaltigkeit.',
     vergleich: 'Viele Berufe',
@@ -272,7 +272,7 @@ export const INFO_KARTEN = [
   },
   {
     id: 'transport',
-    icon: '🚢', title: 'Transport',
+    icon: '✈️', title: 'Transport',
     was: 'Erze, Chips, Computer, Kühlgeräte und Baumaterialien werden oft über weite Strecken transportiert.',
     wirkung: 'Schiffe, Lkw und andere Transportmittel benötigen Energie und verursachen je nach Antrieb Emissionen.',
     vergleich: 'Globale Lieferketten',
