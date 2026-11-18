@@ -129,8 +129,9 @@ export default function CertificatePage() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <button className="btn btn-success" onClick={handleSave}>
-                {saved ? '✓ Gespeichert!' : 'Alles speichern'}
+              <button onClick={handleSave}
+                style={{ background: saved ? '#2b8a2b' : '#00295f', color: 'white', border: 'none', borderRadius: '99px', padding: '10px 20px', fontWeight: 700, fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                {saved ? '✓ Gespeichert!' : '💾 Merksätze speichern'}
               </button>
               <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-muted)' }}>Lokal + in der Cloud gespeichert</span>
             </div>
