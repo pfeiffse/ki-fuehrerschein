@@ -263,10 +263,15 @@ export default function AdminCertificates() {
                   <div style={{ fontSize: '28pt', margin: '2mm 0' }}>🤖 🏅 🌍</div>
                   <h1 style={{ fontSize: '26pt', color: '#095c6b', margin: '2mm 0 3mm', fontFamily: 'inherit' }}>KI-FÜHRERSCHEIN</h1>
                   <p style={{ fontSize: '10pt', color: '#536f7c', margin: '0 0 4mm' }}>Zertifikat für einen kompetenten und verantwortungsvollen Umgang mit KI</p>
-                  {/* Name */}
-                  <div style={{ fontSize: '22pt', fontWeight: 900, color: '#16495b', borderBottom: '2px solid #ffda76', maxWidth: '140mm', margin: '0 auto 5mm', paddingBottom: '3mm' }}>
+                  {/* Name + Klasse */}
+                  <div style={{ fontSize: '22pt', fontWeight: 900, color: '#16495b', borderBottom: '2px solid #ffda76', maxWidth: '140mm', margin: '0 auto 2mm', paddingBottom: '3mm' }}>
                     {note.student_name || '–'}
                   </div>
+                  {(note.klasse || note.students?.classes?.name) && (
+                    <div style={{ fontSize: '12pt', fontWeight: 700, color: '#087f83', margin: '0 0 4mm', letterSpacing: '0.05em' }}>
+                      Klasse {getNormClass(note)}
+                    </div>
+                  )}
                   <p style={{ fontSize: '10pt', color: '#536f7c', margin: '0 0 5mm' }}>
                     hat alle vier Pflichtmodule des KI-Führerscheins erfolgreich abgeschlossen
                   </p>
@@ -330,7 +335,12 @@ export default function AdminCertificates() {
                 <div style={{ textAlign: 'center', borderBottom: '2px solid #087f83', paddingBottom: '4mm' }}>
                   <div style={{ fontWeight: 800, letterSpacing: '2px', color: '#087f83', fontSize: '9pt', textTransform: 'uppercase' }}>KI-Führerschein · Rückseite</div>
                   <div style={{ fontWeight: 900, fontSize: '16pt', color: '#095c6b', marginTop: '2mm' }}>Meine Erkenntnisse</div>
-                  <div style={{ fontSize: '10pt', color: '#536f7c' }}>{note.student_name}</div>
+                  <div style={{ fontSize: '10pt', color: '#536f7c' }}>
+                    {note.student_name}
+                    {(note.klasse || note.students?.classes?.name) && (
+                      <span style={{ marginLeft: '8px', fontWeight: 700, color: '#087f83' }}>· Klasse {getNormClass(note)}</span>
+                    )}
+                  </div>
                 </div>
                 {[
                   { label: '💬 Mein persönlicher Merksatz', value: note.merksatz },
