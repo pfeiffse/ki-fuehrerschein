@@ -14,7 +14,8 @@ export default function AdminCertificates() {
   const [notes,    setNotes]    = useState([])
   const [loading,  setLoading]  = useState(true)
   const [filter,   setFilter]   = useState('all') // all | ready | inprogress
-  const [selected, setSelected] = useState(new Set())
+  const [selected,    setSelected]    = useState(new Set())
+  const [classFilter, setClassFilter] = useState('all')
   const [printing, setPrinting] = useState(false)
 
   useEffect(() => {
@@ -28,11 +29,20 @@ export default function AdminCertificates() {
 
   async function loadNotes() {
     setLoading(true)
-    const { data } = await supabase
-      .from('student_notes')
-      .select('*, students(display_name, classes(name))')
-      .order('student_name')
-    setNotes(data || [])
+    // Lade Notizen + Modul-Fortschritt für Abschlussdatum
+    const [notesRes, progressRes] = await Promise.all([
+      supabase.from('student_notes').select('*, students(display_name, classes(name))').order('student_name'),
+      supabase.from('student_module_progress').select('student_id, completed_at').eq('status', 'passed').order('completed_at', { ascending: false })
+    ])
+    const notes = notesRes.data || []
+    const progress = progressRes.data || []
+    // Füge letztes Abschlussdatum zu jedem Schüler hinzu
+    const notesWithDate = notes.map(n => {
+      const studentProgress = progress.filter(p => p.student_id === n.student_id)
+      const lastCompleted = studentProgress.length > 0 ? studentProgress[0].completed_at : null
+      return { ...n, lastCompleted }
+    })
+    setNotes(notesWithDate)
     setLoading(false)
   }
 
@@ -41,10 +51,13 @@ export default function AdminCertificates() {
     return REQUIRED_MODULE_IDS.every(id => !!ach[id])
   }
 
+  // Alle Klassen aus den Notizen extrahieren
+  const allClasses = [...new Set(notes.map(n => n.klasse || n.students?.classes?.name || '').filter(Boolean))].sort()
+
   const filtered = notes.filter(n => {
-    if (filter === 'ready')      return isEligible(n)
-    if (filter === 'inprogress') return !isEligible(n)
-    return true
+    const statusOk = filter === 'all' || (filter === 'ready' && isEligible(n)) || (filter === 'inprogress' && !isEligible(n))
+    const classOk = classFilter === 'all' || (n.klasse || n.students?.classes?.name || '') === classFilter
+    return statusOk && classOk
   })
 
   const readyCount = notes.filter(isEligible).length
@@ -115,7 +128,7 @@ export default function AdminCertificates() {
 
         {/* Filter + Aktionen */}
         <div style={darkBox}>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
             {[['all','Alle'], ['ready','✓ Bereit'], ['inprogress','In Bearbeitung']].map(([val, label]) => (
               <button key={val} onClick={() => setFilter(val)}
                 style={{ padding: '6px 14px', borderRadius: '99px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 'var(--fs-sm)',
@@ -124,6 +137,20 @@ export default function AdminCertificates() {
                 {label}
               </button>
             ))}
+          </div>
+          {/* Klassen-Filter */}
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem', alignItems: 'center' }}>
+            <span style={{ fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Klasse:</span>
+            {['all', ...allClasses].map(cls => (
+              <button key={cls} onClick={() => setClassFilter(cls)}
+                style={{ padding: '4px 12px', borderRadius: '99px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 'var(--fs-xs)',
+                  background: classFilter === cls ? '#fbbf24' : 'rgba(255,255,255,0.1)',
+                  color: classFilter === cls ? '#0f2a3d' : 'white' }}>
+                {cls === 'all' ? 'Alle Klassen' : cls}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem', justifyContent: 'flex-end' }}>
             <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
               <button onClick={selectAll}
                 style={{ padding: '6px 14px', borderRadius: '99px', border: '1px solid rgba(255,255,255,0.3)', background: 'none', color: 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'var(--fs-sm)' }}>
@@ -247,7 +274,11 @@ export default function AdminCertificates() {
                 <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', gap: '15mm', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ borderTop: '1.5px solid #7196a7', paddingTop: '2mm' }}>
-                      <div style={{ fontWeight: 700, fontSize: '10pt' }}>{today}</div>
+                      <div style={{ fontWeight: 700, fontSize: '10pt' }}>
+                        {note.lastCompleted 
+                          ? new Date(note.lastCompleted).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                          : today}
+                      </div>
                       <div style={{ fontSize: '8pt', color: '#536f7c' }}>Datum</div>
                     </div>
                   </div>
