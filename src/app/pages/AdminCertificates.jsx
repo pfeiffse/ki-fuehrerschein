@@ -299,23 +299,28 @@ export default function AdminCertificates() {
                 </div>
                 {/* Unterschrift */}
                 <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', gap: '15mm', alignItems: 'flex-end' }}>
+                  {/* Datum: Text ÜBER der Linie */}
                   <div style={{ flex: 1 }}>
-                    <div style={{ borderTop: '1.5px solid #7196a7', paddingTop: '2mm' }}>
-                      <div style={{ fontWeight: 700, fontSize: '10pt' }}>
-                        {note.lastCompleted 
-                          ? new Date(note.lastCompleted).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
-                          : today}
-                      </div>
+                    <div style={{ fontWeight: 700, fontSize: '10pt', marginBottom: '2mm' }}>
+                      {note.lastCompleted 
+                        ? new Date(note.lastCompleted).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                        : today}
+                    </div>
+                    <div style={{ borderTop: '1.5px solid #7196a7', paddingTop: '1.5mm' }}>
                       <div style={{ fontSize: '8pt', color: '#536f7c' }}>Datum</div>
                     </div>
                   </div>
+                  {/* Unterschrift: leerer Platz ÜBER der Linie */}
                   <div style={{ flex: 1 }}>
-                    <div style={{ borderTop: '1.5px solid #7196a7', paddingTop: '2mm' }}>
+                    <div style={{ height: '10mm' }} />
+                    <div style={{ borderTop: '1.5px solid #7196a7', paddingTop: '1.5mm' }}>
                       <div style={{ fontSize: '8pt', color: '#536f7c' }}>Unterschrift Lehrkraft</div>
                     </div>
                   </div>
+                  {/* Stempel: leerer Platz ÜBER der Linie */}
                   <div style={{ flex: 1 }}>
-                    <div style={{ borderTop: '1.5px solid #7196a7', paddingTop: '2mm' }}>
+                    <div style={{ height: '10mm' }} />
+                    <div style={{ borderTop: '1.5px solid #7196a7', paddingTop: '1.5mm' }}>
                       <div style={{ fontSize: '8pt', color: '#536f7c' }}>Stempel</div>
                     </div>
                   </div>
