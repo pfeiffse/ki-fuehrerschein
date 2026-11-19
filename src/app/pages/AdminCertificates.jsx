@@ -15,7 +15,7 @@ export default function AdminCertificates() {
   const [loading,  setLoading]  = useState(true)
   const [filter,   setFilter]   = useState('all') // all | ready | inprogress
   const [selected,    setSelected]    = useState(new Set())
-  const [classFilter, setClassFilter] = useState('all')
+  const [classFilter, setClassFilter] = useState(new Set()) // leeres Set = alle
   const [printing, setPrinting] = useState(false)
 
   useEffect(() => {
@@ -52,11 +52,16 @@ export default function AdminCertificates() {
   }
 
   // Alle Klassen aus den Notizen extrahieren
-  const allClasses = [...new Set(notes.map(n => n.klasse || n.students?.classes?.name || '').filter(Boolean))].sort()
+  // Klassen normalisieren (Großbuchstaben, trim) und deduplizieren
+  const allClasses = [...new Set(
+    notes.map(n => (n.klasse || n.students?.classes?.name || '').trim().toUpperCase()).filter(Boolean)
+  )].sort()
+  // Normalisiere auch die Klasse jedes Schülers
+  const getNormClass = (n) => (n.klasse || n.students?.classes?.name || '').trim().toUpperCase()
 
   const filtered = notes.filter(n => {
     const statusOk = filter === 'all' || (filter === 'ready' && isEligible(n)) || (filter === 'inprogress' && !isEligible(n))
-    const classOk = classFilter === 'all' || (n.klasse || n.students?.classes?.name || '') === classFilter
+    const classOk = classFilter.size === 0 || classFilter.has(getNormClass(n))
     return statusOk && classOk
   })
 
@@ -141,14 +146,31 @@ export default function AdminCertificates() {
           {/* Klassen-Filter */}
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem', alignItems: 'center' }}>
             <span style={{ fontSize: 'var(--fs-xs)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Klasse:</span>
-            {['all', ...allClasses].map(cls => (
-              <button key={cls} onClick={() => setClassFilter(cls)}
-                style={{ padding: '4px 12px', borderRadius: '99px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 'var(--fs-xs)',
-                  background: classFilter === cls ? '#fbbf24' : 'rgba(255,255,255,0.1)',
-                  color: classFilter === cls ? '#0f2a3d' : 'white' }}>
-                {cls === 'all' ? 'Alle Klassen' : cls}
-              </button>
-            ))}
+            {/* Alle-Button */}
+            <button onClick={() => setClassFilter(new Set())}
+              style={{ padding: '4px 12px', borderRadius: '99px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 'var(--fs-xs)',
+                background: classFilter.size === 0 ? '#fbbf24' : 'rgba(255,255,255,0.1)',
+                color: classFilter.size === 0 ? '#0f2a3d' : 'white' }}>
+              Alle Klassen
+            </button>
+            {/* Klassen-Buttons mit Mehrfachauswahl */}
+            {allClasses.map(cls => {
+              const isActive = classFilter.has(cls)
+              return (
+                <button key={cls} onClick={() => {
+                  setClassFilter(prev => {
+                    const next = new Set(prev)
+                    if (next.has(cls)) next.delete(cls); else next.add(cls)
+                    return next
+                  })
+                }}
+                  style={{ padding: '4px 12px', borderRadius: '99px', border: `2px solid ${isActive ? '#fbbf24' : 'transparent'}`, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 'var(--fs-xs)',
+                    background: isActive ? 'rgba(251,191,36,0.2)' : 'rgba(255,255,255,0.1)',
+                    color: isActive ? '#fbbf24' : 'white' }}>
+                  {isActive ? '✓ ' : ''}{cls}
+                </button>
+              )
+            })}
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem', justifyContent: 'flex-end' }}>
             <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
